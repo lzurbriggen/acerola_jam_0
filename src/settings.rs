@@ -38,13 +38,28 @@ impl WindowSize {
     }
 }
 
-#[derive(Default)]
 pub struct GameSettings {
     pub sfx_volume_lin: f32,
     pub sfx_volume: f32,
     pub music_volume_lin: f32,
     pub music_volume: f32,
     pub window_size: WindowSize,
+}
+
+impl Default for GameSettings {
+    fn default() -> Self {
+        let mut settings = Self {
+            sfx_volume_lin: Default::default(),
+            sfx_volume: Default::default(),
+            music_volume_lin: Default::default(),
+            music_volume: Default::default(),
+            window_size: Default::default(),
+        };
+        settings.set_music_volume_lin(0.75);
+        settings.set_sfx_volume_lin(0.75);
+
+        settings
+    }
 }
 
 impl GameSettings {

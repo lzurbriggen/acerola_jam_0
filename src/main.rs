@@ -1,9 +1,11 @@
 use fps_counter::FPSCounter;
-use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*, time};
+use game_state::GameState;
+use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use settings::{GameSettings, WindowSize};
 use ui::{pause_menu::pause_menu, ui_data::UIData};
 
 mod fps_counter;
+mod game_state;
 mod settings;
 mod ui;
 
@@ -60,11 +62,7 @@ async fn main() {
         text_color: Color::from_hex(0xe4d2aa),
         text_shadow_color: Color::from_hex(0xb4202a),
     };
-    let mut settings = GameSettings {
-        music_volume_lin: 0.75,
-        sfx_volume_lin: 0.75,
-        ..Default::default()
-    };
+    let mut settings = GameSettings::default();
 
     let mut fullscreen = false;
     let mut nearest = false;
@@ -79,11 +77,12 @@ async fn main() {
 
     let mut fps_counter = FPSCounter::default();
 
+    let mut game_state = GameState::default();
+    let mut paused = false;
+
     loop {
         set_mouse_cursor(miniquad::CursorIcon::Default);
         set_camera(&camera);
-
-        let delta = time::get_frame_time();
 
         clear_background(RED);
 
@@ -99,9 +98,13 @@ async fn main() {
             }
         }
 
+        if is_key_pressed(KeyCode::Escape) {
+            paused = !paused;
+        }
+
         fps_counter.update_and_draw(&ui_data);
 
-        if pause_menu(&ui_data, &mut settings) {
+        if paused && pause_menu(&ui_data, &mut settings) {
             break;
         }
 
