@@ -1,5 +1,7 @@
 use macroquad::{miniquad::window, prelude::*};
 
+use crate::game_data::GameData;
+
 #[derive(Default, PartialEq, Clone, Copy)]
 pub enum WindowSize {
     W360,
@@ -28,6 +30,10 @@ impl WindowSize {
         }
     }
 
+    pub fn scale_factor(&self) -> Vec2 {
+        vec2(2., 2.)
+    }
+
     pub fn list() -> Vec<WindowSize> {
         vec![
             WindowSize::W360,
@@ -44,6 +50,7 @@ pub struct GameSettings {
     pub music_volume_lin: f32,
     pub music_volume: f32,
     pub window_size: WindowSize,
+    pub resolution: Vec2,
 }
 
 impl Default for GameSettings {
@@ -54,6 +61,7 @@ impl Default for GameSettings {
             music_volume_lin: Default::default(),
             music_volume: Default::default(),
             window_size: Default::default(),
+            resolution: vec2(360., 240.),
         };
         settings.set_music_volume_lin(0.75);
         settings.set_sfx_volume_lin(0.75);

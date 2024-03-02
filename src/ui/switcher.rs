@@ -54,8 +54,8 @@ pub fn switcher(
         )
     }
 
-    let mut input_left = focused && data.input.is_just_released(Action::Left);
-    let mut input_right = focused && data.input.is_just_released(Action::Right);
+    let input_left = focused && data.input.is_just_released(Action::Left);
+    let input_right = focused && data.input.is_just_released(Action::Right);
 
     if button(
         &data,

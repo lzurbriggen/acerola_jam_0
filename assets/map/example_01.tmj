@@ -184,6 +184,43 @@
          "spacing":0,
          "tilecount":256,
          "tileheight":8,
+         "tiles":[
+                {
+                 "id":0,
+                 "properties":[
+                        {
+                         "name":"collision",
+                         "type":"string",
+                         "value":"true"
+                        }]
+                }, 
+                {
+                 "id":1,
+                 "properties":[
+                        {
+                         "name":"collision",
+                         "type":"string",
+                         "value":"true"
+                        }]
+                }, 
+                {
+                 "id":16,
+                 "properties":[
+                        {
+                         "name":"collision",
+                         "type":"string",
+                         "value":"true"
+                        }]
+                }, 
+                {
+                 "id":18,
+                 "properties":[
+                        {
+                         "name":"hurt",
+                         "type":"string",
+                         "value":"true"
+                        }]
+                }],
          "tilewidth":8
         }],
  "tilewidth":8,

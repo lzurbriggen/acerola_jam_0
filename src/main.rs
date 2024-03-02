@@ -11,7 +11,7 @@ use ui::{pause_menu::pause_menu, ui_data::UIData};
 use crate::{
     game_data::{GameData, Sprites},
     input_manager::{Action, InputManager},
-    map::Map,
+    map::map::Map,
     pawn::{entity::Entity, player::Player},
     sprite::indexed_sprite::IndexedSprite,
     ui::hud::draw_hp,
@@ -98,28 +98,22 @@ async fn main() {
 
     let mut camera = Camera2D::from_display_rect(Rect {
         x: 0.,
-        y: 240.,
-        w: 360.,
-        h: -240.,
+        y: 480.,
+        w: 720.,
+        h: -480.,
     });
-    camera.render_target = Some(render_target.clone());
+    // camera.render_target = Some(render_target.clone());
 
     let mut fps_counter = FPSCounter::default();
 
     let mut paused = false;
 
-    let map_path =
-        PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap()).join("assets/map/map_01.tmx");
-    println!("{:?}", map_path);
+    // let map_path =
+    //     PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap()).join("assets/map/map_01.tmx");
     // let tiled_map = TiledMap::load_map(&map_path);
-    let tiled_map = TiledMap::new(&map_path);
+    // let tiled_map = TiledMap::new(&map_path);
 
     let mut entities: Vec<Entity> = vec![];
-
-    let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
-    player_texture.set_filter(FilterMode::Nearest);
-    let player = Player::new(player_texture);
-    entities.push(Entity::Player(player));
 
     let hud_heart_texture: Texture2D = load_texture("ui/heart_01.png").await.unwrap();
     hud_heart_texture.set_filter(FilterMode::Nearest);
@@ -134,12 +128,19 @@ async fn main() {
         ui: ui_data,
         sprites,
         input: InputManager::new(),
+        camera,
     };
+
+    let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
+    player_texture.set_filter(FilterMode::Nearest);
+    let player = Player::new(player_texture, &data);
+    entities.push(Entity::Player(player));
 
     loop {
         data.update();
         set_mouse_cursor(miniquad::CursorIcon::Default);
-        set_camera(&camera);
+
+        set_camera(&data.camera);
 
         clear_background(BLACK);
 
@@ -163,7 +164,7 @@ async fn main() {
             }
         }
 
-        map.draw_base();
+        map.draw_base(&data);
 
         for entity in &mut entities {
             match entity {
@@ -177,7 +178,7 @@ async fn main() {
             }
         }
 
-        map.draw_upper();
+        map.draw_upper(&data);
 
         for entity in &mut entities {
             match entity {
@@ -195,17 +196,17 @@ async fn main() {
             break;
         }
 
-        set_default_camera();
-        draw_texture_ex(
-            &render_target.texture,
-            0.,
-            0.,
-            WHITE,
-            DrawTextureParams {
-                dest_size: Some(vec2(screen_width(), screen_height())),
-                ..Default::default()
-            },
-        );
+        // set_default_camera();
+        // draw_texture_ex(
+        //     &render_target.texture,
+        //     0.,
+        //     0.,
+        //     WHITE,
+        //     DrawTextureParams {
+        //         dest_size: Some(vec2(screen_width(), screen_height())),
+        //         ..Default::default()
+        //     },
+        // );
 
         next_frame().await
     }

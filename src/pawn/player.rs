@@ -13,7 +13,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(texture: Texture2D) -> Self {
+    pub fn new(texture: Texture2D, data: &GameData) -> Self {
         Self {
             texture,
             position: vec2(172., 102.),
@@ -27,8 +27,6 @@ impl Player {
 
 impl Player {
     pub fn update(&mut self, data: &mut GameData) {
-        // let gamepads = data.gamepad.unwrap().;
-
         let mut dir = Vec2::ZERO;
         if is_key_down(KeyCode::Left) || is_key_down(KeyCode::A) {
             dir += vec2(-1., 0.);
@@ -55,16 +53,7 @@ impl Player {
     }
 
     pub fn draw(&self, data: &mut GameData) {
-        // let scale_factor = vec2(screen_width() / 360., screen_height() / 240.);
-        // let position = self
-        //     .position
-        //     .mul(scale_factor)
-        //     .round()
-        //     .div(scale_factor)
-        //     .round();
-        // let position = self.position.clone().round();
         let position = self.position;
-
         draw_texture_ex(
             &self.texture,
             position.x,
@@ -74,16 +63,5 @@ impl Player {
                 ..Default::default()
             },
         );
-
-        // draw_rectangle_ex(
-        //     position.x + self.collider.x,
-        //     position.y + self.collider.y,
-        //     self.collider.w,
-        //     self.collider.h,
-        //     DrawRectangleParams {
-        //         color: Color::from_rgba(0, 255, 0, 100),
-        //         ..Default::default()
-        //     },
-        // );
     }
 }

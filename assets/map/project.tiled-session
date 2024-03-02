@@ -70,6 +70,7 @@
         "rules_ground.tmx"
     ],
     "project": "project.tiled-project",
+    "property.type": "string",
     "recentFiles": [
         "example_01.tmj",
         "rules_ground.tmx",
