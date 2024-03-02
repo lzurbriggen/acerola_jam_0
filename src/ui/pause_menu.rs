@@ -1,15 +1,10 @@
-use std::ops::Index;
+use macroquad::prelude::*;
 
-use macroquad::{
-    audio::{self, PlaySoundParams},
-    prelude::*,
-};
-
-use crate::settings::{GameSettings, WindowSize};
+use crate::{game_data::GameData, settings::WindowSize};
 
 use super::{button::button, nine_slice::nice_slice, switcher::switcher, ui_data::UIData};
 
-pub fn pause_menu(ui_data: &UIData, settings: &mut GameSettings) -> bool {
+pub fn pause_menu(ui_data: &UIData, data: &mut GameData) -> bool {
     let mut should_quit = false;
 
     let frame_size = vec2(200., 220.);
@@ -58,12 +53,12 @@ pub fn pause_menu(ui_data: &UIData, settings: &mut GameSettings) -> bool {
     let window_size_list = WindowSize::list();
     let current_index = window_size_list
         .iter()
-        .position(|s| s == &settings.window_size)
+        .position(|s| s == &data.settings.window_size)
         .unwrap();
-    let window_size_text = settings.window_size.text();
+    let window_size_text = data.settings.window_size.text();
     match switcher(
         ui_data,
-        settings,
+        &data.settings,
         &Rect::new(center.x - switcher_width / 2., 40., switcher_width, 0.),
         "Window Size",
         &window_size_text,
@@ -74,7 +69,7 @@ pub fn pause_menu(ui_data: &UIData, settings: &mut GameSettings) -> bool {
             } else {
                 current_index - 1
             };
-            settings.set_window_size(window_size_list[index]);
+            data.settings.set_window_size(window_size_list[index]);
         }
         super::switcher::SwitcherAction::Right => {
             let index = if current_index + 1 > window_size_list.len() - 1 {
@@ -82,47 +77,47 @@ pub fn pause_menu(ui_data: &UIData, settings: &mut GameSettings) -> bool {
             } else {
                 current_index + 1
             };
-            settings.set_window_size(window_size_list[index]);
+            data.settings.set_window_size(window_size_list[index]);
         }
         _ => {}
     }
 
     // Music Volume
-    let music_volume_text = format!("{:.0}", settings.music_volume_lin * 100.);
+    let music_volume_text = format!("{:.0}", data.settings.music_volume_lin * 100.);
     match switcher(
         ui_data,
-        settings,
+        &data.settings,
         &Rect::new(center.x - switcher_width / 2., 80., switcher_width, 0.),
         "Music Volume",
         &music_volume_text,
     ) {
         super::switcher::SwitcherAction::Left => {
-            let new_vol = (settings.music_volume_lin - 0.05).clamp(0., 1.);
-            settings.set_music_volume_lin(new_vol);
+            let new_vol = (data.settings.music_volume_lin - 0.05).clamp(0., 1.);
+            data.settings.set_music_volume_lin(new_vol);
         }
         super::switcher::SwitcherAction::Right => {
-            let new_vol = (settings.music_volume_lin + 0.05).clamp(0., 1.);
-            settings.set_music_volume_lin(new_vol);
+            let new_vol = (data.settings.music_volume_lin + 0.05).clamp(0., 1.);
+            data.settings.set_music_volume_lin(new_vol);
         }
         _ => {}
     }
 
     // SFX Volume
-    let sfx_volume_text = format!("{:.0}", settings.sfx_volume_lin * 100.);
+    let sfx_volume_text = format!("{:.0}", data.settings.sfx_volume_lin * 100.);
     match switcher(
         ui_data,
-        settings,
+        &data.settings,
         &Rect::new(center.x - switcher_width / 2., 120., switcher_width, 0.),
         "SFX Volume",
         &sfx_volume_text,
     ) {
         super::switcher::SwitcherAction::Left => {
-            let new_vol = (settings.sfx_volume_lin - 0.05).clamp(0., 1.);
-            settings.set_sfx_volume_lin(new_vol);
+            let new_vol = (data.settings.sfx_volume_lin - 0.05).clamp(0., 1.);
+            data.settings.set_sfx_volume_lin(new_vol);
         }
         super::switcher::SwitcherAction::Right => {
-            let new_vol = (settings.sfx_volume_lin + 0.05).clamp(0., 1.);
-            settings.set_sfx_volume_lin(new_vol);
+            let new_vol = (data.settings.sfx_volume_lin + 0.05).clamp(0., 1.);
+            data.settings.set_sfx_volume_lin(new_vol);
         }
         _ => {}
     }

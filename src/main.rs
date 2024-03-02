@@ -2,15 +2,23 @@ use std::path::PathBuf;
 
 use fps_counter::FPSCounter;
 use game_state::GameState;
+use gamepads::Gamepads;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use macroquad_tiled::load_map;
 use map::{tiled_macroquad::TiledMap, Map};
 use settings::{GameSettings, WindowSize};
 use ui::{pause_menu::pause_menu, ui_data::UIData};
 
+use crate::{
+    game_data::GameData,
+    pawn::{entity::Entity, player::Player},
+};
+
 mod fps_counter;
+mod game_data;
 mod game_state;
 mod map;
+mod pawn;
 mod settings;
 mod ui;
 
@@ -99,11 +107,28 @@ async fn main() {
     // let tiled_map = TiledMap::load_map(&map_path);
     let tiled_map = TiledMap::new(&map_path);
 
+    let mut entities: Vec<Box<dyn Entity>> = vec![];
+
+    let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
+    player_texture.set_filter(FilterMode::Nearest);
+    let player = Player::new(player_texture);
+    entities.push(Box::new(player));
+
+    let mut gamepads = Gamepads::new();
+
+    let mut data = GameData {
+        gamepads: gamepads,
+        settings,
+        state: game_state,
+        gamepad: None,
+    };
+
     loop {
+        data.update();
         set_mouse_cursor(miniquad::CursorIcon::Default);
         set_camera(&camera);
 
-        clear_background(RED);
+        clear_background(BLACK);
 
         if (is_key_down(KeyCode::LeftAlt) || is_key_down(KeyCode::RightAlt))
             && is_key_pressed(KeyCode::Enter)
@@ -111,21 +136,34 @@ async fn main() {
             fullscreen = !fullscreen;
 
             if fullscreen {
-                settings.set_window_size(settings::WindowSize::Fullscreen);
+                data.settings
+                    .set_window_size(settings::WindowSize::Fullscreen);
             } else {
-                settings.set_window_size(WindowSize::default());
+                data.settings.set_window_size(WindowSize::default());
             }
         }
 
-        if is_key_pressed(KeyCode::Escape) {
+        if is_key_pressed(KeyCode::Escape)
+            || (data.gamepad.is_some()
+                && data
+                    .gamepad
+                    .unwrap()
+                    .is_just_pressed(gamepads::Button::RightCenterCluster))
+        {
             paused = !paused;
         }
 
         // map.draw();
+        for entity in &mut entities {
+            if !paused {
+                entity.update(&mut data);
+            }
+            entity.draw(&mut data);
+        }
 
         fps_counter.update_and_draw(&ui_data);
 
-        if paused && pause_menu(&ui_data, &mut settings) {
+        if paused && pause_menu(&ui_data, &mut data) {
             break;
         }
 
