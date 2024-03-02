@@ -2,15 +2,14 @@ use macroquad::prelude::*;
 
 use crate::game_data::GameData;
 
-use super::entity::Entity;
-
 pub struct Player {
     texture: Texture2D,
     position: Vec2,
     move_speed: f32,
     // relative to the texture size
     collider: Rect,
-    hp: u8,
+    pub hp: u8,
+    pub max_hp: u8,
 }
 
 impl Player {
@@ -21,12 +20,13 @@ impl Player {
             move_speed: 72.,
             collider: Rect::new(6., 6., 4., 5.),
             hp: 3,
+            max_hp: 3,
         }
     }
 }
 
-impl Entity for Player {
-    fn update(&mut self, data: &mut GameData) {
+impl Player {
+    pub fn update(&mut self, data: &mut GameData) {
         // let gamepads = data.gamepad.unwrap().;
 
         let mut dir = Vec2::ZERO;
@@ -54,7 +54,7 @@ impl Entity for Player {
         }
     }
 
-    fn draw(&self, data: &mut GameData) {
+    pub fn draw(&self, data: &mut GameData) {
         // let scale_factor = vec2(screen_width() / 360., screen_height() / 240.);
         // let position = self
         //     .position

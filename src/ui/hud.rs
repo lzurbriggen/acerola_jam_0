@@ -3,7 +3,7 @@ use macroquad::math::vec2;
 use crate::game_data::GameData;
 
 pub fn draw_hp(data: &GameData, hp: u8, max_hp: u8) {
-    let start_pos = vec2(16., 16.);
+    let start_pos = vec2(16., 0.);
 
     for i in 0..max_hp {
         let heart_index = if i < hp { 0 } else { 2 };

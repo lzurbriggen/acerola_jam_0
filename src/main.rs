@@ -114,12 +114,12 @@ async fn main() {
     // let tiled_map = TiledMap::load_map(&map_path);
     let tiled_map = TiledMap::new(&map_path);
 
-    let mut entities: Vec<Box<dyn Entity>> = vec![];
+    let mut entities: Vec<Entity> = vec![];
 
     let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
     player_texture.set_filter(FilterMode::Nearest);
     let player = Player::new(player_texture);
-    entities.push(Box::new(player));
+    entities.push(Entity::Player(player));
 
     let hud_heart_texture: Texture2D = load_texture("ui/heart_01.png").await.unwrap();
     hud_heart_texture.set_filter(FilterMode::Nearest);
@@ -166,15 +166,28 @@ async fn main() {
         map.draw_base();
 
         for entity in &mut entities {
-            if !paused {
-                entity.update(&mut data);
+            match entity {
+                Entity::Player(player) => {
+                    if !paused {
+                        player.update(&mut data);
+                    }
+                    player.draw(&mut data);
+                }
+                Entity::Enemy(_) => todo!(),
             }
-            entity.draw(&mut data);
         }
 
         map.draw_upper();
 
-        draw_hp(&data, 3, 4);
+        for entity in &mut entities {
+            match entity {
+                Entity::Player(player) => {
+                    draw_hp(&data, player.hp, player.max_hp);
+                    break;
+                }
+                _ => {}
+            }
+        }
 
         fps_counter.update_and_draw(&mut data);
 
