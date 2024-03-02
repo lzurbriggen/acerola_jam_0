@@ -1,3 +1,5 @@
+use std::ops::{Div, Mul};
+
 use macroquad::prelude::*;
 
 use crate::game_data::GameData;
@@ -16,7 +18,7 @@ impl Player {
     pub fn new(texture: Texture2D) -> Self {
         Self {
             texture,
-            position: Default::default(),
+            position: vec2(172., 102.),
             move_speed: 72.,
             collider: Rect::new(6., 6., 4., 5.),
         }
@@ -53,7 +55,16 @@ impl Entity for Player {
     }
 
     fn draw(&self, data: &mut GameData) {
-        let position = self.position.round();
+        // let scale_factor = vec2(screen_width() / 360., screen_height() / 240.);
+        // let position = self
+        //     .position
+        //     .mul(scale_factor)
+        //     .round()
+        //     .div(scale_factor)
+        //     .round();
+        // let position = self.position.clone().round();
+        let position = self.position;
+
         draw_texture_ex(
             &self.texture,
             position.x,
@@ -64,15 +75,15 @@ impl Entity for Player {
             },
         );
 
-        draw_rectangle_ex(
-            position.x + self.collider.x,
-            position.y + self.collider.y,
-            self.collider.w,
-            self.collider.h,
-            DrawRectangleParams {
-                color: Color::from_rgba(0, 255, 0, 100),
-                ..Default::default()
-            },
-        );
+        // draw_rectangle_ex(
+        //     position.x + self.collider.x,
+        //     position.y + self.collider.y,
+        //     self.collider.w,
+        //     self.collider.h,
+        //     DrawRectangleParams {
+        //         color: Color::from_rgba(0, 255, 0, 100),
+        //         ..Default::default()
+        //     },
+        // );
     }
 }

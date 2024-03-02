@@ -4,12 +4,14 @@ use fps_counter::FPSCounter;
 use game_state::GameState;
 use gamepads::Gamepads;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
+use macroquad_tiled::load_map;
 use map::tiled_macroquad::TiledMap;
 use settings::{GameSettings, WindowSize};
 use ui::{pause_menu::pause_menu, ui_data::UIData};
 
 use crate::{
     game_data::GameData,
+    map::Map,
     pawn::{entity::Entity, player::Player},
 };
 
@@ -31,6 +33,7 @@ fn window_conf() -> Conf {
         platform: miniquad::conf::Platform {
             linux_backend: miniquad::conf::LinuxBackend::WaylandOnly,
             framebuffer_alpha: false,
+            swap_interval: None,
             ..Default::default()
         },
         sample_count: 0,
@@ -64,12 +67,11 @@ async fn main() {
     focus_bg_texture.set_filter(FilterMode::Nearest);
 
     // Map
-    // let tileset = load_texture("map/mockup_01.png").await.unwrap();
-    // tileset.set_filter(FilterMode::Nearest);
-    // let tiled_map_json = load_string("map/map_01.json").await.unwrap();
-    // let tiled_map = load_map(tiled_map_json.as_str(), &[("mockup_01.png", tileset)], &[]).unwrap();
-
-    // let map = Map { tiled_map };
+    let tileset = load_texture("map/tileset_01.png").await.unwrap();
+    tileset.set_filter(FilterMode::Nearest);
+    let tiled_map_json = load_string("map/example_01.tmj").await.unwrap();
+    let tiled_map = load_map(tiled_map_json.as_str(), &[("tileset_01.png", tileset)], &[]).unwrap();
+    let map = Map { tiled_map };
 
     // Sfx
     let button_click_sfx = audio::load_sound("audio/ui/bookClose.ogg").await.unwrap();
@@ -158,13 +160,16 @@ async fn main() {
             }
         }
 
-        // map.draw();
+        map.draw_base();
+
         for entity in &mut entities {
             if !paused {
                 entity.update(&mut data);
             }
             entity.draw(&mut data);
         }
+
+        map.draw_upper();
 
         fps_counter.update_and_draw(&mut data);
 
