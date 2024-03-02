@@ -1,11 +1,12 @@
+use gamepads::Button;
 use macroquad::{
     audio::{self, PlaySoundParams},
     prelude::*,
 };
 
-use crate::settings::GameSettings;
+use crate::{game_data::GameData, settings::GameSettings};
 
-use super::{button::button, ui_data::UIData};
+use super::{button::button, nine_slice};
 
 pub enum SwitcherAction {
     Left,
@@ -14,10 +15,11 @@ pub enum SwitcherAction {
 }
 
 pub fn switcher(
-    ui_data: &UIData,
+    data: &GameData,
     settings: &GameSettings,
     rect: &Rect,
     label_text: &str,
+    focused: bool,
     text: &str,
 ) -> SwitcherAction {
     let text_size = 16;
@@ -31,51 +33,78 @@ pub fn switcher(
         rect.y + text_size as f32 - 2.,
         TextParams {
             font_size: text_size,
-            font: Some(&ui_data.font),
-            color: ui_data.text_color,
+            font: Some(&data.ui.font),
+            color: data.ui.text_color,
             ..Default::default()
         },
     );
 
     let y = rect.y + 18.;
 
+    if focused {
+        let focus_bg_offset = 2.;
+        nine_slice::nice_slice(
+            &data.ui.focus_background_texture,
+            &RectOffset::new(3., 3., 3., 3.),
+            &Rect::new(
+                rect.x - focus_bg_offset,
+                y - focus_bg_offset,
+                rect.w + 2. * focus_bg_offset,
+                20. + 2. * focus_bg_offset,
+            ),
+        )
+    }
+
+    let mut gamepad_left = false;
+    let mut gamepad_right = false;
+    if focused {
+        if let Some(gamepad) = data.gamepads.get_last_used() {
+            gamepad_left = gamepad.is_just_released(Button::DPadLeft);
+            gamepad_right = gamepad.is_just_released(Button::DPadRight);
+        }
+    }
+
     if button(
-        ui_data,
+        &data,
         &Rect::new(rect.x, y, button_width, 20.),
+        false,
         "½",
-        Some(&ui_data.icon_font),
+        Some(&data.ui.icon_font),
         vec2(-3., -1.),
-    ) {
+    ) || gamepad_left
+    {
         action = SwitcherAction::Left;
         audio::play_sound(
-            &ui_data.button_click_sfx,
+            &data.ui.button_click_sfx,
             PlaySoundParams {
                 volume: settings.sfx_volume,
                 ..Default::default()
             },
         );
     }
-    let text_center = get_text_center(text, Some(&ui_data.font), text_size, 1., 0.);
+    let text_center = get_text_center(text, Some(&data.ui.font), text_size, 1., 0.);
     draw_text_ex(
         text,
         rect.x + rect.w / 2. - text_center.x,
         y + text_size as f32 - 2.,
         TextParams {
             font_size: text_size,
-            font: Some(&ui_data.font),
+            font: Some(&data.ui.font),
             ..Default::default()
         },
     );
     if button(
-        ui_data,
+        &data,
         &Rect::new(rect.x + rect.w - button_width, y, button_width, 20.),
+        false,
         "¾",
-        Some(&ui_data.icon_font),
+        Some(&data.ui.icon_font),
         vec2(-2., -1.),
-    ) {
+    ) || gamepad_right
+    {
         action = SwitcherAction::Right;
         audio::play_sound(
-            &ui_data.button_click_sfx,
+            &data.ui.button_click_sfx,
             PlaySoundParams {
                 volume: settings.sfx_volume,
                 ..Default::default()

@@ -40,7 +40,7 @@ impl Entity for Player {
         if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
             dir += vec2(0., 1.);
         }
-        if let Some(gamepad) = data.gamepad {
+        if let Some(gamepad) = data.gamepads.get_last_used() {
             let input = vec2(gamepad.left_stick_x(), -gamepad.left_stick_y());
             if input.length_squared() > 0. {
                 dir = input;

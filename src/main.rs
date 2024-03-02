@@ -4,8 +4,7 @@ use fps_counter::FPSCounter;
 use game_state::GameState;
 use gamepads::Gamepads;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
-use macroquad_tiled::load_map;
-use map::{tiled_macroquad::TiledMap, Map};
+use map::tiled_macroquad::TiledMap;
 use settings::{GameSettings, WindowSize};
 use ui::{pause_menu::pause_menu, ui_data::UIData};
 
@@ -61,6 +60,8 @@ async fn main() {
     button_texture_pressed.set_filter(FilterMode::Nearest);
     let frame_texture: Texture2D = load_texture("ui/window_bg.png").await.unwrap();
     frame_texture.set_filter(FilterMode::Nearest);
+    let focus_bg_texture: Texture2D = load_texture("ui/focus_bg.png").await.unwrap();
+    focus_bg_texture.set_filter(FilterMode::Nearest);
 
     // Map
     // let tileset = load_texture("map/mockup_01.png").await.unwrap();
@@ -78,13 +79,14 @@ async fn main() {
         button_texture_hover: button_texture_hover,
         button_texture_pressed: button_texture_pressed,
         button_click_sfx: button_click_sfx,
-        frame_texture: frame_texture,
+        frame_texture: frame_texture.clone(),
+        focus_background_texture: focus_bg_texture,
         font: font.clone(),
         icon_font: icon_font.clone(),
         text_color: Color::from_hex(0xe4d2aa),
         text_shadow_color: Color::from_hex(0xb4202a),
+        focus: None,
     };
-    let mut settings = GameSettings::default();
 
     let mut fullscreen = false;
 
@@ -98,7 +100,6 @@ async fn main() {
 
     let mut fps_counter = FPSCounter::default();
 
-    let mut game_state = GameState::default();
     let mut paused = false;
 
     let map_path =
@@ -114,13 +115,13 @@ async fn main() {
     let player = Player::new(player_texture);
     entities.push(Box::new(player));
 
-    let mut gamepads = Gamepads::new();
+    let gamepads = Gamepads::new();
 
     let mut data = GameData {
         gamepads: gamepads,
-        settings,
-        state: game_state,
-        gamepad: None,
+        settings: GameSettings::default(),
+        state: GameState::default(),
+        ui: ui_data,
     };
 
     loop {
@@ -144,13 +145,17 @@ async fn main() {
         }
 
         if is_key_pressed(KeyCode::Escape)
-            || (data.gamepad.is_some()
+            || (data.gamepads.get_last_used().is_some()
                 && data
-                    .gamepad
+                    .gamepads
+                    .get_last_used()
                     .unwrap()
                     .is_just_pressed(gamepads::Button::RightCenterCluster))
         {
             paused = !paused;
+            if !paused {
+                data.ui.focus = None;
+            }
         }
 
         // map.draw();
@@ -161,9 +166,9 @@ async fn main() {
             entity.draw(&mut data);
         }
 
-        fps_counter.update_and_draw(&ui_data);
+        fps_counter.update_and_draw(&mut data);
 
-        if paused && pause_menu(&ui_data, &mut data) {
+        if paused && pause_menu(&mut data) {
             break;
         }
 

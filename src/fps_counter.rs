@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::ui::ui_data::UIData;
+use crate::game_data::GameData;
 
 pub struct FPSCounter {
     smoothing_factor: f32,
@@ -23,7 +23,7 @@ impl Default for FPSCounter {
 }
 
 impl FPSCounter {
-    pub fn update_and_draw(&mut self, ui_data: &UIData) {
+    pub fn update_and_draw(&mut self, data: &mut GameData) {
         self.average_fps = self.smoothing_factor * self.average_fps
             + (1. - self.smoothing_factor) * 1. / get_frame_time();
 
@@ -32,7 +32,7 @@ impl FPSCounter {
             2.,
             10.,
             TextParams {
-                font: Some(&ui_data.font),
+                font: Some(&data.ui.font),
                 font_size: 16,
                 ..Default::default()
             },
