@@ -1,11 +1,16 @@
+use std::path::PathBuf;
+
 use fps_counter::FPSCounter;
 use game_state::GameState;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
+use macroquad_tiled::load_map;
+use map::{tiled_macroquad::TiledMap, Map};
 use settings::{GameSettings, WindowSize};
 use ui::{pause_menu::pause_menu, ui_data::UIData};
 
 mod fps_counter;
 mod game_state;
+mod map;
 mod settings;
 mod ui;
 
@@ -33,22 +38,31 @@ async fn main() {
     let render_target = render_target(360, 240);
     render_target.texture.set_filter(FilterMode::Nearest);
 
-    let mut font = load_ttf_font("./fonts/Bitfantasy.ttf").await.unwrap();
+    let mut font = load_ttf_font("fonts/Bitfantasy.ttf").await.unwrap();
     font.set_filter(FilterMode::Nearest);
 
-    let mut icon_font = load_ttf_font("./fonts/Zicons.ttf").await.unwrap();
+    let mut icon_font = load_ttf_font("fonts/Zicons.ttf").await.unwrap();
     icon_font.set_filter(FilterMode::Nearest);
 
-    let button_texture: Texture2D = load_texture("./ui/button_bg.png").await.unwrap();
+    // UI assets
+    let button_texture: Texture2D = load_texture("ui/button_bg.png").await.unwrap();
     button_texture.set_filter(FilterMode::Nearest);
-    let button_texture_hover: Texture2D = load_texture("./ui/button_bg_hover.png").await.unwrap();
+    let button_texture_hover: Texture2D = load_texture("ui/button_bg_hover.png").await.unwrap();
     button_texture_hover.set_filter(FilterMode::Nearest);
-    let button_texture_pressed: Texture2D =
-        load_texture("./ui/button_bg_clicked.png").await.unwrap();
+    let button_texture_pressed: Texture2D = load_texture("ui/button_bg_clicked.png").await.unwrap();
     button_texture_pressed.set_filter(FilterMode::Nearest);
-    let frame_texture: Texture2D = load_texture("./ui/window_bg.png").await.unwrap();
+    let frame_texture: Texture2D = load_texture("ui/window_bg.png").await.unwrap();
     frame_texture.set_filter(FilterMode::Nearest);
 
+    // Map
+    // let tileset = load_texture("map/mockup_01.png").await.unwrap();
+    // tileset.set_filter(FilterMode::Nearest);
+    // let tiled_map_json = load_string("map/map_01.json").await.unwrap();
+    // let tiled_map = load_map(tiled_map_json.as_str(), &[("mockup_01.png", tileset)], &[]).unwrap();
+
+    // let map = Map { tiled_map };
+
+    // Sfx
     let button_click_sfx = audio::load_sound("audio/ui/bookClose.ogg").await.unwrap();
 
     let ui_data = UIData {
@@ -65,7 +79,6 @@ async fn main() {
     let mut settings = GameSettings::default();
 
     let mut fullscreen = false;
-    let mut nearest = false;
 
     let mut camera = Camera2D::from_display_rect(Rect {
         x: 0.,
@@ -79,6 +92,12 @@ async fn main() {
 
     let mut game_state = GameState::default();
     let mut paused = false;
+
+    let map_path =
+        PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap()).join("assets/map/map_01.tmx");
+    println!("{:?}", map_path);
+    // let tiled_map = TiledMap::load_map(&map_path);
+    let tiled_map = TiledMap::new(&map_path);
 
     loop {
         set_mouse_cursor(miniquad::CursorIcon::Default);
@@ -101,6 +120,8 @@ async fn main() {
         if is_key_pressed(KeyCode::Escape) {
             paused = !paused;
         }
+
+        // map.draw();
 
         fps_counter.update_and_draw(&ui_data);
 
