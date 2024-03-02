@@ -1,9 +1,8 @@
 use std::ops::Add;
 
-use gamepads::Button;
 use macroquad::{miniquad::window::set_mouse_cursor, prelude::*};
 
-use crate::game_data::GameData;
+use crate::{game_data::GameData, input_manager::Action};
 
 use super::{in_rect::is_in_rect, nine_slice::nice_slice};
 
@@ -28,14 +27,12 @@ pub fn button(
             pressed = true;
         }
     }
-    if let Some(gamepad) = data.gamepads.get_last_used() {
-        if focused {
-            if gamepad.is_currently_pressed(Button::ActionDown) {
-                pressed = true;
-            }
-            if gamepad.is_just_released(Button::ActionDown) {
-                clicked = true;
-            }
+    if focused {
+        if data.input.is_currently_pressed(Action::Confirm) {
+            pressed = true;
+        }
+        if data.input.is_just_released(Action::Confirm) {
+            clicked = true;
         }
     }
 

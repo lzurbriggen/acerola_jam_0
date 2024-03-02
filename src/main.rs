@@ -2,7 +2,6 @@ use std::path::PathBuf;
 
 use fps_counter::FPSCounter;
 use game_state::GameState;
-use gamepads::Gamepads;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use macroquad_tiled::load_map;
 use map::tiled_macroquad::TiledMap;
@@ -10,17 +9,22 @@ use settings::{GameSettings, WindowSize};
 use ui::{pause_menu::pause_menu, ui_data::UIData};
 
 use crate::{
-    game_data::GameData,
+    game_data::{GameData, Sprites},
+    input_manager::{Action, InputManager},
     map::Map,
     pawn::{entity::Entity, player::Player},
+    sprite::indexed_sprite::IndexedSprite,
+    ui::hud::draw_hp,
 };
 
 mod fps_counter;
 mod game_data;
 mod game_state;
+mod input_manager;
 mod map;
 mod pawn;
 mod settings;
+mod sprite;
 mod ui;
 
 fn window_conf() -> Conf {
@@ -117,13 +121,19 @@ async fn main() {
     let player = Player::new(player_texture);
     entities.push(Box::new(player));
 
-    let gamepads = Gamepads::new();
+    let hud_heart_texture: Texture2D = load_texture("ui/heart_01.png").await.unwrap();
+    hud_heart_texture.set_filter(FilterMode::Nearest);
+
+    let sprites = Sprites {
+        hud_heart: IndexedSprite::new(hud_heart_texture, 16),
+    };
 
     let mut data = GameData {
-        gamepads: gamepads,
         settings: GameSettings::default(),
         state: GameState::default(),
         ui: ui_data,
+        sprites,
+        input: InputManager::new(),
     };
 
     loop {
@@ -146,14 +156,7 @@ async fn main() {
             }
         }
 
-        if is_key_pressed(KeyCode::Escape)
-            || (data.gamepads.get_last_used().is_some()
-                && data
-                    .gamepads
-                    .get_last_used()
-                    .unwrap()
-                    .is_just_pressed(gamepads::Button::RightCenterCluster))
-        {
+        if data.input.is_just_pressed(Action::Pause) {
             paused = !paused;
             if !paused {
                 data.ui.focus = None;
@@ -170,6 +173,8 @@ async fn main() {
         }
 
         map.draw_upper();
+
+        draw_hp(&data, 3, 4);
 
         fps_counter.update_and_draw(&mut data);
 

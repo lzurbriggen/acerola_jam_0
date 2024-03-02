@@ -1,10 +1,9 @@
-use gamepads::Button;
 use macroquad::{
     audio::{self, PlaySoundParams},
     prelude::*,
 };
 
-use crate::{game_data::GameData, settings::GameSettings};
+use crate::{game_data::GameData, input_manager::Action, settings::GameSettings};
 
 use super::{button::button, nine_slice};
 
@@ -55,14 +54,8 @@ pub fn switcher(
         )
     }
 
-    let mut gamepad_left = false;
-    let mut gamepad_right = false;
-    if focused {
-        if let Some(gamepad) = data.gamepads.get_last_used() {
-            gamepad_left = gamepad.is_just_released(Button::DPadLeft);
-            gamepad_right = gamepad.is_just_released(Button::DPadRight);
-        }
-    }
+    let mut input_left = focused && data.input.is_just_released(Action::Left);
+    let mut input_right = focused && data.input.is_just_released(Action::Right);
 
     if button(
         &data,
@@ -71,7 +64,7 @@ pub fn switcher(
         "½",
         Some(&data.ui.icon_font),
         vec2(-3., -1.),
-    ) || gamepad_left
+    ) || input_left
     {
         action = SwitcherAction::Left;
         audio::play_sound(
@@ -100,7 +93,7 @@ pub fn switcher(
         "¾",
         Some(&data.ui.icon_font),
         vec2(-2., -1.),
-    ) || gamepad_right
+    ) || input_right
     {
         action = SwitcherAction::Right;
         audio::play_sound(

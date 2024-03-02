@@ -1,5 +1,3 @@
-use std::ops::{Div, Mul};
-
 use macroquad::prelude::*;
 
 use crate::game_data::GameData;
@@ -12,6 +10,7 @@ pub struct Player {
     move_speed: f32,
     // relative to the texture size
     collider: Rect,
+    hp: u8,
 }
 
 impl Player {
@@ -21,6 +20,7 @@ impl Player {
             position: vec2(172., 102.),
             move_speed: 72.,
             collider: Rect::new(6., 6., 4., 5.),
+            hp: 3,
         }
     }
 }
@@ -42,7 +42,7 @@ impl Entity for Player {
         if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
             dir += vec2(0., 1.);
         }
-        if let Some(gamepad) = data.gamepads.get_last_used() {
+        if let Some(gamepad) = data.input.gamepads.get_last_used() {
             let input = vec2(gamepad.left_stick_x(), -gamepad.left_stick_y());
             if input.length_squared() > 0. {
                 dir = input;

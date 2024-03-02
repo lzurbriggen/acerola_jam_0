@@ -1,6 +1,6 @@
 use macroquad::{prelude::*, ui::hash};
 
-use crate::{game_data::GameData, settings::WindowSize};
+use crate::{game_data::GameData, input_manager::Action, settings::WindowSize};
 
 use super::{button::button, nine_slice::nice_slice, switcher::switcher};
 
@@ -23,24 +23,22 @@ pub fn pause_menu(data: &mut GameData) -> bool {
         data.ui.focus = Some(ids[0]);
     }
 
-    if let Some(gamepad) = data.gamepads.get_last_used() {
-        let focus = data.ui.focus.unwrap();
-        let current_index = ids.iter().position(|s| s == &focus).unwrap();
-        if gamepad.is_just_pressed(gamepads::Button::DPadUp) {
-            let index = if current_index as i8 - 1 < 0 {
-                ids.len() - 1
-            } else {
-                current_index - 1
-            };
-            data.ui.focus = Some(ids[index]);
-        } else if gamepad.is_just_pressed(gamepads::Button::DPadDown) {
-            let index = if current_index + 1 > ids.len() - 1 {
-                0
-            } else {
-                current_index + 1
-            };
-            data.ui.focus = Some(ids[index]);
-        }
+    let focus = data.ui.focus.unwrap();
+    let current_index = ids.iter().position(|s| s == &focus).unwrap();
+    if data.input.is_just_pressed(Action::Up) {
+        let index = if current_index as i8 - 1 < 0 {
+            ids.len() - 1
+        } else {
+            current_index - 1
+        };
+        data.ui.focus = Some(ids[index]);
+    } else if data.input.is_just_pressed(Action::Down) {
+        let index = if current_index + 1 > ids.len() - 1 {
+            0
+        } else {
+            current_index + 1
+        };
+        data.ui.focus = Some(ids[index]);
     }
 
     let frame_size = vec2(200., 220.);

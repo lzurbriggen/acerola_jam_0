@@ -9,6 +9,9 @@
         "."
     ],
     "fileStates": {
+        "": {
+            "scaleInEditor": 16
+        },
         ":/automap-tiles.tsx": {
             "scaleInDock": 1
         },
@@ -19,12 +22,23 @@
             "scaleInDock": 5.5,
             "scaleInEditor": 11
         },
+        "example_01.tmj": {
+            "scale": 3,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 166,
+                "y": 81.33333333333333
+            }
+        },
+        "example_01.tmj#tileset_01": {
+            "scaleInDock": 8
+        },
         "map_01.tmx": {
             "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 123.5,
-                "y": 102
+                "x": 123.25,
+                "y": 101.75
             }
         },
         "map_01.tmx#AutoMap Rules": {
@@ -37,8 +51,8 @@
             "scale": 3,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 128,
-                "y": 127.99999999999997
+                "x": 127,
+                "y": 126.99999999999997
             }
         },
         "rules_ground.tmx#AutoMap Rules": {
@@ -57,6 +71,7 @@
     ],
     "project": "project.tiled-project",
     "recentFiles": [
+        "example_01.tmj",
         "rules_ground.tmx",
         "map_01.tmx",
         "base_01.tsx"
