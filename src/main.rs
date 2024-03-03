@@ -1,10 +1,7 @@
-use std::path::PathBuf;
-
 use fps_counter::FPSCounter;
 use game_state::GameState;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use macroquad_tiled::load_map;
-use map::tiled_macroquad::TiledMap;
 use settings::{GameSettings, WindowSize};
 use ui::{pause_menu::pause_menu, ui_data::UIData};
 
@@ -70,13 +67,6 @@ async fn main() {
     let focus_bg_texture: Texture2D = load_texture("ui/focus_bg.png").await.unwrap();
     focus_bg_texture.set_filter(FilterMode::Nearest);
 
-    // Map
-    let tileset = load_texture("map/tileset_01.png").await.unwrap();
-    tileset.set_filter(FilterMode::Nearest);
-    let tiled_map_json = load_string("map/example_01.tmj").await.unwrap();
-    let tiled_map = load_map(tiled_map_json.as_str(), &[("tileset_01.png", tileset)], &[]).unwrap();
-    let map = Map { tiled_map };
-
     // Sfx
     let button_click_sfx = audio::load_sound("audio/ui/bookClose.ogg").await.unwrap();
 
@@ -96,22 +86,11 @@ async fn main() {
 
     let mut fullscreen = false;
 
-    let mut camera = Camera2D::from_display_rect(Rect {
-        x: 0.,
-        y: 480.,
-        w: 720.,
-        h: -480.,
-    });
-    // camera.render_target = Some(render_target.clone());
+    let camera = Camera2D::default();
 
     let mut fps_counter = FPSCounter::default();
 
     let mut paused = false;
-
-    // let map_path =
-    //     PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap()).join("assets/map/map_01.tmx");
-    // let tiled_map = TiledMap::load_map(&map_path);
-    // let tiled_map = TiledMap::new(&map_path);
 
     let mut entities: Vec<Entity> = vec![];
 
@@ -122,14 +101,24 @@ async fn main() {
         hud_heart: IndexedSprite::new(hud_heart_texture, 16),
     };
 
+    let settings = GameSettings::default();
+
+    // Map
+    let tileset = load_texture("map/tileset_01.png").await.unwrap();
+    tileset.set_filter(FilterMode::Nearest);
+    let tiled_map_json = load_string("map/example_01.tmj").await.unwrap();
+    let tiled_map = load_map(tiled_map_json.as_str(), &[("tileset_01.png", tileset)], &[]).unwrap();
+    let map = Map::new(tiled_map, settings.resolution);
+
     let mut data = GameData {
-        settings: GameSettings::default(),
+        settings,
         state: GameState::default(),
         ui: ui_data,
         sprites,
         input: InputManager::new(),
         camera,
     };
+    data.settings.set_window_size(WindowSize::W1440);
 
     let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
     player_texture.set_filter(FilterMode::Nearest);
@@ -179,6 +168,7 @@ async fn main() {
         }
 
         map.draw_upper(&data);
+        map.draw_colliders();
 
         for entity in &mut entities {
             match entity {
@@ -195,18 +185,6 @@ async fn main() {
         if paused && pause_menu(&mut data) {
             break;
         }
-
-        // set_default_camera();
-        // draw_texture_ex(
-        //     &render_target.texture,
-        //     0.,
-        //     0.,
-        //     WHITE,
-        //     DrawTextureParams {
-        //         dest_size: Some(vec2(screen_width(), screen_height())),
-        //         ..Default::default()
-        //     },
-        // );
 
         next_frame().await
     }
