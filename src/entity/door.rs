@@ -2,6 +2,7 @@ use macroquad::prelude::*;
 
 use super::traits::{Position, SphereCollider};
 
+#[derive(Clone)]
 pub struct Door {
     pub position: Vec2,
     pub radius: f32,

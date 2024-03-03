@@ -15,7 +15,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(texture: Texture2D, data: &GameData) -> Self {
+    pub fn new(texture: Texture2D, _data: &GameData) -> Self {
         Self {
             texture,
             position: vec2(180., 120.),

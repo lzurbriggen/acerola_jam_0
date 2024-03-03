@@ -1,4 +1,4 @@
-use entity::{door::Door, entities::Entities, player::draw_player};
+use entity::entities::Entities;
 use fps_counter::FPSCounter;
 use game_state::GameState;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
@@ -6,7 +6,7 @@ use macroquad_tiled::load_map;
 use settings::{GameSettings, WindowSize};
 use systems::{
     collision::draw_colliders, door::handle_door_collisions, player::update_player,
-    sprite::draw_simple_sprites,
+    spawn::spawn_creatures, sprite::draw_simple_sprites,
 };
 use ui::{pause_menu::pause_menu, ui_data::UIData};
 
@@ -133,9 +133,12 @@ async fn main() {
     let mut entities = Entities {
         player,
         doors: vec![],
+        spawners: vec![],
     };
-    let door = Door::new(vec2(180., 100.));
-    entities.doors.push(door);
+
+    let (map_doors, map_spawners) = map.get_entities();
+    entities.doors = [entities.doors, map_doors].concat();
+    entities.spawners = [entities.spawners, map_spawners].concat();
 
     loop {
         data.update();
@@ -171,10 +174,11 @@ async fn main() {
 
         map.draw_base();
 
+        spawn_creatures(&mut entities);
         update_player(&mut data, &map, &mut entities);
         handle_door_collisions(&data, &mut entities);
-        draw_simple_sprites(&entities);
 
+        draw_simple_sprites(&entities);
         map.draw_upper();
 
         if data.debug_collisions {

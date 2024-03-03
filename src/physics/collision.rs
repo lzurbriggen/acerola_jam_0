@@ -3,7 +3,7 @@ use macroquad::prelude::*;
 use crate::{game_data::GameData, map::map::Map};
 
 pub fn check_collision_circles(
-    data: &GameData,
+    _data: &GameData,
     pos1: Vec2,
     radius1: f32,
     pos2: Vec2,

@@ -3,6 +3,8 @@ use std::collections::{HashMap, HashSet};
 use macroquad::prelude::*;
 use macroquad_tiled::Map as TiledMap;
 
+use crate::entity::{door::Door, spawner::Spawner};
+
 pub struct Map {
     pub tiled_map: TiledMap,
     pub tileset_collision_map: HashMap<String, HashSet<usize>>,
@@ -39,10 +41,6 @@ impl Map {
                     }
                 }
             }
-
-            for asdf in &layer.objects {
-                println!("{:?}", asdf);
-            }
         }
 
         Self {
@@ -51,6 +49,23 @@ impl Map {
             map_collision,
             map_rect: Rect::new(0., 0., resolution.x, resolution.y),
         }
+    }
+
+    pub fn get_entities(&self) -> (Vec<Door>, Vec<Spawner>) {
+        let mut doors = vec![];
+        let mut spawners = vec![];
+        for (_, layer) in &self.tiled_map.layers {
+            for object in &layer.objects {
+                let object_pos = vec2(object.world_x, object.world_y);
+                if let Some(_door_dir) = object.properties.get("door") {
+                    doors.push(Door::new(object_pos))
+                }
+                if let Some(_) = object.properties.get("spawn") {
+                    spawners.push(Spawner::new(object_pos))
+                }
+            }
+        }
+        (doors, spawners)
     }
 
     pub fn draw_base(&self) {

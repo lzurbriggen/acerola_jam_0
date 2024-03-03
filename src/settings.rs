@@ -1,7 +1,5 @@
 use macroquad::{miniquad::window, prelude::*};
 
-use crate::game_data::GameData;
-
 #[derive(Default, PartialEq, Clone, Copy)]
 pub enum WindowSize {
     W360,

@@ -1,8 +1,6 @@
 use gamepads::{Button, Gamepads};
 use macroquad::input::{is_key_down, is_key_pressed, is_key_released, KeyCode};
 
-use crate::game_data::GameData;
-
 pub struct InputManager {
     pub gamepads: Gamepads,
 }
