@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 
 use crate::game_data::GameData;
 
-use super::traits::{Position, SphereCollider, Sprite};
+use super::traits::{Position, SphereCollider, Sprite, TimerProgress};
 
 pub struct Player {
     pub texture: Texture2D,
@@ -44,4 +44,8 @@ impl Sprite for Player {
     fn texture_and_offset(&self) -> (&Texture2D, Vec2) {
         (&self.texture, self.sprite_offset)
     }
+}
+
+impl TimerProgress for Player {
+    fn update_timers(&mut self) {}
 }

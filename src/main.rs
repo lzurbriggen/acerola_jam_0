@@ -5,8 +5,13 @@ use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use macroquad_tiled::load_map;
 use settings::{GameSettings, WindowSize};
 use systems::{
-    collision::draw_colliders, door::handle_door_collisions, player::update_player,
-    spawn::spawn_creatures, sprite::draw_simple_sprites,
+    collision::draw_colliders,
+    door::handle_door_collisions,
+    enemy::update_enemies,
+    player::update_player,
+    spawn::spawn_creatures,
+    sprite::{draw_multi_sprites, draw_simple_sprites},
+    timer::update_timers,
 };
 use ui::{pause_menu::pause_menu, ui_data::UIData};
 
@@ -26,9 +31,11 @@ mod game_state;
 mod input_manager;
 mod map;
 mod physics;
+mod room;
 mod settings;
 mod sprite;
-pub mod systems;
+mod systems;
+mod timer;
 mod ui;
 
 fn window_conf() -> Conf {
@@ -101,9 +108,12 @@ async fn main() {
 
     let hud_heart_texture: Texture2D = load_texture("ui/heart_01.png").await.unwrap();
     hud_heart_texture.set_filter(FilterMode::Nearest);
+    let hopper_texture: Texture2D = load_texture("entities/hopper_01.png").await.unwrap();
+    hopper_texture.set_filter(FilterMode::Nearest);
 
     let sprites = Sprites {
-        hud_heart: IndexedSprite::new(hud_heart_texture, 16),
+        hud_heart: IndexedSprite::new(hud_heart_texture, 16, Vec2::ZERO),
+        hopper: IndexedSprite::new(hopper_texture, 16, vec2(-8., -8.)),
     };
 
     let settings = GameSettings::default();
@@ -134,6 +144,7 @@ async fn main() {
         player,
         doors: vec![],
         spawners: vec![],
+        enemies: vec![],
     };
 
     let (map_doors, map_spawners) = map.get_entities();
@@ -174,11 +185,14 @@ async fn main() {
 
         map.draw_base();
 
-        spawn_creatures(&mut entities);
+        spawn_creatures(&data, &mut entities);
+        update_timers(&mut entities);
         update_player(&mut data, &map, &mut entities);
+        update_enemies(&mut data, &map, &mut entities);
         handle_door_collisions(&data, &mut entities);
 
         draw_simple_sprites(&entities);
+        draw_multi_sprites(&entities);
         map.draw_upper();
 
         if data.debug_collisions {

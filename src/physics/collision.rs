@@ -9,29 +9,10 @@ pub fn check_collision_circles(
     pos2: Vec2,
     radius2: f32,
 ) -> Option<Vec2> {
-    // let center = rect.center();
-    // let diff = circle_pos - center;
-    // let clamped_distance = diff.clamp(
-    //     vec2(-rect.w / 2., -rect.h / 2.),
-    //     vec2(rect.w / 2., rect.h / 2.),
-    // );
-    // let closest_point = center + clamped_distance;
-
-    // if data.debug_collisions {
-    //     draw_circle_lines(circle_pos.x, circle_pos.y, circle_radius, 1., BLUE);
-    //     draw_circle(closest_point.x, closest_point.y, 1., GREEN);
-    // }
-
     let combined_radii = radius1 + radius2;
     let is_colliding = (pos1 - pos2).length_squared() < combined_radii * combined_radii;
-    // if data.debug_collisions && is_colliding {
-    //     draw_circle(closest_point.x, closest_point.y, 1., RED);
-    // }
 
     if is_colliding {
-        // if data.debug_collisions {
-        //     draw_circle(closest_point.x, closest_point.y, 1., RED);
-        // }
         return Some(Vec2::ZERO);
     }
 

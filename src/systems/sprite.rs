@@ -1,8 +1,8 @@
 use macroquad::prelude::*;
 
 use crate::entity::{
-    entities::Entities,
-    traits::{Position, Sprite},
+    entities::{Enemy, Entities},
+    traits::{MultiSprite, Position, Sprite},
 };
 
 pub fn draw_simple_sprites(entities: &Entities) {
@@ -21,4 +21,16 @@ fn draw_sprite<T: Position + Sprite>(sprite: &T) {
             ..Default::default()
         },
     );
+}
+
+pub fn draw_multi_sprites(entities: &Entities) {
+    for enemy in &entities.enemies {
+        match enemy {
+            Enemy::Hopper(hopper) => draw_multi_sprite(hopper),
+        }
+    }
+}
+
+fn draw_multi_sprite<T: Position + MultiSprite>(sprite: &T) {
+    sprite.indexed_sprite().draw(sprite.position(), 0);
 }

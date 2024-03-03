@@ -34,7 +34,5 @@ pub fn update_player(data: &mut GameData, map: &Map, entities: &mut Entities) {
         player.position
     };
 
-    desired_pos = resolve_map_collision(data, map, desired_pos, player.collider_radius);
-
-    player.position = desired_pos;
+    player.position = resolve_map_collision(data, map, desired_pos, player.collider_radius);
 }

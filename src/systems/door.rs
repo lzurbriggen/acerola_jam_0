@@ -12,7 +12,7 @@ pub fn handle_door_collisions(data: &GameData, entities: &mut Entities) {
             door.position,
             door.radius,
         ) {
-            println!("{:?}", door.position);
+            println!("{:?}", "DOOR COLLISION");
         }
     }
 }

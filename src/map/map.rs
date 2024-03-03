@@ -56,7 +56,7 @@ impl Map {
         let mut spawners = vec![];
         for (_, layer) in &self.tiled_map.layers {
             for object in &layer.objects {
-                let object_pos = vec2(object.world_x, object.world_y);
+                let object_pos = vec2(object.world_x + 4., object.world_y - 4.);
                 if let Some(_door_dir) = object.properties.get("door") {
                     doors.push(Door::new(object_pos))
                 }
