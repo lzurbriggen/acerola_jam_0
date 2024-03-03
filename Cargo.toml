@@ -8,6 +8,7 @@ opt-level = 3
 
 [dependencies]
 gamepads = { git = "git://github.com/lzurbriggen/gamepads" }
-macroquad = { version = "0.4.5", features = ["audio"] }
-macroquad-tiled = "0.2.1"
-tiled = { version = "0.11.2", features = ["wasm"] }
+macroquad = { git = "https://github.com/not-fl3/macroquad", features = [
+    "audio",
+] }
+macroquad-tiled = { git = "https://github.com/not-fl3/macroquad" }

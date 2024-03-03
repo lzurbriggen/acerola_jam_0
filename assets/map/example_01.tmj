@@ -165,9 +165,92 @@
          "width":45,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":8,
+         "name":"Object Layer 1",
+         "objects":[
+                {
+                 "gid":3,
+                 "height":8,
+                 "id":2,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"spawn",
+                         "type":"string",
+                         "value":"true"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":8,
+                 "x":112,
+                 "y":120
+                }, 
+                {
+                 "gid":3,
+                 "height":8,
+                 "id":4,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"spawn",
+                         "type":"string",
+                         "value":"true"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":8,
+                 "x":176,
+                 "y":168
+                }, 
+                {
+                 "gid":3,
+                 "height":8,
+                 "id":5,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"spawn",
+                         "type":"string",
+                         "value":"true"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":8,
+                 "x":248,
+                 "y":128
+                }, 
+                {
+                 "gid":5,
+                 "height":8,
+                 "id":6,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"door",
+                         "type":"string",
+                         "value":"up"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":8,
+                 "x":176,
+                 "y":56
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":5,
- "nextobjectid":1,
+ "nextlayerid":10,
+ "nextobjectid":7,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.2",

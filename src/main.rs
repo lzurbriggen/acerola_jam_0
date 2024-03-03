@@ -1,28 +1,34 @@
+use entity::{door::Door, entities::Entities, player::draw_player};
 use fps_counter::FPSCounter;
 use game_state::GameState;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use macroquad_tiled::load_map;
 use settings::{GameSettings, WindowSize};
+use systems::{
+    collision::draw_colliders, door::handle_door_collisions, player::update_player,
+    sprite::draw_simple_sprites,
+};
 use ui::{pause_menu::pause_menu, ui_data::UIData};
 
 use crate::{
+    entity::player::Player,
     game_data::{GameData, Sprites},
     input_manager::{Action, InputManager},
     map::map::Map,
-    pawn::{entity::Entity, player::Player},
     sprite::indexed_sprite::IndexedSprite,
     ui::hud::draw_hp,
 };
 
+mod entity;
 mod fps_counter;
 mod game_data;
 mod game_state;
 mod input_manager;
 mod map;
-mod pawn;
 mod physics;
 mod settings;
 mod sprite;
+pub mod systems;
 mod ui;
 
 fn window_conf() -> Conf {
@@ -93,8 +99,6 @@ async fn main() {
 
     let mut paused = false;
 
-    let mut entities: Vec<Entity> = vec![];
-
     let hud_heart_texture: Texture2D = load_texture("ui/heart_01.png").await.unwrap();
     hud_heart_texture.set_filter(FilterMode::Nearest);
 
@@ -125,7 +129,13 @@ async fn main() {
     let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
     player_texture.set_filter(FilterMode::Nearest);
     let player = Player::new(player_texture, &data);
-    entities.push(Entity::Player(player));
+
+    let mut entities = Entities {
+        player,
+        doors: vec![],
+    };
+    let door = Door::new(vec2(180., 100.));
+    entities.doors.push(door);
 
     loop {
         data.update();
@@ -161,32 +171,18 @@ async fn main() {
 
         map.draw_base();
 
-        for entity in &mut entities {
-            match entity {
-                Entity::Player(player) => {
-                    if !paused {
-                        player.update(&mut data, &map);
-                    }
-                    player.draw(&mut data);
-                }
-                Entity::Enemy(_) => todo!(),
-            }
-        }
+        update_player(&mut data, &map, &mut entities);
+        handle_door_collisions(&data, &mut entities);
+        draw_simple_sprites(&entities);
 
         map.draw_upper();
+
         if data.debug_collisions {
+            draw_colliders(&data, &entities);
             map.draw_colliders();
         }
 
-        for entity in &mut entities {
-            match entity {
-                Entity::Player(player) => {
-                    draw_hp(&data, player.hp, player.max_hp);
-                    break;
-                }
-                _ => {}
-            }
-        }
+        draw_hp(&data, entities.player.hp, entities.player.max_hp);
 
         fps_counter.update_and_draw(&mut data);
 
