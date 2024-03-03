@@ -20,6 +20,7 @@ mod game_state;
 mod input_manager;
 mod map;
 mod pawn;
+mod physics;
 mod settings;
 mod sprite;
 mod ui;
@@ -117,6 +118,7 @@ async fn main() {
         sprites,
         input: InputManager::new(),
         camera,
+        debug_collisions: false,
     };
     data.settings.set_window_size(WindowSize::W1440);
 
@@ -146,6 +148,10 @@ async fn main() {
             }
         }
 
+        if is_key_pressed(KeyCode::F1) {
+            data.debug_collisions = !data.debug_collisions;
+        }
+
         if data.input.is_just_pressed(Action::Pause) {
             paused = !paused;
             if !paused {
@@ -153,13 +159,13 @@ async fn main() {
             }
         }
 
-        map.draw_base(&data);
+        map.draw_base();
 
         for entity in &mut entities {
             match entity {
                 Entity::Player(player) => {
                     if !paused {
-                        player.update(&mut data);
+                        player.update(&mut data, &map);
                     }
                     player.draw(&mut data);
                 }
@@ -167,8 +173,10 @@ async fn main() {
             }
         }
 
-        map.draw_upper(&data);
-        map.draw_colliders();
+        map.draw_upper();
+        if data.debug_collisions {
+            map.draw_colliders();
+        }
 
         for entity in &mut entities {
             match entity {

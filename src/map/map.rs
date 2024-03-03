@@ -4,12 +4,10 @@ use macroquad::prelude::*;
 use macroquad_tiled::Map as TiledMap;
 use tiled::TileId;
 
-use crate::game_data::GameData;
-
 pub struct Map {
     pub tiled_map: TiledMap,
     pub tileset_collision_map: HashMap<String, HashSet<TileId>>,
-    map_collision: HashSet<(usize, usize)>,
+    pub map_collision: HashSet<(usize, usize)>,
     map_rect: Rect,
 }
 
@@ -52,20 +50,19 @@ impl Map {
         }
     }
 
-    pub fn draw_base(&self, data: &GameData) {
+    pub fn draw_base(&self) {
         self.tiled_map.draw_tiles("layer0", self.map_rect, None);
         self.tiled_map.draw_tiles("layer1", self.map_rect, None);
         self.tiled_map.draw_tiles("layer2", self.map_rect, None);
     }
 
-    pub fn draw_upper(&self, data: &GameData) {
-        let size = data.settings.resolution;
+    pub fn draw_upper(&self) {
         self.tiled_map.draw_tiles("layer3", self.map_rect, None);
     }
 
     pub fn draw_colliders(&self) {
         for (x, y) in &self.map_collision {
-            draw_rectangle_lines(*x as f32 * 8., *y as f32 * 8., 8., 8., 1., RED);
+            draw_rectangle_lines(*x as f32 * 8., *y as f32 * 8., 8., 8., 1., GREEN);
         }
     }
 }

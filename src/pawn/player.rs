@@ -1,13 +1,16 @@
 use macroquad::prelude::*;
 
-use crate::game_data::GameData;
+use crate::{
+    game_data::GameData,
+    map::map::Map,
+    physics::collision::{resolve_collision, CircleCollider},
+};
 
 pub struct Player {
     texture: Texture2D,
-    position: Vec2,
+    pub position: Vec2,
     move_speed: f32,
-    // relative to the texture size
-    collider: Rect,
+    collider: CircleCollider,
     pub hp: u8,
     pub max_hp: u8,
 }
@@ -16,9 +19,9 @@ impl Player {
     pub fn new(texture: Texture2D, data: &GameData) -> Self {
         Self {
             texture,
-            position: vec2(172., 102.),
+            position: vec2(180., 120.),
             move_speed: 72.,
-            collider: Rect::new(6., 6., 4., 5.),
+            collider: CircleCollider::new(vec2(8., 10.), 3.),
             hp: 3,
             max_hp: 3,
         }
@@ -26,7 +29,7 @@ impl Player {
 }
 
 impl Player {
-    pub fn update(&mut self, data: &mut GameData) {
+    pub fn update(&mut self, data: &mut GameData, map: &Map) {
         let mut dir = Vec2::ZERO;
         if is_key_down(KeyCode::Left) || is_key_down(KeyCode::A) {
             dir += vec2(-1., 0.);
@@ -46,14 +49,21 @@ impl Player {
                 dir = input;
             }
         }
-        if dir.length_squared() > 0. {
+
+        let mut desired_pos = if dir.length_squared() > 0. {
             dir = dir.normalize();
-            self.position = self.position + self.move_speed * dir * get_frame_time();
-        }
+            self.position + self.move_speed * dir * get_frame_time()
+        } else {
+            self.position
+        };
+
+        desired_pos = resolve_collision(data, map, desired_pos, self.collider.radius);
+
+        self.position = desired_pos;
     }
 
     pub fn draw(&self, data: &mut GameData) {
-        let position = self.position;
+        let position = self.position - self.collider.offset;
         draw_texture_ex(
             &self.texture,
             position.x,
@@ -63,5 +73,15 @@ impl Player {
                 ..Default::default()
             },
         );
+
+        if data.debug_collisions {
+            draw_circle_lines(
+                self.position.x,
+                self.position.y,
+                self.collider.radius,
+                1.,
+                GREEN,
+            )
+        }
     }
 }

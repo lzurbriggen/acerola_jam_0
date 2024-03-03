@@ -16,6 +16,7 @@ pub struct GameData {
     pub sprites: Sprites,
     pub input: InputManager,
     pub camera: Camera2D,
+    pub debug_collisions: bool,
 }
 
 impl GameData {
