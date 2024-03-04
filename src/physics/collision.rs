@@ -19,6 +19,35 @@ pub fn check_collision_circles(
     None
 }
 
+// pub fn resolve_circle_collision(data: &GameData, entities: &Entities) -> Vec2 {
+//     let mut desired_pos = pos;
+
+//     for _ in 0..2 {
+//         let mut is_colliding = false;
+//         for enemy in &entities.enemies {
+//             let collider = match enemy {
+//                 crate::entity::entities::Enemy::Hopper(hopper) => {
+//                     (hopper.position, hopper.collider_radius)
+//                 }
+//             };
+
+//             if let Some(closest_point) =
+//                 check_collision_circles(&data, &collider, desired_pos, radius)
+//             {
+//                 is_colliding = true;
+//                 let diff_to_closest_point = closest_point - desired_pos;
+//                 let overlap = radius - diff_to_closest_point.length();
+
+//                 desired_pos = desired_pos - diff_to_closest_point.normalize() * (overlap + 0.01);
+//             }
+//         }
+//         if !is_colliding {
+//             break;
+//         }
+//     }
+//     desired_pos
+// }
+
 pub fn check_collision_aabb_circle(
     data: &GameData,
     rect: &Rect,

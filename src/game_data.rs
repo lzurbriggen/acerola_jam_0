@@ -1,16 +1,16 @@
 use macroquad::prelude::*;
 
 use crate::{
-    game_state::GameState, input_manager::InputManager, settings::GameSettings,
-    sprite::indexed_sprite::IndexedSprite, ui::ui_data::UIData,
+    entity::entity_id::Entity, game_state::GameState, input_manager::InputManager,
+    settings::GameSettings, sprite::indexed_sprite::IndexedSprite, ui::ui_data::UIData,
 };
 
 pub struct Sprites {
     pub hud_heart: IndexedSprite,
-    pub hopper: IndexedSprite,
 }
 
 pub struct GameData {
+    pub entity_index: u64,
     pub state: GameState,
     pub settings: GameSettings,
     pub ui: UIData,
@@ -21,6 +21,11 @@ pub struct GameData {
 }
 
 impl GameData {
+    pub fn new_entity(&mut self) -> Entity {
+        self.entity_index += 1;
+        Entity(self.entity_index)
+    }
+
     pub fn update(&mut self) {
         self.input.gamepads.poll();
         self.update_camera();

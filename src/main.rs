@@ -1,4 +1,4 @@
-use entity::entities::Entities;
+use entity::{entities::Components, entity_id::Entity, player::spawn_player};
 use fps_counter::FPSCounter;
 use game_state::GameState;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
@@ -8,15 +8,15 @@ use systems::{
     collision::draw_colliders,
     door::handle_door_collisions,
     enemy::update_enemies,
+    movement::move_entities,
     player::update_player,
     spawn::spawn_creatures,
-    sprite::{draw_multi_sprites, draw_simple_sprites},
+    sprite::{draw_animated_sprites, update_animated_sprites},
     timer::update_timers,
 };
 use ui::{pause_menu::pause_menu, ui_data::UIData};
 
 use crate::{
-    entity::player::Player,
     game_data::{GameData, Sprites},
     input_manager::{Action, InputManager},
     map::map::Map,
@@ -113,7 +113,6 @@ async fn main() {
 
     let sprites = Sprites {
         hud_heart: IndexedSprite::new(hud_heart_texture, 16, Vec2::ZERO),
-        hopper: IndexedSprite::new(hopper_texture, 16, vec2(-8., -8.)),
     };
 
     let settings = GameSettings::default();
@@ -126,6 +125,7 @@ async fn main() {
     let map = Map::new(tiled_map, settings.resolution);
 
     let mut data = GameData {
+        entity_index: 0,
         settings,
         state: GameState::default(),
         ui: ui_data,
@@ -138,18 +138,13 @@ async fn main() {
 
     let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
     player_texture.set_filter(FilterMode::Nearest);
-    let player = Player::new(player_texture, &data);
 
-    let mut entities = Entities {
-        player,
-        doors: vec![],
-        spawners: vec![],
-        enemies: vec![],
-    };
+    let mut components = Components::default();
 
-    let (map_doors, map_spawners) = map.get_entities();
-    entities.doors = [entities.doors, map_doors].concat();
-    entities.spawners = [entities.spawners, map_spawners].concat();
+    let mut entities: Vec<Entity> = vec![];
+    spawn_player(&mut data, player_texture, &mut entities, &mut components);
+
+    map.spawn_entities(&mut data, &mut entities, &mut components);
 
     loop {
         data.update();
@@ -185,22 +180,23 @@ async fn main() {
 
         map.draw_base();
 
-        spawn_creatures(&data, &mut entities);
-        update_timers(&mut entities);
-        update_player(&mut data, &map, &mut entities);
-        update_enemies(&mut data, &map, &mut entities);
-        handle_door_collisions(&data, &mut entities);
+        spawn_creatures(&mut data, &mut entities, &mut components, &hopper_texture);
+        update_timers(&entities, &mut components);
+        update_player(&mut data, &map, &entities, &mut components);
+        update_enemies(&mut entities, &mut components);
+        update_animated_sprites(&mut entities, &mut components);
+        handle_door_collisions(&data, &mut entities, &mut components);
+        move_entities(&mut data, &map, &entities, &mut components);
 
-        draw_simple_sprites(&entities);
-        draw_multi_sprites(&entities);
+        draw_animated_sprites(&entities, &mut components);
         map.draw_upper();
 
         if data.debug_collisions {
-            draw_colliders(&data, &entities);
+            draw_colliders(&data, &entities, &components);
             map.draw_colliders();
         }
 
-        draw_hp(&data, entities.player.hp, entities.player.max_hp);
+        // draw_hp(&data, entities.player.hp, entities.player.max_hp);
 
         fps_counter.update_and_draw(&mut data);
 

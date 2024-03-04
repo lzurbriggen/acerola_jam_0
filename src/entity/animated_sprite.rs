@@ -37,9 +37,39 @@ impl AnimatedSprite {
         }
     }
 
+    pub fn current_animation(&self) -> (&String, &Animation) {
+        (
+            &self.current_animation,
+            self.animations.get(&self.current_animation).unwrap(),
+        )
+    }
+
+    pub fn current_animation_mut(&mut self) -> (&String, &mut Animation) {
+        (
+            &self.current_animation,
+            self.animations.get_mut(&self.current_animation).unwrap(),
+        )
+    }
+
+    pub fn update(&mut self) {
+        let (_, anim) = self.current_animation_mut();
+        anim.timer.update();
+        if anim.timer.just_completed() {
+            anim.current_frame += 1;
+            if anim.current_frame >= anim.frames.len() {
+                anim.current_frame = 0;
+            }
+        }
+    }
+
     pub fn draw(&self, position: Vec2) {
-        let anim = self.animations.get(&self.current_animation).unwrap();
+        let (_, anim) = self.current_animation();
         let index = anim.frames[anim.current_frame];
         self.indexed_sprite.draw(position, index)
+    }
+
+    pub fn set_animation(&mut self, name: &str) {
+        self.current_animation = name.to_string();
+        self.current_animation_mut().1.current_frame = 0;
     }
 }

@@ -20,7 +20,7 @@ impl IndexedSprite {
     }
 
     pub fn draw(&self, pos: Vec2, index: usize) {
-        let pos = pos + self.position_offset;
+        let pos = pos - self.position_offset;
         draw_texture_ex(
             &self.texture,
             pos.x,

@@ -1,25 +1,32 @@
-use super::traits::Position;
-use macroquad::prelude::*;
+use macroquad::{prelude::*, ui::hash};
+
+use crate::game_data::GameData;
+
+use super::{entities::Components, entity_id::Entity};
 
 #[derive(Clone)]
 pub struct Spawner {
-    pub position: Vec2,
     pub active: bool,
     pub last_spawn_time: f64,
 }
 
-impl Spawner {
-    pub fn new(position: Vec2) -> Self {
-        Self {
-            position,
-            active: true,
-            last_spawn_time: get_time(),
-        }
-    }
-}
+pub fn spawn_spawner(
+    data: &mut GameData,
+    position: Vec2,
+    entities: &mut Vec<Entity>,
+    components: &mut Components,
+) -> Entity {
+    let id = data.new_entity();
 
-impl Position for Spawner {
-    fn position(&self) -> Vec2 {
-        self.position
-    }
+    components.positions.insert(id, position);
+
+    let spawner = Spawner {
+        active: true,
+        last_spawn_time: get_time(),
+    };
+    components.spawners.insert(id, spawner);
+
+    entities.push(id);
+
+    id
 }

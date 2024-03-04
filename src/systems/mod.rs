@@ -1,7 +1,10 @@
 pub mod collision;
 pub mod door;
 pub mod enemy;
+pub mod entities;
+pub mod movement;
 pub mod player;
 pub mod spawn;
 pub mod sprite;
 pub mod timer;
+pub mod traits;

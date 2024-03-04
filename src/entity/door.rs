@@ -1,30 +1,36 @@
 use macroquad::prelude::*;
 
-use super::traits::{Position, SphereCollider};
+use crate::{game_data::GameData, systems::traits::SphereCollider};
+
+use super::{entities::Components, entity_id::Entity};
 
 #[derive(Clone)]
 pub struct Door {
-    pub position: Vec2,
     pub radius: f32,
 }
 
 impl Door {
-    pub fn new(position: Vec2) -> Self {
-        Self {
-            position,
-            radius: 5.,
-        }
+    pub fn new() -> Self {
+        Self { radius: 5. }
     }
 }
 
-impl SphereCollider for Door {
-    fn radius(&self) -> f32 {
-        self.radius
-    }
-}
+pub fn spawn_door(
+    data: &mut GameData,
+    position: Vec2,
+    entities: &mut Vec<Entity>,
+    components: &mut Components,
+) -> Entity {
+    let id = data.new_entity();
 
-impl Position for Door {
-    fn position(&self) -> Vec2 {
-        self.position
-    }
+    components.positions.insert(id, position);
+
+    let collider = SphereCollider { radius: 5. };
+    components.colliders.insert(id, collider);
+
+    let door = Door::new();
+    components.doors.insert(id, door);
+
+    entities.push(id);
+    id
 }

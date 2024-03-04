@@ -1,41 +1,61 @@
 use macroquad::prelude::*;
 
-use crate::{
-    entity::entities::{self, Entities},
-    game_data::GameData,
-    map::map::Map,
-    physics::collision::resolve_map_collision,
-};
+use crate::entity::{entities::Components, entity_id::Entity};
 
-pub fn update_enemies(data: &GameData, map: &Map, entities: &mut Entities) {
-    for enemy in &mut entities.enemies {
-        match enemy {
-            entities::Enemy::Hopper(hopper) => {
-                if hopper.timer.just_completed() {
-                    hopper.jumping = !hopper.jumping;
+pub fn update_enemies(entities: &Vec<Entity>, comps: &mut Components) {
+    let hoppers = entities
+        .iter()
+        .filter(|e| {
+            comps.hoppers.contains_key(e)
+                && comps.positions.contains_key(e)
+                && comps.velocities.contains_key(e)
+                && comps.colliders.contains_key(e)
+                && comps.animated_sprites.contains_key(e)
+        })
+        .collect::<Vec<&Entity>>();
 
-                    if hopper.jumping {
-                        hopper.timer.time = 0.8;
-                        hopper.timer.reset();
-                    } else {
-                        hopper.timer.time = rand::gen_range(0.5, 1.5);
-                        hopper.timer.reset();
-                    }
-                }
-                let velocity = if hopper.jumping {
-                    if hopper.velocity.length_squared() >= 0.1 {
-                        hopper.velocity.normalize() * hopper.jump_move_speed
-                    } else {
-                        Vec2::ZERO
-                    }
-                } else {
-                    (entities.player.position - hopper.position).normalize() * hopper.move_speed
-                };
-                hopper.velocity = velocity;
-                let desired_pos = hopper.position + velocity * get_frame_time();
-                hopper.position =
-                    resolve_map_collision(data, map, desired_pos, hopper.collider_radius);
+    let players = entities
+        .iter()
+        .filter(|e| comps.player_data.contains_key(e) && comps.positions.contains_key(e))
+        .collect::<Vec<&Entity>>();
+
+    for hopper_e in &hoppers {
+        let player_pos = {
+            let mut pos = Vec2::ZERO;
+            for player_e in &players {
+                pos = *comps.positions.get(player_e).unwrap();
+                break;
+            }
+            pos
+        };
+        let hopper = comps.hoppers.get_mut(hopper_e).unwrap();
+        let position = comps.positions.get_mut(hopper_e).unwrap();
+        let velocity = comps.velocities.get_mut(hopper_e).unwrap();
+        let sprite = comps.animated_sprites.get_mut(hopper_e).unwrap();
+
+        hopper.timer.update();
+
+        if hopper.timer.just_completed() {
+            hopper.jumping = !hopper.jumping;
+
+            if hopper.jumping {
+                sprite.set_animation("jump");
+                hopper.timer.time = 0.96;
+                hopper.timer.reset();
+            } else {
+                sprite.set_animation("move");
+                hopper.timer.time = rand::gen_range(0.5, 1.5);
+                hopper.timer.reset();
             }
         }
+        *velocity = if hopper.jumping {
+            if velocity.length_squared() > 0. {
+                velocity.normalize() * hopper.jump_move_speed
+            } else {
+                Vec2::ZERO
+            }
+        } else {
+            (player_pos - *position).normalize() * hopper.move_speed
+        };
     }
 }

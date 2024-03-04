@@ -1,57 +1,62 @@
+use std::collections::HashMap;
+
 use macroquad::prelude::*;
 
-use crate::{sprite::indexed_sprite::IndexedSprite, timer::Timer};
+use crate::{
+    game_data::GameData, sprite::indexed_sprite::IndexedSprite, systems::traits::SphereCollider,
+    timer::Timer,
+};
 
-use super::traits::{MultiSprite, Position, SphereCollider, TimerProgress};
+use super::{
+    animated_sprite::{AnimatedSprite, Animation},
+    entities::Components,
+    entity_id::Entity,
+};
 
 pub struct Hopper {
-    sprite: IndexedSprite,
-    pub position: Vec2,
-    sprite_offset: Vec2,
-    pub collider_radius: f32,
     pub timer: Timer,
     pub jumping: bool,
-    pub velocity: Vec2,
     pub move_speed: f32,
     pub jump_move_speed: f32,
 }
 
-impl Hopper {
-    pub fn new(sprite: IndexedSprite, position: Vec2) -> Self {
-        Self {
-            sprite,
-            position,
-            sprite_offset: vec2(8., 8.),
-            collider_radius: 3.,
-            timer: Timer::new(2., false),
-            jumping: false,
-            velocity: Vec2::ZERO,
-            move_speed: 30.,
-            jump_move_speed: 40.,
-        }
-    }
-}
+pub fn spawn_hopper(
+    data: &mut GameData,
+    texture: Texture2D,
+    position: Vec2,
+    entities: &mut Vec<Entity>,
+    components: &mut Components,
+) -> Entity {
+    let id = data.new_entity();
 
-impl MultiSprite for Hopper {
-    fn indexed_sprite(&self) -> &IndexedSprite {
-        &self.sprite
-    }
-}
+    let indexed_sprite = IndexedSprite::new(texture, 16, vec2(8., 8.));
+    let sprite = AnimatedSprite::new(
+        indexed_sprite,
+        HashMap::from([
+            ("move".to_string(), Animation::new(vec![0, 1], 0.3, true)),
+            (
+                "jump".to_string(),
+                Animation::new(vec![2, 3, 4, 5, 6, 7, 8, 9], 0.12, true),
+            ),
+        ]),
+    );
+    components.animated_sprites.insert(id, sprite);
 
-impl Position for Hopper {
-    fn position(&self) -> Vec2 {
-        self.position
-    }
-}
+    let collider = SphereCollider { radius: 3. };
+    components.colliders.insert(id, collider);
 
-impl SphereCollider for Hopper {
-    fn radius(&self) -> f32 {
-        self.collider_radius
-    }
-}
+    components.positions.insert(id, position);
+    components.velocities.insert(id, Vec2::ZERO);
 
-impl TimerProgress for Hopper {
-    fn update_timers(&mut self) {
-        self.timer.update()
-    }
+    let hopper = Hopper {
+        timer: Timer::new(2., false),
+        jumping: false,
+        move_speed: 25.,
+        jump_move_speed: 25.,
+    };
+
+    components.hoppers.insert(id, hopper);
+
+    entities.push(id);
+    id
 }
