@@ -5,6 +5,10 @@ use crate::{
     game_data::GameData,
 };
 
+pub struct SphereCollider {
+    pub radius: f32,
+}
+
 pub fn draw_colliders(data: &GameData, entities: &Vec<Entity>, components: &Components) {
     if !data.debug_collisions {
         return;

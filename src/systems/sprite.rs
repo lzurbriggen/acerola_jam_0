@@ -1,38 +1,6 @@
-use macroquad::prelude::*;
+use std::cmp::Ordering;
 
 use crate::entity::{entities::Components, entity_id::Entity};
-
-use super::traits::{MultiSprite, Position, Sprite};
-
-// pub fn draw_simple_sprites(entities: &Entities) {
-//     // draw_sprite(&entities.player);
-// }
-
-// fn draw_sprite<T: Position + Sprite>(sprite: &T) {
-//     let (texture, offset) = sprite.texture_and_offset();
-//     let position = sprite.position() - offset;
-//     draw_texture_ex(
-//         &texture,
-//         position.x,
-//         position.y,
-//         WHITE,
-//         DrawTextureParams {
-//             ..Default::default()
-//         },
-//     );
-// }
-
-// pub fn draw_multi_sprites(entities: &Entities) {
-//     for enemy in &entities.enemies {
-//         match enemy {
-//             _ => {}
-//         }
-//     }
-// }
-
-// fn draw_multi_sprite<T: Position + MultiSprite>(sprite: &T) {
-//     sprite.indexed_sprite().draw(sprite.position(), 0);
-// }
 
 pub fn update_animated_sprites(entities: &mut Vec<Entity>, comps: &mut Components) {
     let sprites = entities
@@ -47,10 +15,22 @@ pub fn update_animated_sprites(entities: &mut Vec<Entity>, comps: &mut Component
 }
 
 pub fn draw_animated_sprites(entities: &Vec<Entity>, comps: &Components) {
-    let sprites = entities
+    let mut sprites = entities
         .iter()
         .filter(|e| comps.positions.contains_key(e) && comps.animated_sprites.contains_key(e))
         .collect::<Vec<&Entity>>();
+
+    sprites.sort_by(|a, b| {
+        let a_pos = comps.positions.get(&a).unwrap();
+        let b_pos = comps.positions.get(&b).unwrap();
+        if a_pos.y < b_pos.y {
+            Ordering::Less
+        } else if a_pos.y > b_pos.y {
+            Ordering::Greater
+        } else {
+            Ordering::Equal
+        }
+    });
 
     for sprite in &sprites {
         let position = comps.positions.get(&sprite).unwrap();

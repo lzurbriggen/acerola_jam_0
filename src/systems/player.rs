@@ -4,16 +4,10 @@ use crate::{
     entity::{entities::Components, entity_id::Entity},
     game_data::GameData,
     input_manager::Action,
-    map::map::Map,
-    physics::collision::{check_collision_circles, resolve_map_collision},
+    physics::collision::check_collision_circles,
 };
 
-pub fn update_player(
-    data: &mut GameData,
-    map: &Map,
-    entities: &Vec<Entity>,
-    components: &mut Components,
-) {
+pub fn update_player(data: &mut GameData, entities: &Vec<Entity>, components: &mut Components) {
     let players = entities
         .iter()
         .filter(|e| {
@@ -58,15 +52,6 @@ pub fn update_player(
         } else {
             *velocity = Vec2::ZERO;
         };
-
-        // let desired_pos = if dir.length_squared() > 0. {
-        //     dir = dir.normalize();
-        //     *position + player_data.move_speed * dir * get_frame_time()
-        // } else {
-        //     *position
-        // };
-
-        // *position = resolve_map_collision(data, map, desired_pos, player_collider.radius);
     }
 
     for player in &players {
@@ -78,7 +63,6 @@ pub fn update_player(
                 let other_collider = components.colliders.get(&other_collider).unwrap();
 
                 if check_collision_circles(
-                    data,
                     *position,
                     player_collider.radius,
                     *other_collider_pos,

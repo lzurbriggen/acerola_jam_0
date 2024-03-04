@@ -1,10 +1,8 @@
 use crate::{
-    entity::{door::Door, entities::Components, entity_id::Entity, player::PlayerData},
+    entity::{entities::Components, entity_id::Entity},
     game_data::GameData,
     physics::collision::check_collision_circles,
 };
-
-use super::traits::SphereCollider;
 
 pub fn handle_door_collisions(data: &GameData, entities: &Vec<Entity>, components: &Components) {
     let players = entities
@@ -29,7 +27,6 @@ pub fn handle_door_collisions(data: &GameData, entities: &Vec<Entity>, component
             let collider = components.colliders.get(door_e).unwrap();
             let coll_position = components.positions.get(door_e).unwrap();
             if let Some(_) = check_collision_circles(
-                data,
                 *position,
                 player_collider.radius,
                 *coll_position,

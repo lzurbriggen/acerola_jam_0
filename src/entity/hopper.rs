@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 
 use crate::{
-    game_data::GameData, sprite::indexed_sprite::IndexedSprite, systems::traits::SphereCollider,
+    game_data::GameData, sprite::indexed_sprite::IndexedSprite, systems::collision::SphereCollider,
     timer::Timer,
 };
 
@@ -29,7 +29,7 @@ pub fn spawn_hopper(
 ) -> Entity {
     let id = data.new_entity();
 
-    let indexed_sprite = IndexedSprite::new(texture, 16, vec2(8., 8.));
+    let indexed_sprite = IndexedSprite::new(texture, 16, vec2(8., 10.));
     let sprite = AnimatedSprite::new(
         indexed_sprite,
         HashMap::from([

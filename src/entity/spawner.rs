@@ -1,4 +1,4 @@
-use macroquad::{prelude::*, ui::hash};
+use macroquad::prelude::*;
 
 use crate::game_data::GameData;
 

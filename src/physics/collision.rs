@@ -1,52 +1,65 @@
 use macroquad::prelude::*;
 
-use crate::{game_data::GameData, map::map::Map};
+use crate::{
+    entity::{entities::Components, entity_id::Entity},
+    game_data::GameData,
+    map::map::Map,
+    systems::collision::SphereCollider,
+};
+
+pub struct Collision {
+    overlap: f32,
+    normal: Vec2,
+}
 
 pub fn check_collision_circles(
-    _data: &GameData,
     pos1: Vec2,
     radius1: f32,
     pos2: Vec2,
     radius2: f32,
-) -> Option<Vec2> {
+) -> Option<Collision> {
     let combined_radii = radius1 + radius2;
-    let is_colliding = (pos1 - pos2).length_squared() < combined_radii * combined_radii;
+    let diff = pos1 - pos2;
+    let overlap = diff.length() - combined_radii;
 
-    if is_colliding {
-        return Some(Vec2::ZERO);
+    if overlap < 0. {
+        let normal = diff.normalize();
+        return Some(Collision { normal, overlap });
     }
 
     None
 }
 
-// pub fn resolve_circle_collision(data: &GameData, entities: &Entities) -> Vec2 {
-//     let mut desired_pos = pos;
+pub fn resolve_circle_collision(
+    entity: Entity,
+    pos: Vec2,
+    colliders: &Vec<(Entity, Vec2, &SphereCollider)>,
+) -> Vec2 {
+    let collider = colliders.iter().find(|(e, _, _)| entity == *e).unwrap();
 
-//     for _ in 0..2 {
-//         let mut is_colliding = false;
-//         for enemy in &entities.enemies {
-//             let collider = match enemy {
-//                 crate::entity::entities::Enemy::Hopper(hopper) => {
-//                     (hopper.position, hopper.collider_radius)
-//                 }
-//             };
-
-//             if let Some(closest_point) =
-//                 check_collision_circles(&data, &collider, desired_pos, radius)
-//             {
-//                 is_colliding = true;
-//                 let diff_to_closest_point = closest_point - desired_pos;
-//                 let overlap = radius - diff_to_closest_point.length();
-
-//                 desired_pos = desired_pos - diff_to_closest_point.normalize() * (overlap + 0.01);
-//             }
-//         }
-//         if !is_colliding {
-//             break;
-//         }
-//     }
-//     desired_pos
-// }
+    let mut desired_pos = pos;
+    for _ in 0..2 {
+        let mut is_colliding = false;
+        for (coll_e, other_pos, other_coll) in colliders {
+            if *coll_e == entity {
+                break;
+            }
+            if let Some(collision) = check_collision_circles(
+                desired_pos,
+                collider.2.radius,
+                *other_pos,
+                other_coll.radius,
+            ) {
+                is_colliding = true;
+                desired_pos = desired_pos - collision.normal * (collision.overlap + 0.01);
+            }
+        }
+        if !is_colliding {
+            break;
+        }
+    }
+    desired_pos
+}
 
 pub fn check_collision_aabb_circle(
     data: &GameData,

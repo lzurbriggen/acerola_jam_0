@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::{game_data::GameData, systems::traits::SphereCollider};
+use crate::{game_data::GameData, systems::collision::SphereCollider};
 
 use super::{entities::Components, entity_id::Entity};
 

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use macroquad::math::Vec2;
 
-use crate::{systems::traits::SphereCollider, timer::Timer};
+use crate::{systems::collision::SphereCollider, timer::Timer};
 
 use super::{
     animated_sprite::AnimatedSprite, door::Door, entity_id::Entity, hopper::Hopper,

@@ -28,10 +28,6 @@ impl WindowSize {
         }
     }
 
-    pub fn scale_factor(&self) -> Vec2 {
-        vec2(2., 2.)
-    }
-
     pub fn list() -> Vec<WindowSize> {
         vec![
             WindowSize::W360,

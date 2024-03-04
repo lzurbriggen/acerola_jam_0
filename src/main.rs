@@ -182,7 +182,7 @@ async fn main() {
 
         spawn_creatures(&mut data, &mut entities, &mut components, &hopper_texture);
         update_timers(&entities, &mut components);
-        update_player(&mut data, &map, &entities, &mut components);
+        update_player(&mut data, &entities, &mut components);
         update_enemies(&mut entities, &mut components);
         update_animated_sprites(&mut entities, &mut components);
         handle_door_collisions(&data, &mut entities, &mut components);
@@ -196,7 +196,7 @@ async fn main() {
             map.draw_colliders();
         }
 
-        // draw_hp(&data, entities.player.hp, entities.player.max_hp);
+        draw_hp(&data, &entities, &components);
 
         fps_counter.update_and_draw(&mut data);
 
@@ -206,4 +206,8 @@ async fn main() {
 
         next_frame().await
     }
+}
+
+pub async fn pub_main() {
+    main();
 }
