@@ -3,18 +3,23 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 
 use crate::{
-    entity::{entities::Ecs, entity_id::Entity},
+    entity::{entities::Ecs, entity_id::Entity, tags::DamageSource},
     game_data::GameData,
     input_manager::Action,
     physics::collision::{check_collision_circles, Collision},
 };
 
-pub fn update_player(data: &mut GameData, collisions: &HashMap<Entity, Collision>, ecs: &mut Ecs) {
+pub fn update_player(
+    data: &mut GameData,
+    collisions: &HashMap<(Entity, Entity), Collision>,
+    ecs: &mut Ecs,
+) {
     let players = ecs.check_components(|e, comps| {
         comps.player_data.contains_key(e)
             && comps.positions.contains_key(e)
             && comps.colliders.contains_key(e)
             && comps.velocities.contains_key(e)
+            && comps.health.contains_key(e)
     });
 
     let colliders = ecs.check_components(|e, comps| comps.colliders.contains_key(e));
@@ -22,6 +27,26 @@ pub fn update_player(data: &mut GameData, collisions: &HashMap<Entity, Collision
     for player in &players {
         let player_data = ecs.components.player_data.get_mut(player).unwrap();
         let velocity = ecs.components.velocities.get_mut(player).unwrap();
+        let health = ecs.components.health.get_mut(player).unwrap();
+
+        player_data.invulnerable_timer.update();
+
+        if player_data.invulnerable_timer.completed() {
+            'damage: for ((source, target), _collision) in collisions.iter() {
+                if target != player {
+                    continue;
+                }
+                if let Some(damage_on_coll) = ecs.components.damage_on_collision.get(source) {
+                    if damage_on_coll.source != DamageSource::Enemy {
+                        continue;
+                    }
+                    health.hp -= damage_on_coll.damage;
+                    player_data.invulnerable_timer.reset();
+                    player_data.invulnerable_timer.set_paused(false);
+                    break 'damage;
+                }
+            }
+        }
 
         let mut dir = Vec2::ZERO;
         if data.input.is_currently_pressed(Action::Left) {

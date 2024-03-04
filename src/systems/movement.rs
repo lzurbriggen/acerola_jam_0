@@ -9,7 +9,11 @@ use crate::{
     physics::collision::{resolve_circle_collision, resolve_map_collision, Collision},
 };
 
-pub fn move_entities(data: &mut GameData, map: &Map, ecs: &mut Ecs) -> HashMap<Entity, Collision> {
+pub fn move_entities(
+    data: &mut GameData,
+    map: &Map,
+    ecs: &mut Ecs,
+) -> HashMap<(Entity, Entity), Collision> {
     let moveables = ecs.check_components(|e, comps| {
         comps.positions.contains_key(e) && comps.velocities.contains_key(e)
     });
@@ -24,7 +28,7 @@ pub fn move_entities(data: &mut GameData, map: &Map, ecs: &mut Ecs) -> HashMap<E
         }
     }
 
-    let mut collisions = HashMap::<Entity, Collision>::new();
+    let mut collisions = HashMap::<(Entity, Entity), Collision>::new();
     for moveable in &moveables {
         let position = comps.positions.get_mut(moveable).unwrap();
         let velocity = comps.velocities.get_mut(moveable).unwrap();

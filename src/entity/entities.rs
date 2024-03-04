@@ -5,8 +5,13 @@ use macroquad::math::Vec2;
 use crate::{systems::collision::SphereCollider, timer::Timer};
 
 use super::{
-    animated_sprite::AnimatedSprite, door::Door, entity_id::Entity, hopper::Hopper,
-    player::PlayerData, spawner::Spawner,
+    animated_sprite::AnimatedSprite,
+    door::Door,
+    entity_id::Entity,
+    hopper::Hopper,
+    player::PlayerData,
+    spawner::Spawner,
+    tags::{DamageOnCollision, Health},
 };
 
 pub type ComponentVec<T> = HashMap<Entity, T>;
@@ -22,6 +27,8 @@ pub struct Components {
     pub velocities: ComponentVec<Vec2>,
     pub spawners: ComponentVec<Spawner>,
     pub hoppers: ComponentVec<Hopper>,
+    pub damage_on_collision: ComponentVec<DamageOnCollision>,
+    pub health: ComponentVec<Health>,
 }
 
 #[derive(Default)]

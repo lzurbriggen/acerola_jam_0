@@ -7,11 +7,11 @@ use crate::{
     systems::collision::SphereCollider,
 };
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Collision {
-    point: Vec2,
-    overlap: f32,
-    normal: Vec2,
+    pub point: Vec2,
+    pub overlap: f32,
+    pub normal: Vec2,
 }
 
 pub fn check_collision_circles(
@@ -38,18 +38,21 @@ pub fn check_collision_circles(
 }
 
 pub fn resolve_circle_collision(
-    entity: Entity,
+    source_entity: Entity,
     pos: Vec2,
     colliders: &Vec<(Entity, Vec2, &SphereCollider)>,
-) -> (Vec2, HashMap<Entity, Collision>) {
-    let collider = colliders.iter().find(|(e, _, _)| entity == *e).unwrap();
+) -> (Vec2, HashMap<(Entity, Entity), Collision>) {
+    let collider = colliders
+        .iter()
+        .find(|(e, _, _)| source_entity == *e)
+        .unwrap();
 
     let mut desired_pos = pos;
     let mut collisions = HashMap::new();
     for _ in 0..2 {
         let mut is_colliding = false;
         for (coll_e, other_pos, other_coll) in colliders {
-            if *coll_e == entity {
+            if *coll_e == source_entity {
                 break;
             }
             if let Some(collision) = check_collision_circles(
@@ -60,7 +63,7 @@ pub fn resolve_circle_collision(
             ) {
                 is_colliding = true;
                 desired_pos = desired_pos - collision.normal * (collision.overlap + 0.01);
-                collisions.insert(*coll_e, collision);
+                collisions.insert((source_entity, *coll_e), collision);
             }
         }
         if !is_colliding {

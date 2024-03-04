@@ -11,6 +11,7 @@ use super::{
     animated_sprite::{AnimatedSprite, Animation},
     entities::Ecs,
     entity_id::Entity,
+    tags::{DamageOnCollision, DamageSource, Health},
 };
 
 pub struct Hopper {
@@ -53,8 +54,16 @@ pub fn spawn_hopper(
         move_speed: 25.,
         jump_move_speed: 25.,
     };
-
     ecs.components.hoppers.insert(id, hopper);
+
+    ecs.components.health.insert(id, Health { hp: 30. });
+    ecs.components.damage_on_collision.insert(
+        id,
+        DamageOnCollision {
+            source: DamageSource::Enemy,
+            damage: 0.5,
+        },
+    );
 
     ecs.entities.push(id);
     id

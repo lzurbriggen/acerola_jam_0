@@ -45,7 +45,21 @@ impl Timer {
         !self.previously_completed && self.completed
     }
 
+    pub fn completed(&self) -> bool {
+        self.completed
+    }
+
     pub fn progress(&self) -> f32 {
         (self.remaining_time / self.time).max(0.)
+    }
+
+    pub fn set_paused(&mut self, paused: bool) {
+        self.paused = paused;
+    }
+
+    pub fn stop(&mut self) {
+        self.paused = true;
+        self.remaining_time = 0.;
+        self.completed = true;
     }
 }
