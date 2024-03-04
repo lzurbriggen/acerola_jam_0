@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 
 use crate::game_data::GameData;
 
-use super::{entities::Components, entity_id::Entity};
+use super::{entities::Ecs, entity_id::Entity};
 
 #[derive(Clone)]
 pub struct Spawner {
@@ -10,23 +10,18 @@ pub struct Spawner {
     pub last_spawn_time: f64,
 }
 
-pub fn spawn_spawner(
-    data: &mut GameData,
-    position: Vec2,
-    entities: &mut Vec<Entity>,
-    components: &mut Components,
-) -> Entity {
+pub fn spawn_spawner(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entity {
     let id = data.new_entity();
 
-    components.positions.insert(id, position);
+    ecs.components.positions.insert(id, position);
 
     let spawner = Spawner {
         active: true,
         last_spawn_time: get_time(),
     };
-    components.spawners.insert(id, spawner);
+    ecs.components.spawners.insert(id, spawner);
 
-    entities.push(id);
+    ecs.entities.push(id);
 
     id
 }

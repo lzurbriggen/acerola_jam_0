@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 
 use crate::{game_data::GameData, systems::collision::SphereCollider};
 
-use super::{entities::Components, entity_id::Entity};
+use super::{entities::Ecs, entity_id::Entity};
 
 #[derive(Clone)]
 pub struct Door {
@@ -15,22 +15,17 @@ impl Door {
     }
 }
 
-pub fn spawn_door(
-    data: &mut GameData,
-    position: Vec2,
-    entities: &mut Vec<Entity>,
-    components: &mut Components,
-) -> Entity {
+pub fn spawn_door(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entity {
     let id = data.new_entity();
 
-    components.positions.insert(id, position);
+    ecs.components.positions.insert(id, position);
 
     let collider = SphereCollider { radius: 5. };
-    components.colliders.insert(id, collider);
+    ecs.components.colliders.insert(id, collider);
 
     let door = Door::new();
-    components.doors.insert(id, door);
+    ecs.components.doors.insert(id, door);
 
-    entities.push(id);
+    ecs.entities.push(id);
     id
 }

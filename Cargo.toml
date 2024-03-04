@@ -6,9 +6,9 @@ edition = "2021"
 [[bin]]
 name = "acerola_jam_0"
 
-# [lib]
-# path = "src/main.rs"
-# crate-type = ["cdylib"]
+[lib]
+path = "src/main.rs"
+crate-type = ["cdylib"]
 
 [profile.dev.package.'*']
 opt-level = 3

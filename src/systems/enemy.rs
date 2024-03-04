@@ -1,37 +1,33 @@
 use macroquad::prelude::*;
 
-use crate::entity::{entities::Components, entity_id::Entity};
+use crate::entity::entities::Ecs;
 
-pub fn update_enemies(entities: &Vec<Entity>, comps: &mut Components) {
-    let hoppers = entities
-        .iter()
-        .filter(|e| {
-            comps.hoppers.contains_key(e)
-                && comps.positions.contains_key(e)
-                && comps.velocities.contains_key(e)
-                && comps.colliders.contains_key(e)
-                && comps.animated_sprites.contains_key(e)
-        })
-        .collect::<Vec<&Entity>>();
+pub fn update_enemies(ecs: &mut Ecs) {
+    let hoppers = ecs.check_components(|e, comps| {
+        comps.hoppers.contains_key(e)
+            && comps.positions.contains_key(e)
+            && comps.velocities.contains_key(e)
+            && comps.colliders.contains_key(e)
+            && comps.animated_sprites.contains_key(e)
+    });
 
-    let players = entities
-        .iter()
-        .filter(|e| comps.player_data.contains_key(e) && comps.positions.contains_key(e))
-        .collect::<Vec<&Entity>>();
+    let players = ecs.check_components(|e, comps| {
+        comps.player_data.contains_key(e) && comps.positions.contains_key(e)
+    });
 
     for hopper_e in &hoppers {
         let player_pos = {
             let mut pos = Vec2::ZERO;
             for player_e in &players {
-                pos = *comps.positions.get(player_e).unwrap();
+                pos = *ecs.components.positions.get(player_e).unwrap();
                 break;
             }
             pos
         };
-        let hopper = comps.hoppers.get_mut(hopper_e).unwrap();
-        let position = comps.positions.get_mut(hopper_e).unwrap();
-        let velocity = comps.velocities.get_mut(hopper_e).unwrap();
-        let sprite = comps.animated_sprites.get_mut(hopper_e).unwrap();
+        let hopper = ecs.components.hoppers.get_mut(hopper_e).unwrap();
+        let position = ecs.components.positions.get_mut(hopper_e).unwrap();
+        let velocity = ecs.components.velocities.get_mut(hopper_e).unwrap();
+        let sprite = ecs.components.animated_sprites.get_mut(hopper_e).unwrap();
 
         hopper.timer.update();
 

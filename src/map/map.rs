@@ -4,7 +4,7 @@ use macroquad::prelude::*;
 use macroquad_tiled::Map as TiledMap;
 
 use crate::{
-    entity::{door::spawn_door, entities::Components, entity_id::Entity, spawner::spawn_spawner},
+    entity::{door::spawn_door, entities::Ecs, spawner::spawn_spawner},
     game_data::GameData,
 };
 
@@ -54,20 +54,15 @@ impl Map {
         }
     }
 
-    pub fn spawn_entities(
-        &self,
-        data: &mut GameData,
-        entities: &mut Vec<Entity>,
-        components: &mut Components,
-    ) {
+    pub fn spawn_entities(&self, data: &mut GameData, ecs: &mut Ecs) {
         for (_, layer) in &self.tiled_map.layers {
             for object in &layer.objects {
                 let object_pos = vec2(object.world_x + 4., object.world_y - 4.);
                 if let Some(_door_dir) = object.properties.get("door") {
-                    spawn_door(data, object_pos, entities, components);
+                    spawn_door(data, object_pos, ecs);
                 }
                 if let Some(_) = object.properties.get("spawn") {
-                    spawn_spawner(data, object_pos, entities, components);
+                    spawn_spawner(data, object_pos, ecs);
                 }
             }
         }

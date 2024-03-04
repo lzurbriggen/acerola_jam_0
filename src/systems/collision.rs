@@ -1,27 +1,23 @@
 use macroquad::prelude::*;
 
-use crate::{
-    entity::{entities::Components, entity_id::Entity},
-    game_data::GameData,
-};
+use crate::{entity::entities::Ecs, game_data::GameData};
 
 pub struct SphereCollider {
     pub radius: f32,
 }
 
-pub fn draw_colliders(data: &GameData, entities: &Vec<Entity>, components: &Components) {
+pub fn draw_colliders(data: &GameData, ecs: &Ecs) {
     if !data.debug_collisions {
         return;
     }
 
-    let colliders = entities
-        .iter()
-        .filter(|e| components.positions.contains_key(e) && components.colliders.contains_key(e))
-        .collect::<Vec<&Entity>>();
+    let colliders = ecs.check_components(|e, comps| {
+        comps.positions.contains_key(e) && comps.colliders.contains_key(e)
+    });
 
     for id in &colliders {
-        let pos = components.positions.get(&id).unwrap();
-        let coll = components.colliders.get(&id).unwrap();
+        let pos = ecs.components.positions.get(&id).unwrap();
+        let coll = ecs.components.colliders.get(&id).unwrap();
 
         draw_circle_lines(pos.x, pos.y, coll.radius, 1., BLUE)
     }

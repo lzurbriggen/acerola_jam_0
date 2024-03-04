@@ -23,3 +23,22 @@ pub struct Components {
     pub spawners: ComponentVec<Spawner>,
     pub hoppers: ComponentVec<Hopper>,
 }
+
+#[derive(Default)]
+pub struct Ecs {
+    pub entities: Vec<Entity>,
+    pub components: Components,
+}
+
+impl Ecs {
+    pub fn check_components<P>(&self, predicate: P) -> Vec<Entity>
+    where
+        P: Fn(&Entity, &Components) -> bool,
+    {
+        self.entities
+            .iter()
+            .filter(|e| predicate(e, &self.components))
+            .map(|e| *e)
+            .collect::<Vec<Entity>>()
+    }
+}

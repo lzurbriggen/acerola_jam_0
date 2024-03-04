@@ -1,4 +1,6 @@
-use entity::{entities::Components, entity_id::Entity, player::spawn_player};
+use std::collections::HashMap;
+
+use entity::{entities::Ecs, player::spawn_player};
 use fps_counter::FPSCounter;
 use game_state::GameState;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
@@ -139,12 +141,13 @@ async fn main() {
     let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
     player_texture.set_filter(FilterMode::Nearest);
 
-    let mut components = Components::default();
+    let mut ecs = Ecs::default();
 
-    let mut entities: Vec<Entity> = vec![];
-    spawn_player(&mut data, player_texture, &mut entities, &mut components);
+    spawn_player(&mut data, player_texture, &mut ecs);
 
-    map.spawn_entities(&mut data, &mut entities, &mut components);
+    map.spawn_entities(&mut data, &mut ecs);
+
+    let mut collisions = HashMap::new();
 
     loop {
         data.update();
@@ -180,23 +183,23 @@ async fn main() {
 
         map.draw_base();
 
-        spawn_creatures(&mut data, &mut entities, &mut components, &hopper_texture);
-        update_timers(&entities, &mut components);
-        update_player(&mut data, &entities, &mut components);
-        update_enemies(&mut entities, &mut components);
-        update_animated_sprites(&mut entities, &mut components);
-        handle_door_collisions(&data, &mut entities, &mut components);
-        move_entities(&mut data, &map, &entities, &mut components);
+        spawn_creatures(&mut data, &mut ecs, &hopper_texture);
+        update_timers(&mut ecs);
+        update_player(&mut data, &collisions, &mut ecs);
+        update_enemies(&mut ecs);
+        update_animated_sprites(&mut ecs);
+        handle_door_collisions(&mut ecs);
+        collisions = move_entities(&mut data, &map, &mut ecs);
 
-        draw_animated_sprites(&entities, &mut components);
+        draw_animated_sprites(&mut ecs);
         map.draw_upper();
 
         if data.debug_collisions {
-            draw_colliders(&data, &entities, &components);
+            draw_colliders(&data, &ecs);
             map.draw_colliders();
         }
 
-        draw_hp(&data, &entities, &components);
+        draw_hp(&data, &ecs);
 
         fps_counter.update_and_draw(&mut data);
 

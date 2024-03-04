@@ -1,13 +1,15 @@
+use std::collections::HashMap;
+
 use macroquad::prelude::*;
 
 use crate::{
-    entity::{entities::Components, entity_id::Entity},
-    game_data::GameData,
-    map::map::Map,
+    entity::entity_id::Entity, game_data::GameData, map::map::Map,
     systems::collision::SphereCollider,
 };
 
+#[derive(PartialEq)]
 pub struct Collision {
+    point: Vec2,
     overlap: f32,
     normal: Vec2,
 }
@@ -24,7 +26,12 @@ pub fn check_collision_circles(
 
     if overlap < 0. {
         let normal = diff.normalize();
-        return Some(Collision { normal, overlap });
+        let point = normal * radius2;
+        return Some(Collision {
+            point,
+            normal,
+            overlap,
+        });
     }
 
     None
@@ -34,10 +41,11 @@ pub fn resolve_circle_collision(
     entity: Entity,
     pos: Vec2,
     colliders: &Vec<(Entity, Vec2, &SphereCollider)>,
-) -> Vec2 {
+) -> (Vec2, HashMap<Entity, Collision>) {
     let collider = colliders.iter().find(|(e, _, _)| entity == *e).unwrap();
 
     let mut desired_pos = pos;
+    let mut collisions = HashMap::new();
     for _ in 0..2 {
         let mut is_colliding = false;
         for (coll_e, other_pos, other_coll) in colliders {
@@ -52,13 +60,14 @@ pub fn resolve_circle_collision(
             ) {
                 is_colliding = true;
                 desired_pos = desired_pos - collision.normal * (collision.overlap + 0.01);
+                collisions.insert(*coll_e, collision);
             }
         }
         if !is_colliding {
             break;
         }
     }
-    desired_pos
+    (desired_pos, collisions)
 }
 
 pub fn check_collision_aabb_circle(

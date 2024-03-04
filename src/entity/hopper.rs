@@ -9,7 +9,7 @@ use crate::{
 
 use super::{
     animated_sprite::{AnimatedSprite, Animation},
-    entities::Components,
+    entities::Ecs,
     entity_id::Entity,
 };
 
@@ -24,8 +24,7 @@ pub fn spawn_hopper(
     data: &mut GameData,
     texture: Texture2D,
     position: Vec2,
-    entities: &mut Vec<Entity>,
-    components: &mut Components,
+    ecs: &mut Ecs,
 ) -> Entity {
     let id = data.new_entity();
 
@@ -40,13 +39,13 @@ pub fn spawn_hopper(
             ),
         ]),
     );
-    components.animated_sprites.insert(id, sprite);
+    ecs.components.animated_sprites.insert(id, sprite);
 
     let collider = SphereCollider { radius: 3. };
-    components.colliders.insert(id, collider);
+    ecs.components.colliders.insert(id, collider);
 
-    components.positions.insert(id, position);
-    components.velocities.insert(id, Vec2::ZERO);
+    ecs.components.positions.insert(id, position);
+    ecs.components.velocities.insert(id, Vec2::ZERO);
 
     let hopper = Hopper {
         timer: Timer::new(2., false),
@@ -55,8 +54,8 @@ pub fn spawn_hopper(
         jump_move_speed: 25.,
     };
 
-    components.hoppers.insert(id, hopper);
+    ecs.components.hoppers.insert(id, hopper);
 
-    entities.push(id);
+    ecs.entities.push(id);
     id
 }

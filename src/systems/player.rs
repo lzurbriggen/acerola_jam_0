@@ -1,31 +1,27 @@
+use std::collections::HashMap;
+
 use macroquad::prelude::*;
 
 use crate::{
-    entity::{entities::Components, entity_id::Entity},
+    entity::{entities::Ecs, entity_id::Entity},
     game_data::GameData,
     input_manager::Action,
-    physics::collision::check_collision_circles,
+    physics::collision::{check_collision_circles, Collision},
 };
 
-pub fn update_player(data: &mut GameData, entities: &Vec<Entity>, components: &mut Components) {
-    let players = entities
-        .iter()
-        .filter(|e| {
-            components.player_data.contains_key(e)
-                && components.positions.contains_key(e)
-                && components.colliders.contains_key(e)
-                && components.velocities.contains_key(e)
-        })
-        .collect::<Vec<&Entity>>();
+pub fn update_player(data: &mut GameData, collisions: &HashMap<Entity, Collision>, ecs: &mut Ecs) {
+    let players = ecs.check_components(|e, comps| {
+        comps.player_data.contains_key(e)
+            && comps.positions.contains_key(e)
+            && comps.colliders.contains_key(e)
+            && comps.velocities.contains_key(e)
+    });
 
-    let colliders = entities
-        .iter()
-        .filter(|e| components.colliders.contains_key(e))
-        .collect::<Vec<&Entity>>();
+    let colliders = ecs.check_components(|e, comps| comps.colliders.contains_key(e));
 
     for player in &players {
-        let player_data = components.player_data.get_mut(player).unwrap();
-        let velocity = components.velocities.get_mut(player).unwrap();
+        let player_data = ecs.components.player_data.get_mut(player).unwrap();
+        let velocity = ecs.components.velocities.get_mut(player).unwrap();
 
         let mut dir = Vec2::ZERO;
         if data.input.is_currently_pressed(Action::Left) {
@@ -55,12 +51,12 @@ pub fn update_player(data: &mut GameData, entities: &Vec<Entity>, components: &m
     }
 
     for player in &players {
-        let position = components.positions.get(player).unwrap();
-        let player_collider = components.colliders.get(player).unwrap();
+        let position = ecs.components.positions.get(player).unwrap();
+        let player_collider = ecs.components.colliders.get(player).unwrap();
         for other_collider in &colliders {
             if other_collider != player {
-                let other_collider_pos = components.positions.get(&other_collider).unwrap();
-                let other_collider = components.colliders.get(&other_collider).unwrap();
+                let other_collider_pos = ecs.components.positions.get(&other_collider).unwrap();
+                let other_collider = ecs.components.colliders.get(&other_collider).unwrap();
 
                 if check_collision_circles(
                     *position,

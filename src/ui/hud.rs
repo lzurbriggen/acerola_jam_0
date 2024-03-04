@@ -1,20 +1,13 @@
 use macroquad::math::vec2;
 
-use crate::{
-    entity::{entities::Components, entity_id::Entity},
-    game_data::GameData,
-};
+use crate::{entity::entities::Ecs, game_data::GameData};
 
-pub fn draw_hp(data: &GameData, entities: &Vec<Entity>, comps: &Components) {
-    let players = entities
-        .iter()
-        .filter(|e| comps.player_data.contains_key(e))
-        .collect::<Vec<&Entity>>();
+pub fn draw_hp(data: &GameData, ecs: &Ecs) {
+    let players = ecs.check_components(|e, comps| comps.player_data.contains_key(e));
 
     let start_pos = vec2(16., 0.);
-
     for player_e in players {
-        let player = comps.player_data.get(player_e).unwrap();
+        let player = ecs.components.player_data.get(&player_e).unwrap();
 
         for i in 0..player.max_hp {
             let heart_index = if i < player.hp { 0 } else { 2 };

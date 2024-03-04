@@ -8,7 +8,7 @@ use crate::{
 
 use super::{
     animated_sprite::{AnimatedSprite, Animation},
-    entities::Components,
+    entities::Ecs,
     entity_id::Entity,
 };
 
@@ -19,12 +19,7 @@ pub struct PlayerData {
     pub max_hp: u8,
 }
 
-pub fn spawn_player(
-    data: &mut GameData,
-    texture: Texture2D,
-    entities: &mut Vec<Entity>,
-    components: &mut Components,
-) -> Entity {
+pub fn spawn_player(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs) -> Entity {
     let id = data.new_entity();
 
     let indexed_sprite = IndexedSprite::new(texture, 16, vec2(8., 10.));
@@ -32,13 +27,13 @@ pub fn spawn_player(
         indexed_sprite,
         HashMap::from([("idle".to_string(), Animation::new(vec![0], 0., false))]),
     );
-    components.animated_sprites.insert(id, sprite);
+    ecs.components.animated_sprites.insert(id, sprite);
 
     let collider = SphereCollider { radius: 3. };
-    components.colliders.insert(id, collider);
+    ecs.components.colliders.insert(id, collider);
 
-    components.positions.insert(id, vec2(180., 120.));
-    components.velocities.insert(id, Vec2::ZERO);
+    ecs.components.positions.insert(id, vec2(180., 120.));
+    ecs.components.velocities.insert(id, Vec2::ZERO);
 
     let player_data = PlayerData {
         move_speed: 72.,
@@ -47,8 +42,8 @@ pub fn spawn_player(
         max_hp: 3,
     };
 
-    components.player_data.insert(id, player_data);
+    ecs.components.player_data.insert(id, player_data);
 
-    entities.push(id);
+    ecs.entities.push(id);
     id
 }

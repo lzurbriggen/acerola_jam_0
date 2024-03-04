@@ -1,13 +1,10 @@
-use crate::entity::{entities::Components, entity_id::Entity};
+use crate::entity::entities::Ecs;
 
-pub fn update_timers(entities: &Vec<Entity>, components: &mut Components) {
-    let timers = entities
-        .iter()
-        .filter(|e| components.timers.contains_key(e))
-        .collect::<Vec<&Entity>>();
+pub fn update_timers(ecs: &mut Ecs) {
+    let timers = ecs.check_components(|e, comps| comps.timers.contains_key(e));
 
     for timer_e in &timers {
-        let timer = components.timers.get_mut(&timer_e).unwrap();
+        let timer = ecs.components.timers.get_mut(&timer_e).unwrap();
         timer.update();
     }
 }

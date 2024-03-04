@@ -44,4 +44,8 @@ impl Timer {
     pub fn just_completed(&self) -> bool {
         !self.previously_completed && self.completed
     }
+
+    pub fn progress(&self) -> f32 {
+        (self.remaining_time / self.time).max(0.)
+    }
 }
