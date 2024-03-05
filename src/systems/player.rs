@@ -29,37 +29,40 @@ pub fn update_player(
         let player_data = ecs.components.player_data.get_mut(player).unwrap();
         let velocity = ecs.components.velocities.get_mut(player).unwrap();
         let health = ecs.components.health.get_mut(player).unwrap();
-        let material = ecs.components.materials.get_mut(player).unwrap();
+        // let material = ecs.components.materials.get_mut(player).unwrap();
+        let damageable = ecs.components.damageables.get_mut(player).unwrap();
 
-        player_data.invulnerable_timer.update();
+        // player_data.invulnerable_timer.update();
 
-        // TODO: move to separate component
-        player_data.hit_timer.update();
-        if !player_data.hit_timer.completed() {
-            let intensity = player_data.hit_timer.progress() * 10. + 1.;
-            let mut color = WHITE;
-            color.r = intensity;
-            color.g = intensity;
-            color.b = intensity;
-            color.a = (0.5 - player_data.hit_timer.progress() % 0.5) * 2.;
-            material.set_uniform("color", color);
-        } else {
-            material.set_uniform("color", WHITE);
-        }
+        // // TODO: move to separate component
+        // player_data.hit_timer.update();
+        // if !player_data.hit_timer.completed() {
+        //     let intensity = player_data.hit_timer.progress() * 10. + 1.;
+        //     let mut color = WHITE;
+        //     color.r = intensity;
+        //     color.g = intensity;
+        //     color.b = intensity;
+        //     color.a = (0.5 - player_data.hit_timer.progress() % 0.5) * 2.;
+        //     material.set_uniform("color", color);
+        // } else {
+        //     material.set_uniform("color", WHITE);
+        // }
 
-        if player_data.invulnerable_timer.completed() {
-            'damage: for ((source, target), _collision) in collisions.iter() {
-                if target != player {
-                    continue;
-                }
-                if let Some(damage_on_coll) = ecs.components.damage_on_collision.get(source) {
-                    if damage_on_coll.source != DamageSource::Enemy {
+        if let Some(invulnerable_timer) = &mut damageable.invulnerable_timer {
+            if invulnerable_timer.completed() {
+                'damage: for ((source, target), _collision) in collisions.iter() {
+                    if target != player {
                         continue;
                     }
-                    health.hp -= damage_on_coll.damage;
-                    player_data.invulnerable_timer.reset();
-                    player_data.hit_timer.reset();
-                    break 'damage;
+                    if let Some(damage_on_coll) = ecs.components.damage_on_collision.get(source) {
+                        if damage_on_coll.source != DamageSource::Enemy {
+                            continue;
+                        }
+                        health.hp -= damage_on_coll.damage;
+                        invulnerable_timer.reset();
+                        // damageable.hit_fx_timer.unwrap().reset();
+                        break 'damage;
+                    }
                 }
             }
         }

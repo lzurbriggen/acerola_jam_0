@@ -11,15 +11,13 @@ use super::{
     animated_sprite::{AnimatedSprite, Animation},
     entities::Ecs,
     entity_id::Entity,
-    tags::Health,
+    tags::{Damageable, Health},
 };
 
 pub struct PlayerData {
     pub move_speed: f32,
     pub sprite_offset: Vec2,
     pub max_hp: u8,
-    pub invulnerable_timer: Timer,
-    pub hit_timer: Timer,
 }
 
 pub fn spawn_player(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs) -> Entity {
@@ -38,17 +36,22 @@ pub fn spawn_player(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs) -> E
     ecs.components.positions.insert(id, vec2(180., 120.));
     ecs.components.velocities.insert(id, Vec2::ZERO);
 
-    let invulnerable_timer = Timer::new(1., false);
     let player_data = PlayerData {
         move_speed: 72.,
         sprite_offset: vec2(8., 10.),
         max_hp: 3,
-        invulnerable_timer,
-        hit_timer: Timer::new(0.22, false),
     };
 
     ecs.components.player_data.insert(id, player_data);
     ecs.components.health.insert(id, Health { hp: 3. });
+
+    ecs.components.damageables.insert(
+        id,
+        Damageable {
+            invulnerable_timer: Some(Timer::new(1., false)),
+            hit_fx_timer: Some(Timer::new(0.22, false)),
+        },
+    );
 
     ecs.components
         .materials

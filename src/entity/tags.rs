@@ -1,3 +1,5 @@
+use crate::timer::Timer;
+
 #[derive(Debug, PartialEq)]
 pub enum DamageSource {
     Player,
@@ -11,4 +13,9 @@ pub struct DamageOnCollision {
 
 pub struct Health {
     pub hp: f32,
+}
+
+pub struct Damageable {
+    pub invulnerable_timer: Option<Timer>,
+    pub hit_fx_timer: Option<Timer>,
 }

@@ -8,6 +8,7 @@ use macroquad_tiled::load_map;
 use settings::{GameSettings, WindowSize};
 use systems::{
     collision::draw_colliders,
+    damageable::flash_on_damage,
     door::handle_door_collisions,
     enemy::update_enemies,
     movement::move_entities,
@@ -191,6 +192,7 @@ async fn main() {
         handle_door_collisions(&mut ecs);
         collisions = move_entities(&mut data, &map, &mut ecs);
 
+        flash_on_damage(&mut ecs);
         draw_animated_sprites(&mut ecs);
         map.draw_upper();
 

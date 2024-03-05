@@ -5,7 +5,7 @@ use super::{
     hopper::Hopper,
     player::PlayerData,
     spawner::Spawner,
-    tags::{DamageOnCollision, Health},
+    tags::{DamageOnCollision, Damageable, Health},
 };
 use crate::{systems::collision::SphereCollider, timer::Timer};
 use macroquad::{material::Material, math::Vec2};
@@ -27,6 +27,7 @@ pub struct Components {
     pub damage_on_collision: ComponentVec<DamageOnCollision>,
     pub health: ComponentVec<Health>,
     pub materials: ComponentVec<Material>,
+    pub damageables: ComponentVec<Damageable>,
 }
 
 #[derive(Default)]
