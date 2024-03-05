@@ -1,3 +1,4 @@
+use macroquad::material::{gl_use_default_material, gl_use_material};
 use std::cmp::Ordering;
 
 use crate::entity::entities::Ecs;
@@ -30,9 +31,17 @@ pub fn draw_animated_sprites(ecs: &Ecs) {
         }
     });
 
-    for sprite in &sprites {
-        let position = ecs.components.positions.get(&sprite).unwrap();
-        let sprite = ecs.components.animated_sprites.get(&sprite).unwrap();
+    for sprite_e in &sprites {
+        let position = ecs.components.positions.get(&sprite_e).unwrap();
+        let sprite = ecs.components.animated_sprites.get(&sprite_e).unwrap();
+        let material = ecs.components.materials.get(&sprite_e);
+
+        if let Some(material) = material {
+            gl_use_material(&material);
+        }
+
         sprite.draw(*position);
+
+        gl_use_default_material();
     }
 }

@@ -1,9 +1,3 @@
-use std::collections::HashMap;
-
-use macroquad::math::Vec2;
-
-use crate::{systems::collision::SphereCollider, timer::Timer};
-
 use super::{
     animated_sprite::AnimatedSprite,
     door::Door,
@@ -13,6 +7,9 @@ use super::{
     spawner::Spawner,
     tags::{DamageOnCollision, Health},
 };
+use crate::{systems::collision::SphereCollider, timer::Timer};
+use macroquad::{material::Material, math::Vec2};
+use std::collections::HashMap;
 
 pub type ComponentVec<T> = HashMap<Entity, T>;
 
@@ -29,6 +26,7 @@ pub struct Components {
     pub hoppers: ComponentVec<Hopper>,
     pub damage_on_collision: ComponentVec<DamageOnCollision>,
     pub health: ComponentVec<Health>,
+    pub materials: ComponentVec<Material>,
 }
 
 #[derive(Default)]

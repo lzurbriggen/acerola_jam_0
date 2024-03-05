@@ -2,6 +2,7 @@ use macroquad::prelude::*;
 
 #[derive(Clone)]
 pub struct IndexedSprite {
+    // TODO: use reference to texture
     pub texture: Texture2D,
     position_offset: Vec2,
     frame_width: u8,

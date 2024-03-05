@@ -20,6 +20,7 @@ pub fn update_player(
             && comps.colliders.contains_key(e)
             && comps.velocities.contains_key(e)
             && comps.health.contains_key(e)
+            && comps.materials.contains_key(e)
     });
 
     let colliders = ecs.check_components(|e, comps| comps.colliders.contains_key(e));
@@ -28,8 +29,23 @@ pub fn update_player(
         let player_data = ecs.components.player_data.get_mut(player).unwrap();
         let velocity = ecs.components.velocities.get_mut(player).unwrap();
         let health = ecs.components.health.get_mut(player).unwrap();
+        let material = ecs.components.materials.get_mut(player).unwrap();
 
         player_data.invulnerable_timer.update();
+
+        // TODO: move to separate component
+        player_data.hit_timer.update();
+        if !player_data.hit_timer.completed() {
+            let intensity = player_data.hit_timer.progress() * 10. + 1.;
+            let mut color = WHITE;
+            color.r = intensity;
+            color.g = intensity;
+            color.b = intensity;
+            color.a = (0.5 - player_data.hit_timer.progress() % 0.5) * 2.;
+            material.set_uniform("color", color);
+        } else {
+            material.set_uniform("color", WHITE);
+        }
 
         if player_data.invulnerable_timer.completed() {
             'damage: for ((source, target), _collision) in collisions.iter() {
@@ -42,7 +58,7 @@ pub fn update_player(
                     }
                     health.hp -= damage_on_coll.damage;
                     player_data.invulnerable_timer.reset();
-                    player_data.invulnerable_timer.set_paused(false);
+                    player_data.hit_timer.reset();
                     break 'damage;
                 }
             }
