@@ -40,7 +40,6 @@ pub fn check_collision_circles(
 pub fn resolve_circle_collision(
     source_entity: Entity,
     pos: Vec2,
-    collider: &CircleCollider,
     colliders: &Vec<(Entity, Vec2, &CircleCollider)>,
 ) -> (Vec2, HashMap<(Entity, Entity), Collision>) {
     let collider = colliders
@@ -111,7 +110,13 @@ pub fn check_collision_aabb_circle(
     None
 }
 
-pub fn resolve_map_collision(data: &GameData, map: &Map, pos: Vec2, radius: f32) -> Vec2 {
+pub fn resolve_map_collision(
+    source_entity: Entity,
+    data: &GameData,
+    map: &Map,
+    pos: Vec2,
+    collider: &CircleCollider,
+) -> (Vec2, HashMap<(Entity, Entity), Collision>) {
     let mut desired_pos = pos;
     let tile_position = desired_pos / 8.;
     let tile_position = (tile_position.x as i32, tile_position.y as i32);
@@ -120,6 +125,7 @@ pub fn resolve_map_collision(data: &GameData, map: &Map, pos: Vec2, radius: f32)
         (tile_position.0 - area_size)..=tile_position.0 + area_size,
         (tile_position.1 - area_size)..=tile_position.1 + area_size,
     );
+    let mut collisions = HashMap::new();
     for _ in 0..2 {
         let mut is_colliding = false;
         for (x, y) in &map.map_collision {
@@ -128,11 +134,20 @@ pub fn resolve_map_collision(data: &GameData, map: &Map, pos: Vec2, radius: f32)
             }
             let rect = Rect::new(*x as f32 * 8., *y as f32 * 8., 8., 8.);
             if let Some(closest_point) =
-                check_collision_aabb_circle(&data, &rect, desired_pos, radius)
+                check_collision_aabb_circle(&data, &rect, desired_pos, collider.radius)
             {
                 is_colliding = true;
                 let diff_to_closest_point = closest_point - desired_pos;
-                let overlap = radius - diff_to_closest_point.length();
+                let overlap = collider.radius - diff_to_closest_point.length();
+
+                collisions.insert(
+                    (source_entity, map.id),
+                    Collision {
+                        normal: Vec2::ZERO,
+                        overlap: 0.,
+                        point: closest_point,
+                    },
+                );
 
                 desired_pos = desired_pos - diff_to_closest_point.normalize() * (overlap + 0.01);
             }
@@ -141,5 +156,5 @@ pub fn resolve_map_collision(data: &GameData, map: &Map, pos: Vec2, radius: f32)
             break;
         }
     }
-    desired_pos
+    (desired_pos, collisions)
 }

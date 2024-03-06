@@ -4,11 +4,12 @@ use macroquad::prelude::*;
 use macroquad_tiled::Map as TiledMap;
 
 use crate::{
-    entity::{door::spawn_door, entities::Ecs, spawner::spawn_spawner},
+    entity::{door::spawn_door, entities::Ecs, entity_id::Entity, spawner::spawn_spawner},
     game_data::GameData,
 };
 
 pub struct Map {
+    pub id: Entity,
     pub tiled_map: TiledMap,
     pub tileset_collision_map: HashMap<String, HashSet<usize>>,
     pub map_collision: HashSet<(usize, usize)>,
@@ -16,7 +17,9 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(map: TiledMap, resolution: Vec2) -> Self {
+    pub fn new(data: &mut GameData, map: TiledMap) -> Self {
+        let id = data.new_entity();
+
         let mut tileset_collision_map = HashMap::<String, HashSet<usize>>::new();
         for tileset in &map.raw_tiled_map.tilesets {
             let mut collision = HashSet::<usize>::new();
@@ -47,10 +50,16 @@ impl Map {
         }
 
         Self {
+            id,
             tiled_map: map,
             tileset_collision_map,
             map_collision,
-            map_rect: Rect::new(0., 0., resolution.x, resolution.y),
+            map_rect: Rect::new(
+                0.,
+                0.,
+                data.settings.resolution.x,
+                data.settings.resolution.y,
+            ),
         }
     }
 

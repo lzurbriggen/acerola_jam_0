@@ -111,6 +111,7 @@ pub fn damage_on_collision(
             if target != damageable_e && source != damageable_e {
                 continue;
             }
+            // TODO: stupid code
             if let Some(damage_on_coll) = ecs.components.damage_on_collision.get(source) {
                 let apply_damage = if ecs.components.player_data.contains_key(target) {
                     damage_on_coll.source == EntityType::Enemy
@@ -149,6 +150,7 @@ pub fn despawn_on_collision(ecs: &mut Ecs, collisions: &HashMap<(Entity, Entity)
 
     for despawn_e in &despawn_on_hits {
         for ((source, target), _collision) in collisions.iter() {
+            // TODO: stupid code
             if source == despawn_e {
                 let despawn_on_hit = ecs.components.despawn_on_hit.get(despawn_e).unwrap();
                 if ecs.components.player_entity.contains_key(target)

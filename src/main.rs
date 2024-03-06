@@ -134,13 +134,6 @@ async fn main() {
 
     let settings = GameSettings::default();
 
-    // Map
-    let tileset = load_texture("map/tileset_01.png").await.unwrap();
-    tileset.set_filter(FilterMode::Nearest);
-    let tiled_map_json = load_string("map/example_01.tmj").await.unwrap();
-    let tiled_map = load_map(tiled_map_json.as_str(), &[("tileset_01.png", tileset)], &[]).unwrap();
-    let map = Map::new(tiled_map, settings.resolution);
-
     let mut data = GameData {
         entity_index: 0,
         settings,
@@ -153,6 +146,13 @@ async fn main() {
         weapon: Weapon::Shooter(Shooter::new()),
     };
     data.settings.set_window_size(WindowSize::W1440);
+
+    // Map
+    let tileset = load_texture("map/tileset_01.png").await.unwrap();
+    tileset.set_filter(FilterMode::Nearest);
+    let tiled_map_json = load_string("map/example_01.tmj").await.unwrap();
+    let tiled_map = load_map(tiled_map_json.as_str(), &[("tileset_01.png", tileset)], &[]).unwrap();
+    let map = Map::new(&mut data, tiled_map);
 
     let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
     player_texture.set_filter(FilterMode::Nearest);

@@ -38,10 +38,13 @@ pub fn move_entities(
 
         if let Some(collider) = collider {
             let (pos, new_collisions) =
-                resolve_circle_collision(*moveable_e, desired_pos, collider, &colliders);
+                resolve_circle_collision(*moveable_e, desired_pos, &colliders);
             collisions.extend(new_collisions);
             desired_pos = pos;
-            desired_pos = resolve_map_collision(data, map, desired_pos, collider.radius);
+            let (pos, new_collisions) =
+                resolve_map_collision(*moveable_e, data, map, desired_pos, collider);
+            collisions.extend(new_collisions);
+            desired_pos = pos;
         }
         *position = desired_pos;
     }
