@@ -1,7 +1,7 @@
 use crate::{
     game_data::GameData,
     sprite::{flash_material::create_sprite_color_material, indexed_sprite::IndexedSprite},
-    systems::collision::SphereCollider,
+    systems::collision::CircleCollider,
     timer::Timer,
 };
 use macroquad::prelude::*;
@@ -11,7 +11,7 @@ use super::{
     animated_sprite::{AnimatedSprite, Animation},
     entities::Ecs,
     entity_id::Entity,
-    tags::{DamageOnCollision, DamageSource, Damageable, Health},
+    tags::{DamageOnCollision, Damageable, EntityType, Health},
 };
 
 pub struct PlayerData {
@@ -30,7 +30,10 @@ pub fn spawn_player(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs) -> E
     );
     ecs.components.animated_sprites.insert(id, sprite);
 
-    let collider = SphereCollider { radius: 3. };
+    let collider = CircleCollider {
+        radius: 3.,
+        trigger: false,
+    };
     ecs.components.colliders.insert(id, collider);
 
     ecs.components.positions.insert(id, vec2(180., 120.));
@@ -60,11 +63,13 @@ pub fn spawn_player(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs) -> E
     ecs.components.damage_on_collision.insert(
         id,
         DamageOnCollision {
-            source: DamageSource::Player,
+            source: EntityType::Player,
             damage: 10.,
         },
     );
     println!("PLAYER {:?}", id);
+
+    ecs.components.player_entity.insert(id, ());
 
     ecs.entities.push(id);
     id

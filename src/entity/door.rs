@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::{game_data::GameData, systems::collision::SphereCollider};
+use crate::{game_data::GameData, systems::collision::CircleCollider};
 
 use super::{entities::Ecs, entity_id::Entity};
 
@@ -20,7 +20,10 @@ pub fn spawn_door(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entity 
 
     ecs.components.positions.insert(id, position);
 
-    let collider = SphereCollider { radius: 5. };
+    let collider = CircleCollider {
+        radius: 5.,
+        trigger: true,
+    };
     ecs.components.colliders.insert(id, collider);
 
     let door = Door::new();

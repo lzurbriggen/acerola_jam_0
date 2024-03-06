@@ -4,7 +4,7 @@ use macroquad::prelude::*;
 
 use crate::{
     entity::entity_id::Entity, game_data::GameData, map::map::Map,
-    systems::collision::SphereCollider,
+    systems::collision::CircleCollider,
 };
 
 #[derive(Debug, PartialEq)]
@@ -40,7 +40,8 @@ pub fn check_collision_circles(
 pub fn resolve_circle_collision(
     source_entity: Entity,
     pos: Vec2,
-    colliders: &Vec<(Entity, Vec2, &SphereCollider)>,
+    collider: &CircleCollider,
+    colliders: &Vec<(Entity, Vec2, &CircleCollider)>,
 ) -> (Vec2, HashMap<(Entity, Entity), Collision>) {
     let collider = colliders
         .iter()
@@ -62,7 +63,9 @@ pub fn resolve_circle_collision(
                 other_coll.radius,
             ) {
                 is_colliding = true;
-                desired_pos = desired_pos - collision.normal * (collision.overlap + 0.01);
+                if !other_coll.trigger && !collider.2.trigger {
+                    desired_pos = desired_pos - collision.normal * (collision.overlap + 0.01);
+                }
                 collisions.insert((source_entity, *coll_e), collision);
             }
         }

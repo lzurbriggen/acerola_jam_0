@@ -7,14 +7,15 @@ use entity::{
 };
 use fps_counter::FPSCounter;
 use game_state::GameState;
+use items::weapon::{Shooter, Weapon};
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use macroquad_tiled::load_map;
 use settings::{GameSettings, WindowSize};
 use systems::{
     collision::draw_colliders,
     damageable::{
-        apply_damage, damage_on_collision, flash_on_damage, handle_enemy_death, kill_entities,
-        update_damageables,
+        apply_damage, damage_on_collision, despawn_on_collision, flash_on_damage,
+        handle_enemy_death, kill_entities, update_damageables,
     },
     door::handle_door_collisions,
     enemy::update_enemies,
@@ -23,6 +24,7 @@ use systems::{
     spawn::spawn_creatures,
     sprite::{draw_animated_sprites, update_animated_sprites},
     timer::update_timers,
+    weapon::update_weapon,
 };
 use ui::{pause_menu::pause_menu, ui_data::UIData};
 
@@ -39,6 +41,7 @@ mod fps_counter;
 mod game_data;
 mod game_state;
 mod input_manager;
+mod items;
 mod map;
 mod physics;
 mod room;
@@ -122,6 +125,8 @@ async fn main() {
     hopper_texture.set_filter(FilterMode::Nearest);
     let skull_texture: Texture2D = load_texture("entities/skull_01.png").await.unwrap();
     skull_texture.set_filter(FilterMode::Nearest);
+    let bullet_texture: Texture2D = load_texture("entities/bullet_01.png").await.unwrap();
+    bullet_texture.set_filter(FilterMode::Nearest);
 
     let sprites = Sprites {
         hud_heart: IndexedSprite::new(hud_heart_texture, 16, Vec2::ZERO),
@@ -145,6 +150,7 @@ async fn main() {
         input: InputManager::new(),
         camera,
         debug_collisions: false,
+        weapon: Weapon::Shooter(Shooter::new()),
     };
     data.settings.set_window_size(WindowSize::W1440);
 
@@ -211,10 +217,12 @@ async fn main() {
         update_timers(&mut ecs);
         update_damageables(&mut ecs);
         damage_on_collision(&ecs, &mut damage_events, &collisions);
+        despawn_on_collision(&mut ecs, &collisions);
         apply_damage(&mut ecs, &mut damage_events);
         kill_entities(&mut ecs, &mut death_events);
         handle_enemy_death(&mut data, skull_texture.clone(), &mut ecs, &death_events);
         update_player(&mut data, &collisions, &mut ecs, &mut damage_events);
+        update_weapon(&mut ecs, &mut data, bullet_texture.clone());
         update_enemies(&mut ecs);
         update_animated_sprites(&mut ecs);
         handle_door_collisions(&mut ecs);

@@ -5,6 +5,7 @@ pub mod entity_id;
 pub mod events;
 pub mod hopper;
 pub mod player;
+pub mod projectile;
 pub mod skull;
 pub mod spawner;
 pub mod tags;

@@ -1,13 +1,13 @@
 use crate::timer::Timer;
 
 #[derive(Debug, PartialEq)]
-pub enum DamageSource {
+pub enum EntityType {
     Player,
     Enemy,
 }
 
 pub struct DamageOnCollision {
-    pub source: DamageSource,
+    pub source: EntityType,
     pub damage: f32,
 }
 
@@ -21,3 +21,4 @@ pub struct Damageable {
 }
 
 pub struct DespawnOnAnimEnd;
+pub struct DespawnOnHit(pub EntityType);

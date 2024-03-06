@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 
 use crate::{
-    entity::{entities::Ecs, entity_id::Entity, events::DamageEvent, tags::DamageSource},
+    entity::{entities::Ecs, entity_id::Entity, events::DamageEvent, tags::EntityType},
     game_data::GameData,
     input_manager::Action,
     physics::collision::{check_collision_circles, Collision},

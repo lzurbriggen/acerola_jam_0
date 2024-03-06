@@ -2,8 +2,9 @@ use macroquad::prelude::*;
 
 use crate::{entity::entities::Ecs, game_data::GameData};
 
-pub struct SphereCollider {
+pub struct CircleCollider {
     pub radius: f32,
+    pub trigger: bool,
 }
 
 pub fn draw_colliders(data: &GameData, ecs: &Ecs) {

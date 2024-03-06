@@ -6,7 +6,7 @@ use crate::{
         entity_id::Entity,
         events::{DamageEvent, DeathEvent},
         skull::spawn_skull,
-        tags::DamageSource,
+        tags::EntityType,
     },
     game_data::GameData,
     physics::collision::Collision,
@@ -113,9 +113,9 @@ pub fn damage_on_collision(
             }
             if let Some(damage_on_coll) = ecs.components.damage_on_collision.get(source) {
                 let apply_damage = if ecs.components.player_data.contains_key(target) {
-                    damage_on_coll.source == DamageSource::Enemy
+                    damage_on_coll.source == EntityType::Enemy
                 } else {
-                    damage_on_coll.source == DamageSource::Player
+                    damage_on_coll.source == EntityType::Player
                 };
                 if apply_damage {
                     damage_events.push(DamageEvent {
@@ -127,9 +127,9 @@ pub fn damage_on_collision(
             }
             if let Some(damage_on_coll) = ecs.components.damage_on_collision.get(target) {
                 let apply_damage = if ecs.components.player_data.contains_key(source) {
-                    damage_on_coll.source == DamageSource::Enemy
+                    damage_on_coll.source == EntityType::Enemy
                 } else {
-                    damage_on_coll.source == DamageSource::Player
+                    damage_on_coll.source == EntityType::Player
                 };
 
                 if apply_damage {
@@ -139,6 +139,46 @@ pub fn damage_on_collision(
                         damage: damage_on_coll.damage,
                     });
                 }
+            }
+        }
+    }
+}
+
+pub fn despawn_on_collision(ecs: &mut Ecs, collisions: &HashMap<(Entity, Entity), Collision>) {
+    let despawn_on_hits = ecs.check_components(|e, comps| comps.despawn_on_hit.contains_key(e));
+
+    for despawn_e in &despawn_on_hits {
+        for ((source, target), _collision) in collisions.iter() {
+            if source == despawn_e {
+                let despawn_on_hit = ecs.components.despawn_on_hit.get(despawn_e).unwrap();
+                if ecs.components.player_entity.contains_key(target)
+                    && despawn_on_hit.0 == EntityType::Player
+                {
+                    ecs.despawn(*despawn_e);
+                    break;
+                };
+                if !ecs.components.player_entity.contains_key(target)
+                    && despawn_on_hit.0 == EntityType::Enemy
+                {
+                    ecs.despawn(*despawn_e);
+                    break;
+                };
+            }
+
+            if target == despawn_e {
+                let despawn_on_hit = ecs.components.despawn_on_hit.get(despawn_e).unwrap();
+                if ecs.components.player_entity.contains_key(source)
+                    && despawn_on_hit.0 == EntityType::Player
+                {
+                    ecs.despawn(*despawn_e);
+                    break;
+                };
+                if !ecs.components.player_entity.contains_key(source)
+                    && despawn_on_hit.0 == EntityType::Enemy
+                {
+                    ecs.despawn(*despawn_e);
+                    break;
+                };
             }
         }
     }

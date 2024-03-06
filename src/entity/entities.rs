@@ -5,9 +5,9 @@ use super::{
     hopper::Hopper,
     player::PlayerData,
     spawner::Spawner,
-    tags::{DamageOnCollision, Damageable, DespawnOnAnimEnd, Health},
+    tags::{DamageOnCollision, Damageable, DespawnOnAnimEnd, DespawnOnHit, Health},
 };
-use crate::{systems::collision::SphereCollider, timer::Timer};
+use crate::{systems::collision::CircleCollider, timer::Timer};
 use macroquad::{material::Material, math::Vec2};
 use std::collections::HashMap;
 
@@ -18,7 +18,7 @@ pub struct Components {
     pub player_data: ComponentColl<PlayerData>,
     pub timers: ComponentColl<Timer>,
     pub animated_sprites: ComponentColl<AnimatedSprite>,
-    pub colliders: ComponentColl<SphereCollider>,
+    pub colliders: ComponentColl<CircleCollider>,
     pub doors: ComponentColl<Door>,
     pub positions: ComponentColl<Vec2>,
     pub velocities: ComponentColl<Vec2>,
@@ -29,6 +29,8 @@ pub struct Components {
     pub materials: ComponentColl<Material>,
     pub damageables: ComponentColl<Damageable>,
     pub despawn_on_anim_end: ComponentColl<DespawnOnAnimEnd>,
+    pub despawn_on_hit: ComponentColl<DespawnOnHit>,
+    pub player_entity: ComponentColl<()>,
 }
 
 #[derive(Default)]
@@ -70,5 +72,7 @@ impl Ecs {
         self.components.materials.remove(entity);
         self.components.damageables.remove(entity);
         self.components.despawn_on_anim_end.remove(entity);
+        self.components.despawn_on_hit.remove(entity);
+        self.components.player_entity.remove(entity);
     }
 }

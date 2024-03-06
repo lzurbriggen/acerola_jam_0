@@ -2,7 +2,8 @@ use macroquad::prelude::*;
 
 use crate::{
     entity::entity_id::Entity, game_state::GameState, input_manager::InputManager,
-    settings::GameSettings, sprite::indexed_sprite::IndexedSprite, ui::ui_data::UIData,
+    items::weapon::Weapon, settings::GameSettings, sprite::indexed_sprite::IndexedSprite,
+    ui::ui_data::UIData,
 };
 
 pub struct Sprites {
@@ -18,6 +19,7 @@ pub struct GameData {
     pub input: InputManager,
     pub camera: Camera2D,
     pub debug_collisions: bool,
+    pub weapon: Weapon,
 }
 
 impl GameData {

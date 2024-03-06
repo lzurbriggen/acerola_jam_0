@@ -5,7 +5,7 @@ use macroquad::prelude::*;
 use crate::{
     game_data::GameData,
     sprite::{flash_material::create_sprite_color_material, indexed_sprite::IndexedSprite},
-    systems::collision::SphereCollider,
+    systems::collision::CircleCollider,
     timer::Timer,
 };
 
@@ -13,7 +13,7 @@ use super::{
     animated_sprite::{AnimatedSprite, Animation},
     entities::Ecs,
     entity_id::Entity,
-    tags::{DamageOnCollision, DamageSource, Damageable, Health},
+    tags::{DamageOnCollision, Damageable, EntityType, Health},
 };
 
 pub struct Hopper {
@@ -44,7 +44,10 @@ pub fn spawn_hopper(
     );
     ecs.components.animated_sprites.insert(id, sprite);
 
-    let collider = SphereCollider { radius: 3. };
+    let collider = CircleCollider {
+        radius: 3.,
+        trigger: false,
+    };
     ecs.components.colliders.insert(id, collider);
 
     ecs.components.positions.insert(id, position);
@@ -69,7 +72,7 @@ pub fn spawn_hopper(
     ecs.components.damage_on_collision.insert(
         id,
         DamageOnCollision {
-            source: DamageSource::Enemy,
+            source: EntityType::Enemy,
             damage: 1.,
         },
     );

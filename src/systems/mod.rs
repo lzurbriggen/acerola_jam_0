@@ -7,3 +7,4 @@ pub mod player;
 pub mod spawn;
 pub mod sprite;
 pub mod timer;
+pub mod weapon;
