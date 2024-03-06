@@ -51,15 +51,21 @@ impl AnimatedSprite {
         )
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self) -> bool {
         let (_, anim) = self.current_animation_mut();
         anim.timer.update();
         if anim.timer.just_completed() {
-            anim.current_frame += 1;
-            if anim.current_frame >= anim.frames.len() {
+            if anim.current_frame + 1 >= anim.frames.len() {
+                if !anim.repeat {
+                    return true;
+                }
                 anim.current_frame = 0;
+                return true;
+            } else {
+                anim.current_frame += 1;
             }
         }
+        false
     }
 
     pub fn draw(&self, position: Vec2) {

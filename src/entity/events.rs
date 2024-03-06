@@ -5,3 +5,5 @@ pub struct DamageEvent {
     pub target: Entity,
     pub damage: f32,
 }
+
+pub struct DeathEvent(pub Entity);

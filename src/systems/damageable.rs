@@ -1,7 +1,14 @@
 use std::collections::HashMap;
 
 use crate::{
-    entity::{entities::Ecs, entity_id::Entity, events::DamageEvent, tags::DamageSource},
+    entity::{
+        entities::Ecs,
+        entity_id::Entity,
+        events::{DamageEvent, DeathEvent},
+        skull::spawn_skull,
+        tags::DamageSource,
+    },
+    game_data::GameData,
     physics::collision::Collision,
 };
 use macroquad::prelude::*;
@@ -133,6 +140,33 @@ pub fn damage_on_collision(
                     });
                 }
             }
+        }
+    }
+}
+
+pub fn kill_entities(ecs: &mut Ecs, death_events: &mut Vec<DeathEvent>) {
+    let healthies = ecs.check_components(|e, comps| comps.health.contains_key(e));
+
+    for health_e in &healthies {
+        let health = ecs.components.health.get_mut(health_e).unwrap();
+
+        if health.hp <= 0. {
+            ecs.despawn(*health_e);
+            death_events.push(DeathEvent(*health_e));
+        }
+    }
+}
+
+pub fn handle_enemy_death(
+    data: &mut GameData,
+    skull_texture: Texture2D,
+    ecs: &mut Ecs,
+    death_events: &Vec<DeathEvent>,
+) {
+    for ev in death_events {
+        let pos = ecs.components.positions.get(&ev.0).unwrap();
+        if ecs.components.hoppers.contains_key(&ev.0) {
+            spawn_skull(data, skull_texture.clone(), ecs, *pos);
         }
     }
 }

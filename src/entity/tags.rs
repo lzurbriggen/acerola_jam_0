@@ -19,3 +19,5 @@ pub struct Damageable {
     pub invulnerable_timer: Option<Timer>,
     pub hit_fx_timer: Option<Timer>,
 }
+
+pub struct DespawnOnAnimEnd;
