@@ -20,25 +20,25 @@ pub fn move_entities(
     let comps = &mut ecs.components;
 
     let mut colliders = vec![];
-    for moveable in &moveables {
-        if let Some(_) = comps.colliders.get(moveable) {
-            let other_pos = *comps.positions.get(moveable).unwrap();
-            let other_coll = comps.colliders.get(moveable).unwrap();
-            colliders.push((*moveable, other_pos, other_coll));
+    for moveable_e in &moveables {
+        if let Some(_) = comps.colliders.get(moveable_e) {
+            let other_pos = *comps.positions.get(moveable_e).unwrap();
+            let other_coll = comps.colliders.get(moveable_e).unwrap();
+            colliders.push((*moveable_e, other_pos, other_coll));
         }
     }
 
     let mut collisions = HashMap::<(Entity, Entity), Collision>::new();
-    for moveable in &moveables {
-        let position = comps.positions.get_mut(moveable).unwrap();
-        let velocity = comps.velocities.get_mut(moveable).unwrap();
-        let collider = comps.colliders.get(moveable);
+    for moveable_e in &moveables {
+        let position = comps.positions.get_mut(moveable_e).unwrap();
+        let velocity = comps.velocities.get_mut(moveable_e).unwrap();
+        let collider = comps.colliders.get(moveable_e);
 
         let mut desired_pos = *position + *velocity * get_frame_time();
 
         if let Some(collider) = collider {
             let (pos, new_collisions) =
-                resolve_circle_collision(*moveable, desired_pos, &colliders);
+                resolve_circle_collision(*moveable_e, desired_pos, &colliders);
             collisions.extend(new_collisions);
             desired_pos = pos;
             desired_pos = resolve_map_collision(data, map, desired_pos, collider.radius);

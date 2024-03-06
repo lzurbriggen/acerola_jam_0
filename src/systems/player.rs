@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 
 use crate::{
-    entity::{entities::Ecs, entity_id::Entity, tags::DamageSource},
+    entity::{entities::Ecs, entity_id::Entity, events::DamageEvent, tags::DamageSource},
     game_data::GameData,
     input_manager::Action,
     physics::collision::{check_collision_circles, Collision},
@@ -13,14 +13,13 @@ pub fn update_player(
     data: &mut GameData,
     collisions: &HashMap<(Entity, Entity), Collision>,
     ecs: &mut Ecs,
+    damage_events: &mut Vec<DamageEvent>,
 ) {
     let players = ecs.check_components(|e, comps| {
         comps.player_data.contains_key(e)
             && comps.positions.contains_key(e)
             && comps.colliders.contains_key(e)
             && comps.velocities.contains_key(e)
-            && comps.health.contains_key(e)
-            && comps.materials.contains_key(e)
     });
 
     let colliders = ecs.check_components(|e, comps| comps.colliders.contains_key(e));
@@ -28,44 +27,23 @@ pub fn update_player(
     for player in &players {
         let player_data = ecs.components.player_data.get_mut(player).unwrap();
         let velocity = ecs.components.velocities.get_mut(player).unwrap();
-        let health = ecs.components.health.get_mut(player).unwrap();
-        // let material = ecs.components.materials.get_mut(player).unwrap();
-        let damageable = ecs.components.damageables.get_mut(player).unwrap();
 
-        // player_data.invulnerable_timer.update();
-
-        // // TODO: move to separate component
-        // player_data.hit_timer.update();
-        // if !player_data.hit_timer.completed() {
-        //     let intensity = player_data.hit_timer.progress() * 10. + 1.;
-        //     let mut color = WHITE;
-        //     color.r = intensity;
-        //     color.g = intensity;
-        //     color.b = intensity;
-        //     color.a = (0.5 - player_data.hit_timer.progress() % 0.5) * 2.;
-        //     material.set_uniform("color", color);
-        // } else {
-        //     material.set_uniform("color", WHITE);
+        // 'damage: for ((source, target), _collision) in collisions.iter() {
+        //     if target != player {
+        //         continue;
+        //     }
+        //     if let Some(damage_on_coll) = ecs.components.damage_on_collision.get(source) {
+        //         if damage_on_coll.source != DamageSource::Enemy {
+        //             continue;
+        //         }
+        //         damage_events.push(DamageEvent {
+        //             source: *source,
+        //             target: *player,
+        //             damage: damage_on_coll.damage,
+        //         });
+        //         break 'damage;
+        //     }
         // }
-
-        if let Some(invulnerable_timer) = &mut damageable.invulnerable_timer {
-            if invulnerable_timer.completed() {
-                'damage: for ((source, target), _collision) in collisions.iter() {
-                    if target != player {
-                        continue;
-                    }
-                    if let Some(damage_on_coll) = ecs.components.damage_on_collision.get(source) {
-                        if damage_on_coll.source != DamageSource::Enemy {
-                            continue;
-                        }
-                        health.hp -= damage_on_coll.damage;
-                        invulnerable_timer.reset();
-                        // damageable.hit_fx_timer.unwrap().reset();
-                        break 'damage;
-                    }
-                }
-            }
-        }
 
         let mut dir = Vec2::ZERO;
         if data.input.is_currently_pressed(Action::Left) {

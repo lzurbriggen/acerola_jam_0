@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use entity::{entities::Ecs, player::spawn_player};
+use entity::{entities::Ecs, events::DamageEvent, player::spawn_player};
 use fps_counter::FPSCounter;
 use game_state::GameState;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
@@ -8,7 +8,7 @@ use macroquad_tiled::load_map;
 use settings::{GameSettings, WindowSize};
 use systems::{
     collision::draw_colliders,
-    damageable::flash_on_damage,
+    damageable::{apply_damage, damage_on_collision, flash_on_damage, update_damageables},
     door::handle_door_collisions,
     enemy::update_enemies,
     movement::move_entities,
@@ -149,6 +149,7 @@ async fn main() {
     map.spawn_entities(&mut data, &mut ecs);
 
     let mut collisions = HashMap::new();
+    let mut damage_events = Vec::<DamageEvent>::new();
 
     loop {
         data.update();
@@ -186,7 +187,10 @@ async fn main() {
 
         spawn_creatures(&mut data, &mut ecs, &hopper_texture);
         update_timers(&mut ecs);
-        update_player(&mut data, &collisions, &mut ecs);
+        update_damageables(&mut ecs);
+        damage_on_collision(&ecs, &mut damage_events, &collisions);
+        apply_damage(&mut ecs, &mut damage_events);
+        update_player(&mut data, &collisions, &mut ecs, &mut damage_events);
         update_enemies(&mut ecs);
         update_animated_sprites(&mut ecs);
         handle_door_collisions(&mut ecs);

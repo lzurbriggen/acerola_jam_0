@@ -3,7 +3,9 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 
 use crate::{
-    game_data::GameData, sprite::indexed_sprite::IndexedSprite, systems::collision::SphereCollider,
+    game_data::GameData,
+    sprite::{flash_material::create_sprite_color_material, indexed_sprite::IndexedSprite},
+    systems::collision::SphereCollider,
     timer::Timer,
 };
 
@@ -11,7 +13,7 @@ use super::{
     animated_sprite::{AnimatedSprite, Animation},
     entities::Ecs,
     entity_id::Entity,
-    tags::{DamageOnCollision, DamageSource, Health},
+    tags::{DamageOnCollision, DamageSource, Damageable, Health},
 };
 
 pub struct Hopper {
@@ -56,14 +58,25 @@ pub fn spawn_hopper(
     };
     ecs.components.hoppers.insert(id, hopper);
 
+    ecs.components.damageables.insert(
+        id,
+        Damageable {
+            invulnerable_timer: Some(Timer::new(0.2, false)),
+            hit_fx_timer: Some(Timer::new(0.22, false)),
+        },
+    );
     ecs.components.health.insert(id, Health { hp: 30. });
     ecs.components.damage_on_collision.insert(
         id,
         DamageOnCollision {
             source: DamageSource::Enemy,
-            damage: 0.5,
+            damage: 1.,
         },
     );
+
+    ecs.components
+        .materials
+        .insert(id, create_sprite_color_material());
 
     ecs.entities.push(id);
     id

@@ -11,7 +11,7 @@ use super::{
     animated_sprite::{AnimatedSprite, Animation},
     entities::Ecs,
     entity_id::Entity,
-    tags::{Damageable, Health},
+    tags::{DamageOnCollision, DamageSource, Damageable, Health},
 };
 
 pub struct PlayerData {
@@ -56,6 +56,15 @@ pub fn spawn_player(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs) -> E
     ecs.components
         .materials
         .insert(id, create_sprite_color_material());
+
+    ecs.components.damage_on_collision.insert(
+        id,
+        DamageOnCollision {
+            source: DamageSource::Player,
+            damage: 10.,
+        },
+    );
+    println!("PLAYER {:?}", id);
 
     ecs.entities.push(id);
     id
