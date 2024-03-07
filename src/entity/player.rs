@@ -60,13 +60,6 @@ pub fn spawn_player(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs) -> E
         .materials
         .insert(id, create_sprite_color_material());
 
-    ecs.components.damage_on_collision.insert(
-        id,
-        DamageOnCollision {
-            source: EntityType::Player,
-            damage: 10.,
-        },
-    );
     println!("PLAYER {:?}", id);
 
     ecs.components.player_entity.insert(id, ());

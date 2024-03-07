@@ -5,6 +5,7 @@ use crate::{
         entities::Ecs,
         entity_id::Entity,
         events::{DamageEvent, DeathEvent},
+        impact::spawn_dust,
         skull::spawn_skull,
         tags::EntityType,
     },
@@ -145,7 +146,12 @@ pub fn damage_on_collision(
     }
 }
 
-pub fn despawn_on_collision(ecs: &mut Ecs, collisions: &HashMap<(Entity, Entity), Collision>) {
+pub fn despawn_on_collision(
+    data: &mut GameData,
+    ecs: &mut Ecs,
+    collisions: &HashMap<(Entity, Entity), Collision>,
+    dust_texture: Texture2D,
+) {
     let despawn_on_hits = ecs.check_components(|e, comps| comps.despawn_on_hit.contains_key(e));
 
     for despawn_e in &despawn_on_hits {
@@ -153,15 +159,19 @@ pub fn despawn_on_collision(ecs: &mut Ecs, collisions: &HashMap<(Entity, Entity)
             // TODO: stupid code
             if source == despawn_e {
                 let despawn_on_hit = ecs.components.despawn_on_hit.get(despawn_e).unwrap();
+                // TODO: not safe
+                let position = ecs.components.positions.get(despawn_e).unwrap();
                 if ecs.components.player_entity.contains_key(target)
                     && despawn_on_hit.0 == EntityType::Player
                 {
+                    spawn_dust(data, dust_texture.clone(), ecs, *position);
                     ecs.despawn(*despawn_e);
                     break;
                 };
                 if !ecs.components.player_entity.contains_key(target)
                     && despawn_on_hit.0 == EntityType::Enemy
                 {
+                    spawn_dust(data, dust_texture.clone(), ecs, *position);
                     ecs.despawn(*despawn_e);
                     break;
                 };
@@ -169,15 +179,18 @@ pub fn despawn_on_collision(ecs: &mut Ecs, collisions: &HashMap<(Entity, Entity)
 
             if target == despawn_e {
                 let despawn_on_hit = ecs.components.despawn_on_hit.get(despawn_e).unwrap();
+                let position = ecs.components.positions.get(despawn_e).unwrap();
                 if ecs.components.player_entity.contains_key(source)
                     && despawn_on_hit.0 == EntityType::Player
                 {
+                    spawn_dust(data, dust_texture.clone(), ecs, *position);
                     ecs.despawn(*despawn_e);
                     break;
                 };
                 if !ecs.components.player_entity.contains_key(source)
                     && despawn_on_hit.0 == EntityType::Enemy
                 {
+                    spawn_dust(data, dust_texture.clone(), ecs, *position);
                     ecs.despawn(*despawn_e);
                     break;
                 };

@@ -127,6 +127,8 @@ async fn main() {
     skull_texture.set_filter(FilterMode::Nearest);
     let bullet_texture: Texture2D = load_texture("entities/bullet_01.png").await.unwrap();
     bullet_texture.set_filter(FilterMode::Nearest);
+    let dust_texture: Texture2D = load_texture("entities/dust_01.png").await.unwrap();
+    dust_texture.set_filter(FilterMode::Nearest);
 
     let sprites = Sprites {
         hud_heart: IndexedSprite::new(hud_heart_texture, 16, Vec2::ZERO),
@@ -217,7 +219,7 @@ async fn main() {
         update_timers(&mut ecs);
         update_damageables(&mut ecs);
         damage_on_collision(&ecs, &mut damage_events, &collisions);
-        despawn_on_collision(&mut ecs, &collisions);
+        despawn_on_collision(&mut data, &mut ecs, &collisions, dust_texture.clone());
         apply_damage(&mut ecs, &mut damage_events);
         kill_entities(&mut ecs, &mut death_events);
         handle_enemy_death(&mut data, skull_texture.clone(), &mut ecs, &death_events);
