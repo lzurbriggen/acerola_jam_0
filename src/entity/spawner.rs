@@ -22,6 +22,7 @@ pub fn spawn_spawner(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
     ecs.components.spawners.insert(id, spawner);
 
     ecs.entities.push(id);
+    ecs.components.room_entity.insert(id, ());
 
     id
 }

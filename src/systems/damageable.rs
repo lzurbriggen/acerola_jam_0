@@ -91,9 +91,9 @@ pub fn apply_damage(ecs: &mut Ecs, damage_events: &mut Vec<DamageEvent>) {
                 }
             }
 
-            // for index in event_indices {
-            //     damage_events.remove(index);
-            // }
+            for index in event_indices {
+                damage_events.remove(index);
+            }
         }
     }
 
@@ -112,34 +112,20 @@ pub fn damage_on_collision(
             if target != damageable_e && source != damageable_e {
                 continue;
             }
-            // TODO: stupid code
-            if let Some(damage_on_coll) = ecs.components.damage_on_collision.get(source) {
-                let apply_damage = if ecs.components.player_data.contains_key(target) {
-                    damage_on_coll.source == EntityType::Enemy
-                } else {
-                    damage_on_coll.source == EntityType::Player
-                };
-                if apply_damage {
-                    damage_events.push(DamageEvent {
-                        source: *source,
-                        target: *target,
-                        damage: damage_on_coll.damage,
-                    });
-                }
-            }
-            if let Some(damage_on_coll) = ecs.components.damage_on_collision.get(target) {
-                let apply_damage = if ecs.components.player_data.contains_key(source) {
-                    damage_on_coll.source == EntityType::Enemy
-                } else {
-                    damage_on_coll.source == EntityType::Player
-                };
-
-                if apply_damage {
-                    damage_events.push(DamageEvent {
-                        source: *target,
-                        target: *source,
-                        damage: damage_on_coll.damage,
-                    });
+            for (e1, e2) in [(source, target), (target, source)] {
+                if let Some(damage_on_coll) = ecs.components.damage_on_collision.get(e1) {
+                    let apply_damage = if ecs.components.player_data.contains_key(e2) {
+                        damage_on_coll.source == EntityType::Enemy
+                    } else {
+                        damage_on_coll.source == EntityType::Player
+                    };
+                    if apply_damage {
+                        damage_events.push(DamageEvent {
+                            source: *e1,
+                            target: *e2,
+                            damage: damage_on_coll.damage,
+                        });
+                    }
                 }
             }
         }
@@ -156,44 +142,26 @@ pub fn despawn_on_collision(
 
     for despawn_e in &despawn_on_hits {
         for ((source, target), _collision) in collisions.iter() {
-            // TODO: stupid code
-            if source == despawn_e {
-                let despawn_on_hit = ecs.components.despawn_on_hit.get(despawn_e).unwrap();
-                // TODO: not safe
-                let position = ecs.components.positions.get(despawn_e).unwrap();
-                if ecs.components.player_entity.contains_key(target)
-                    && despawn_on_hit.0 == EntityType::Player
-                {
-                    spawn_dust(data, dust_texture.clone(), ecs, *position);
-                    ecs.despawn(*despawn_e);
-                    break;
-                };
-                if !ecs.components.player_entity.contains_key(target)
-                    && despawn_on_hit.0 == EntityType::Enemy
-                {
-                    spawn_dust(data, dust_texture.clone(), ecs, *position);
-                    ecs.despawn(*despawn_e);
-                    break;
-                };
-            }
-
-            if target == despawn_e {
-                let despawn_on_hit = ecs.components.despawn_on_hit.get(despawn_e).unwrap();
-                let position = ecs.components.positions.get(despawn_e).unwrap();
-                if ecs.components.player_entity.contains_key(source)
-                    && despawn_on_hit.0 == EntityType::Player
-                {
-                    spawn_dust(data, dust_texture.clone(), ecs, *position);
-                    ecs.despawn(*despawn_e);
-                    break;
-                };
-                if !ecs.components.player_entity.contains_key(source)
-                    && despawn_on_hit.0 == EntityType::Enemy
-                {
-                    spawn_dust(data, dust_texture.clone(), ecs, *position);
-                    ecs.despawn(*despawn_e);
-                    break;
-                };
+            for (e1, e2) in [(source, target), (target, source)] {
+                if e1 == despawn_e {
+                    let despawn_on_hit = ecs.components.despawn_on_hit.get(despawn_e).unwrap();
+                    // TODO: not safe
+                    let position = ecs.components.positions.get(despawn_e).unwrap();
+                    if ecs.components.player_entity.contains_key(e2)
+                        && despawn_on_hit.0 == EntityType::Player
+                    {
+                        spawn_dust(data, dust_texture.clone(), ecs, *position);
+                        ecs.despawn(*despawn_e);
+                        break;
+                    };
+                    if !ecs.components.player_entity.contains_key(e2)
+                        && despawn_on_hit.0 == EntityType::Enemy
+                    {
+                        spawn_dust(data, dust_texture.clone(), ecs, *position);
+                        ecs.despawn(*despawn_e);
+                        break;
+                    };
+                }
             }
         }
     }

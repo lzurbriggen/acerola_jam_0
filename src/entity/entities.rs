@@ -31,6 +31,7 @@ pub struct Components {
     pub despawn_on_anim_end: ComponentColl<DespawnOnAnimEnd>,
     pub despawn_on_hit: ComponentColl<DespawnOnHit>,
     pub player_entity: ComponentColl<()>,
+    pub room_entity: ComponentColl<()>,
 }
 
 #[derive(Default)]
@@ -74,5 +75,6 @@ impl Ecs {
         self.components.despawn_on_anim_end.remove(entity);
         self.components.despawn_on_hit.remove(entity);
         self.components.player_entity.remove(entity);
+        self.components.room_entity.remove(entity);
     }
 }

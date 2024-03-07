@@ -28,6 +28,7 @@ pub fn spawn_door(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entity 
 
     let door = Door::new();
     ecs.components.doors.insert(id, door);
+    ecs.components.room_entity.insert(id, ());
 
     ecs.entities.push(id);
     id

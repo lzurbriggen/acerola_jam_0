@@ -80,6 +80,7 @@ pub fn spawn_hopper(
     ecs.components
         .materials
         .insert(id, create_sprite_color_material());
+    ecs.components.room_entity.insert(id, ());
 
     ecs.entities.push(id);
     id

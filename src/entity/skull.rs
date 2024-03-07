@@ -30,6 +30,7 @@ pub fn spawn_skull(
     ecs.components
         .despawn_on_anim_end
         .insert(id, DespawnOnAnimEnd);
+    ecs.components.room_entity.insert(id, ());
 
     ecs.entities.push(id);
     id

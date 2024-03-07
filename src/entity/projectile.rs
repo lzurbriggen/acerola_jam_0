@@ -51,6 +51,7 @@ pub fn spawn_bullet(
     );
     ecs.components.velocities.insert(id, velocity);
     ecs.components.player_entity.insert(id, ());
+    ecs.components.room_entity.insert(id, ());
 
     ecs.entities.push(id);
     id
