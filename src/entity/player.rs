@@ -11,13 +11,15 @@ use super::{
     animated_sprite::{AnimatedSprite, Animation},
     entities::Ecs,
     entity_id::Entity,
-    tags::{DamageOnCollision, Damageable, EntityType, Health},
+    tags::{Damageable, Health},
 };
 
 pub struct PlayerData {
     pub move_speed: f32,
     pub sprite_offset: Vec2,
     pub max_hp: u8,
+    pub aberration: f32,
+    pub aberration_increase_timer: Timer,
 }
 
 pub fn spawn_player(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs) -> Entity {
@@ -43,6 +45,8 @@ pub fn spawn_player(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs) -> E
         move_speed: 72.,
         sprite_offset: vec2(8., 10.),
         max_hp: 3,
+        aberration: 0.,
+        aberration_increase_timer: Timer::new(0.2, true),
     };
 
     ecs.components.player_data.insert(id, player_data);

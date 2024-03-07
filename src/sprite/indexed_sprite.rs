@@ -41,7 +41,7 @@ impl IndexedSprite {
             x as f32,
             y as f32,
             self.frame_width as f32,
-            self.frame_width as f32,
+            self.texture.height(),
         )
     }
 }

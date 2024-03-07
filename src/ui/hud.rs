@@ -1,4 +1,8 @@
-use macroquad::math::vec2;
+use macroquad::{
+    color::Color,
+    math::vec2,
+    shapes::{draw_rectangle_ex, DrawRectangleParams},
+};
 
 use crate::{entity::entities::Ecs, game_data::GameData};
 
@@ -19,5 +23,32 @@ pub fn draw_hp(data: &GameData, ecs: &Ecs) {
                 heart_index,
             )
         }
+    }
+}
+
+pub fn draw_aberration_meter(data: &GameData, ecs: &Ecs) {
+    let players = ecs.check_components(|e, comps| comps.player_data.contains_key(e));
+
+    let pos = vec2(310., 78.);
+    for player_e in players {
+        let player = ecs.components.player_data.get(&player_e).unwrap();
+
+        data.sprites.aberration_meter.draw(pos, 0);
+        let h = player.aberration * 65.;
+        draw_rectangle_ex(
+            pos.x + 9.,
+            pos.y + 16. + 65. - h,
+            30.,
+            h,
+            DrawRectangleParams {
+                color: Color::from_hex(0x793a80),
+                ..Default::default()
+            },
+        );
+        data.sprites
+            .aberration_meter
+            .draw(pos + vec2(0., (1. - player.aberration) * 65.), 2);
+
+        data.sprites.aberration_meter.draw(pos, 1);
     }
 }

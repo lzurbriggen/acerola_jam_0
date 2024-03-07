@@ -8,6 +8,7 @@ use crate::{
 
 pub struct Sprites {
     pub hud_heart: IndexedSprite,
+    pub aberration_meter: IndexedSprite,
 }
 
 pub struct GameData {

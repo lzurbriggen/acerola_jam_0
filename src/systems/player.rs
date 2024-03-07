@@ -1,20 +1,8 @@
-use std::collections::HashMap;
-
 use macroquad::prelude::*;
 
-use crate::{
-    entity::{entities::Ecs, entity_id::Entity, events::DamageEvent, tags::EntityType},
-    game_data::GameData,
-    input_manager::Action,
-    physics::collision::{check_collision_circles, Collision},
-};
+use crate::{entity::entities::Ecs, game_data::GameData, input_manager::Action};
 
-pub fn update_player(
-    data: &mut GameData,
-    collisions: &HashMap<(Entity, Entity), Collision>,
-    ecs: &mut Ecs,
-    damage_events: &mut Vec<DamageEvent>,
-) {
+pub fn update_player(data: &mut GameData, ecs: &mut Ecs) {
     let players = ecs.check_components(|e, comps| {
         comps.player_data.contains_key(e)
             && comps.positions.contains_key(e)
@@ -22,28 +10,15 @@ pub fn update_player(
             && comps.velocities.contains_key(e)
     });
 
-    let colliders = ecs.check_components(|e, comps| comps.colliders.contains_key(e));
-
     for player in &players {
         let player_data = ecs.components.player_data.get_mut(player).unwrap();
         let velocity = ecs.components.velocities.get_mut(player).unwrap();
 
-        // 'damage: for ((source, target), _collision) in collisions.iter() {
-        //     if target != player {
-        //         continue;
-        //     }
-        //     if let Some(damage_on_coll) = ecs.components.damage_on_collision.get(source) {
-        //         if damage_on_coll.source != DamageSource::Enemy {
-        //             continue;
-        //         }
-        //         damage_events.push(DamageEvent {
-        //             source: *source,
-        //             target: *player,
-        //             damage: damage_on_coll.damage,
-        //         });
-        //         break 'damage;
-        //     }
-        // }
+        player_data.aberration_increase_timer.update();
+        if player_data.aberration_increase_timer.just_completed() {
+            player_data.aberration += 0.01;
+            player_data.aberration = player_data.aberration.clamp(0., 1.);
+        }
 
         let mut dir = Vec2::ZERO;
         if data.input.is_currently_pressed(Action::Left) {
@@ -70,27 +45,5 @@ pub fn update_player(
         } else {
             *velocity = Vec2::ZERO;
         };
-    }
-
-    for player in &players {
-        let position = ecs.components.positions.get(player).unwrap();
-        let player_collider = ecs.components.colliders.get(player).unwrap();
-        for other_collider in &colliders {
-            if other_collider != player {
-                let other_collider_pos = ecs.components.positions.get(&other_collider).unwrap();
-                let other_collider = ecs.components.colliders.get(&other_collider).unwrap();
-
-                if check_collision_circles(
-                    *position,
-                    player_collider.radius,
-                    *other_collider_pos,
-                    other_collider.radius,
-                )
-                .is_some()
-                {
-                    // println!("{:?}", "other_coll");
-                }
-            }
-        }
     }
 }

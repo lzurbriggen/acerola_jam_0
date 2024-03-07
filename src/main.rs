@@ -26,7 +26,7 @@ use systems::{
     timer::update_timers,
     weapon::update_weapon,
 };
-use ui::{pause_menu::pause_menu, ui_data::UIData};
+use ui::{hud::draw_aberration_meter, pause_menu::pause_menu, ui_data::UIData};
 
 use crate::{
     game_data::{GameData, Sprites},
@@ -132,9 +132,13 @@ async fn main() {
     dust_texture.set_filter(FilterMode::Nearest);
     let blood_texture: Texture2D = load_texture("entities/blood_01.png").await.unwrap();
     blood_texture.set_filter(FilterMode::Nearest);
+    let aberration_meter_texture: Texture2D =
+        load_texture("ui/aberration_meter.png").await.unwrap();
+    aberration_meter_texture.set_filter(FilterMode::Nearest);
 
     let sprites = Sprites {
         hud_heart: IndexedSprite::new(hud_heart_texture, 16, Vec2::ZERO),
+        aberration_meter: IndexedSprite::new(aberration_meter_texture, 48, Vec2::ZERO),
     };
 
     let settings = GameSettings::default();
@@ -231,7 +235,7 @@ async fn main() {
         );
         kill_entities(&mut ecs, &mut death_events);
         handle_enemy_death(&mut data, skull_texture.clone(), &mut ecs, &death_events);
-        update_player(&mut data, &collisions, &mut ecs, &mut damage_events);
+        update_player(&mut data, &mut ecs);
         update_weapon(&mut ecs, &mut data, bullet_texture.clone());
         update_enemies(&mut ecs);
         update_animated_sprites(&mut ecs);
@@ -248,6 +252,7 @@ async fn main() {
         }
 
         draw_hp(&data, &ecs);
+        draw_aberration_meter(&data, &ecs);
 
         fps_counter.update_and_draw(&mut data);
 
