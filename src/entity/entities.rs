@@ -32,6 +32,7 @@ pub struct Components {
     pub despawn_on_hit: ComponentColl<DespawnOnHit>,
     pub player_entity: ComponentColl<()>,
     pub room_entity: ComponentColl<()>,
+    pub layer_offset: ComponentColl<i8>,
 }
 
 #[derive(Default)]
@@ -76,5 +77,6 @@ impl Ecs {
         self.components.despawn_on_hit.remove(entity);
         self.components.player_entity.remove(entity);
         self.components.room_entity.remove(entity);
+        self.components.layer_offset.remove(entity);
     }
 }

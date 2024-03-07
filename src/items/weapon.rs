@@ -12,7 +12,7 @@ pub struct Shooter {
 impl Shooter {
     pub fn new() -> Self {
         Self {
-            shoot_timer: Timer::new(1.5, true),
+            shoot_timer: Timer::new(0.5, true),
             damage: 5.,
         }
     }

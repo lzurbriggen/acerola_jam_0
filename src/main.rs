@@ -44,6 +44,7 @@ mod input_manager;
 mod items;
 mod map;
 mod physics;
+mod rand_utils;
 mod room;
 mod settings;
 mod sprite;
@@ -129,6 +130,8 @@ async fn main() {
     bullet_texture.set_filter(FilterMode::Nearest);
     let dust_texture: Texture2D = load_texture("entities/dust_01.png").await.unwrap();
     dust_texture.set_filter(FilterMode::Nearest);
+    let blood_texture: Texture2D = load_texture("entities/blood_01.png").await.unwrap();
+    blood_texture.set_filter(FilterMode::Nearest);
 
     let sprites = Sprites {
         hud_heart: IndexedSprite::new(hud_heart_texture, 16, Vec2::ZERO),
@@ -220,7 +223,12 @@ async fn main() {
         update_damageables(&mut ecs);
         damage_on_collision(&ecs, &mut damage_events, &collisions);
         despawn_on_collision(&mut data, &mut ecs, &collisions, dust_texture.clone());
-        apply_damage(&mut ecs, &mut damage_events);
+        apply_damage(
+            &mut data,
+            &mut ecs,
+            &mut damage_events,
+            blood_texture.clone(),
+        );
         kill_entities(&mut ecs, &mut death_events);
         handle_enemy_death(&mut data, skull_texture.clone(), &mut ecs, &death_events);
         update_player(&mut data, &collisions, &mut ecs, &mut damage_events);

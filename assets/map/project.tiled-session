@@ -3,14 +3,14 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "map_01.tmx",
+    "activeFile": "example_01.tmj",
     "automapping.whileDrawing": false,
     "expandedProjectPaths": [
         "."
     ],
     "fileStates": {
         "": {
-            "scaleInEditor": 16
+            "scaleInEditor": 11
         },
         ":/automap-tiles.tsx": {
             "scaleInDock": 1
@@ -24,10 +24,10 @@
         },
         "example_01.tmj": {
             "scale": 3,
-            "selectedLayer": 1,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 166,
-                "y": 81.33333333333333
+                "x": 177.33333333333331,
+                "y": 106.66666666666666
             }
         },
         "example_01.tmj#tileset_01": {
@@ -66,8 +66,7 @@
     "map.tileWidth": 8,
     "map.width": 45,
     "openFiles": [
-        "map_01.tmx",
-        "rules_ground.tmx"
+        "example_01.tmj"
     ],
     "project": "project.tiled-project",
     "property.type": "string",

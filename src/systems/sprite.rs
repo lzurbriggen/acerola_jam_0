@@ -33,6 +33,17 @@ pub fn draw_animated_sprites(ecs: &Ecs) {
             Ordering::Equal
         }
     });
+    sprites.sort_by(|a, b| {
+        let a_offset = ecs.components.layer_offset.get(&a).unwrap_or(&0);
+        let b_offset = ecs.components.layer_offset.get(&b).unwrap_or(&0);
+        if a_offset < b_offset {
+            Ordering::Less
+        } else if a_offset > b_offset {
+            Ordering::Greater
+        } else {
+            Ordering::Equal
+        }
+    });
 
     for sprite_e in &sprites {
         let position = ecs.components.positions.get(&sprite_e).unwrap();

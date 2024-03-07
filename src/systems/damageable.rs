@@ -5,7 +5,7 @@ use crate::{
         entities::Ecs,
         entity_id::Entity,
         events::{DamageEvent, DeathEvent},
-        impact::spawn_dust,
+        impact::{spawn_dust, splatter_blood},
         skull::spawn_skull,
         tags::EntityType,
     },
@@ -55,10 +55,17 @@ pub fn flash_on_damage(ecs: &mut Ecs) {
     }
 }
 
-pub fn apply_damage(ecs: &mut Ecs, damage_events: &mut Vec<DamageEvent>) {
+pub fn apply_damage(
+    data: &mut GameData,
+    ecs: &mut Ecs,
+    damage_events: &mut Vec<DamageEvent>,
+    blood_texture: Texture2D,
+) {
     let damageables = ecs.check_components(|e, comps| {
         comps.damageables.contains_key(e) && comps.health.contains_key(e)
     });
+
+    let mut splatter_positions = vec![];
 
     for damageable_e in &damageables {
         let damageable = ecs.components.damageables.get_mut(damageable_e).unwrap();
@@ -83,6 +90,9 @@ pub fn apply_damage(ecs: &mut Ecs, damage_events: &mut Vec<DamageEvent>) {
             if let Some(invulnerable_timer) = &mut damageable.invulnerable_timer {
                 if invulnerable_timer.completed() {
                     health.hp -= event.damage;
+                    if let Some(position) = ecs.components.positions.get(damageable_e) {
+                        splatter_positions.push(*position);
+                    }
                     println!("{:?}", health.hp);
                     invulnerable_timer.reset();
                     if let Some(hit_fx_timer) = &mut damageable.hit_fx_timer {
@@ -95,6 +105,10 @@ pub fn apply_damage(ecs: &mut Ecs, damage_events: &mut Vec<DamageEvent>) {
                 damage_events.remove(index);
             }
         }
+    }
+
+    for pos in &splatter_positions {
+        splatter_blood(data, blood_texture.clone(), ecs, *pos);
     }
 
     damage_events.clear();
