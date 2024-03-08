@@ -4,6 +4,7 @@
 - Sfx: https://kenney.nl/assets/rpg-audio
 - Sfx: https://kenney.nl/assets/impact-sounds
 - Color palette: https://lospec.com/palette-list/aap-64
+- Noise texture: https://screamingbrainstudios.itch.io/noise-texture-pack
 
 ## Run WASM
 

@@ -21,6 +21,10 @@ impl IndexedSprite {
     }
 
     pub fn draw(&self, pos: Vec2, index: usize) {
+        self.draw_with_dest(pos, index, None);
+    }
+
+    pub fn draw_with_dest(&self, pos: Vec2, index: usize, destination_size: Option<Vec2>) {
         let pos = pos - self.position_offset;
         draw_texture_ex(
             &self.texture,
@@ -28,6 +32,7 @@ impl IndexedSprite {
             pos.y,
             WHITE,
             DrawTextureParams {
+                dest_size: destination_size,
                 source: Some(self.texture_source(index)),
                 ..Default::default()
             },

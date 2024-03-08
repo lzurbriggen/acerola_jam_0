@@ -26,7 +26,11 @@ use systems::{
     timer::update_timers,
     weapon::update_weapon,
 };
-use ui::{hud::draw_aberration_meter, pause_menu::pause_menu, ui_data::UIData};
+use ui::{
+    hud::{create_aberration_material, draw_aberration_meter},
+    pause_menu::pause_menu,
+    ui_data::UIData,
+};
 
 use crate::{
     game_data::{GameData, Sprites},
@@ -135,10 +139,24 @@ async fn main() {
     let aberration_meter_texture: Texture2D =
         load_texture("ui/aberration_meter.png").await.unwrap();
     aberration_meter_texture.set_filter(FilterMode::Nearest);
+    let noise1_texture: Texture2D = load_texture("entities/Perlin_16-128x128.png")
+        .await
+        .unwrap();
+    noise1_texture.set_filter(FilterMode::Nearest);
+    let noise2_texture: Texture2D = load_texture("entities/Perlin_15-128x128.png")
+        .await
+        .unwrap();
+    noise2_texture.set_filter(FilterMode::Nearest);
+    let aberration_meter_mask_texture: Texture2D =
+        load_texture("ui/aberration_meter_mask.png").await.unwrap();
+    aberration_meter_mask_texture.set_filter(FilterMode::Nearest);
+
+    let aberration_material = create_aberration_material();
 
     let sprites = Sprites {
         hud_heart: IndexedSprite::new(hud_heart_texture, 16, Vec2::ZERO),
         aberration_meter: IndexedSprite::new(aberration_meter_texture, 48, Vec2::ZERO),
+        aberration_material,
     };
 
     let settings = GameSettings::default();
@@ -176,6 +194,16 @@ async fn main() {
     let mut damage_events = Vec::<DamageEvent>::new();
     let mut death_events = Vec::<DeathEvent>::new();
 
+    data.sprites
+        .aberration_material
+        .set_texture("noise1", noise1_texture.clone());
+    data.sprites
+        .aberration_material
+        .set_texture("noise2", noise2_texture.clone());
+    data.sprites
+        .aberration_material
+        .set_texture("mask", aberration_meter_mask_texture.clone());
+
     loop {
         let despawned_entities = &ecs.marked_for_despawn.clone();
         for entity in despawned_entities {
@@ -188,6 +216,19 @@ async fn main() {
         ecs.marked_for_despawn.clear();
 
         death_events.clear();
+
+        data.sprites
+            .aberration_material
+            .set_texture("noise1", noise1_texture.clone());
+        data.sprites
+            .aberration_material
+            .set_texture("noise2", noise2_texture.clone());
+        data.sprites
+            .aberration_material
+            .set_uniform("intensity", 1.2f32);
+        data.sprites
+            .aberration_material
+            .set_uniform("time", get_time() as f32);
 
         data.update();
         set_mouse_cursor(miniquad::CursorIcon::Default);

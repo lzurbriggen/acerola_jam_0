@@ -19,6 +19,9 @@ pub fn update_player(data: &mut GameData, ecs: &mut Ecs) {
             player_data.aberration += 0.01;
             player_data.aberration = player_data.aberration.clamp(0., 1.);
         }
+        data.sprites
+            .aberration_material
+            .set_uniform("intensity", player_data.aberration * 1.9);
 
         let mut dir = Vec2::ZERO;
         if data.input.is_currently_pressed(Action::Left) {
