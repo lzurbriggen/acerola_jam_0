@@ -10,6 +10,7 @@ use game_state::GameState;
 use items::weapon::{Shooter, Weapon};
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use macroquad_tiled::load_map;
+use room::Room;
 use settings::{GameSettings, WindowSize};
 use systems::{
     collision::draw_colliders,
@@ -204,6 +205,8 @@ async fn main() {
         .aberration_material
         .set_texture("mask", aberration_meter_mask_texture.clone());
 
+    let mut room = Room::new(3.);
+
     loop {
         let despawned_entities = &ecs.marked_for_despawn.clone();
         for entity in despawned_entities {
@@ -263,7 +266,7 @@ async fn main() {
 
         map.draw_base();
 
-        spawn_creatures(&mut data, &mut ecs, &hopper_texture);
+        spawn_creatures(&mut data, &mut ecs, &hopper_texture, &mut room);
         update_timers(&mut ecs);
         update_damageables(&mut ecs);
         damage_on_collision(&ecs, &mut damage_events, &collisions);

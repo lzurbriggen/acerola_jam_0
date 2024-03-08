@@ -93,7 +93,6 @@ pub fn apply_damage(
                     if let Some(position) = ecs.components.positions.get(damageable_e) {
                         splatter_positions.push(*position);
                     }
-                    println!("{:?}", health.hp);
                     invulnerable_timer.reset();
                     if let Some(hit_fx_timer) = &mut damageable.hit_fx_timer {
                         hit_fx_timer.reset();

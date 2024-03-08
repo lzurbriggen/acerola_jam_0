@@ -50,7 +50,7 @@ pub fn spawn_player(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs) -> E
     };
 
     ecs.components.player_data.insert(id, player_data);
-    ecs.components.health.insert(id, Health { hp: 3. });
+    ecs.components.health.insert(id, Health { hp: 10. });
 
     ecs.components.damageables.insert(
         id,
