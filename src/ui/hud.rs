@@ -51,9 +51,9 @@ pub fn draw_aberration_meter(data: &GameData, ecs: &Ecs) {
         //         ..Default::default()
         //     },
         // );
-        data.sprites
-            .aberration_material
-            .set_uniform("enable_mask", 1);
+        // data.sprites
+        //     .aberration_material
+        //     .set_uniform("enable_mask", 1);
         data.sprites
             .aberration_material
             .set_uniform("cutoff", player.aberration);
@@ -70,19 +70,19 @@ pub fn draw_aberration_meter(data: &GameData, ecs: &Ecs) {
         data.sprites.aberration_meter.draw(pos, 3);
 
         data.sprites.aberration_material.set_uniform("cutoff", 1f32);
-        data.sprites
-            .aberration_material
-            .set_uniform("enable_mask", 0);
+        // data.sprites
+        //     .aberration_material
+        //     .set_uniform("enable_mask", 0);
         data.sprites.aberration_meter.draw(pos, 0);
-        data.sprites
-            .aberration_material
-            .set_uniform("enable_mask", 1);
+        // data.sprites
+        //     .aberration_material
+        //     .set_uniform("enable_mask", 1);
         data.sprites
             .aberration_meter
             .draw(pos + vec2(0., (1. - player.aberration) * 65.), 2);
-        data.sprites
-            .aberration_material
-            .set_uniform("enable_mask", 0);
+        // data.sprites
+        //     .aberration_material
+        //     .set_uniform("enable_mask", 0);
 
         data.sprites.aberration_meter.draw(pos, 1);
 
@@ -152,7 +152,7 @@ void main() {
 
     // TODO: texture wrapping not available in macroquad?
     vec2 texSize2 = vec2(textureSize(noise2, 0).xy);
-    vec2 noise1Offset = fract(uv + vec2(time * 0.3));
+    vec2 noise1Offset = fract(uv + vec2(time * 0.6));
     vec2 noise1Color = vec2(texture2D(noise1, noise1Offset));
     vec2 noise2Offset = fract(uv + vec2(time * 0.1));
     vec2 noise2Color = mix(noise1Color + vec2(texture2D(noise1, noise2Offset)), noise1Color, intensity);
