@@ -4,7 +4,7 @@ use macroquad::{miniquad::window, prelude::*};
 pub enum WindowSize {
     W360,
     #[default]
-    W740,
+    W720,
     W1440,
     Fullscreen,
 }
@@ -22,7 +22,7 @@ impl WindowSize {
     pub fn size(&self) -> Option<(u32, u32)> {
         match self {
             WindowSize::W360 => Some((360, 240)),
-            WindowSize::W740 => Some((740, 480)),
+            WindowSize::W720 => Some((720, 480)),
             WindowSize::W1440 => Some((1440, 960)),
             WindowSize::Fullscreen => None,
         }
@@ -31,7 +31,7 @@ impl WindowSize {
     pub fn list() -> Vec<WindowSize> {
         vec![
             WindowSize::W360,
-            WindowSize::W740,
+            WindowSize::W720,
             WindowSize::W1440,
             WindowSize::Fullscreen,
         ]

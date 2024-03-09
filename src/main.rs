@@ -9,7 +9,6 @@ use entity::{
 };
 use fps_counter::FPSCounter;
 use game_state::GameState;
-use items::weapon::{Shooter, Weapon};
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use macroquad_tiled::load_map;
 use room::Room;
@@ -17,8 +16,8 @@ use settings::{GameSettings, WindowSize};
 use systems::{
     collision::draw_colliders,
     damageable::{
-        apply_damage, damage_on_collision, despawn_on_collision, flash_on_damage,
-        handle_enemy_death, kill_entities, update_damageables,
+        apply_damage, damage_on_collision, despawn_on_collision, flash_on_damage, handle_death,
+        kill_entities, update_damageables,
     },
     door::handle_door_collisions,
     enemy::update_enemies,
@@ -29,19 +28,17 @@ use systems::{
     timer::update_timers,
     weapon::update_weapon,
 };
-use timer::Timer;
 use ui::{
     hud::{create_aberration_material, draw_aberration_meter},
     icon,
     intro_screen::IntroScreen,
     pause_menu::pause_menu,
-    screen_dimmer::ScreenDimmer,
     ui_data::UIData,
 };
 
 use crate::{
     game_data::{GameData, Sprites},
-    input_manager::{Action, InputManager},
+    input_manager::Action,
     map::map::Map,
     sprite::indexed_sprite::IndexedSprite,
     ui::hud::draw_hp,
@@ -126,8 +123,6 @@ async fn main() {
 
     let mut fullscreen = false;
 
-    let camera = Camera2D::default();
-
     let mut fps_counter = FPSCounter::default();
 
     let hud_heart_texture: Texture2D = load_texture("ui/heart_01.png").await.unwrap();
@@ -156,6 +151,8 @@ async fn main() {
     let aberration_meter_mask_texture: Texture2D =
         load_texture("ui/aberration_meter_mask.png").await.unwrap();
     aberration_meter_mask_texture.set_filter(FilterMode::Nearest);
+    let death_texture: Texture2D = load_texture("ui/death.png").await.unwrap();
+    death_texture.set_filter(FilterMode::Nearest);
 
     let aberration_material = create_aberration_material();
 
@@ -205,28 +202,14 @@ async fn main() {
 
     let maps = vec![map1, map2, map3];
 
-    let mut data = GameData {
+    let mut data = GameData::new(
         entity_index,
         settings,
-        state: GameState::default(),
-        ui: ui_data,
-        sprites,
-        input: InputManager::new(),
-        camera,
-        debug_collisions: false,
-        #[cfg(debug_assertions)]
-        show_fps: true,
-        #[cfg(not(debug_assertions))]
-        show_fps: false,
-        weapon: Weapon::Shooter(Shooter::new()),
-        current_room: Room::new(maps.len(), 3.),
+        ui_data,
         maps,
-        screen_dimmer: ScreenDimmer::new(),
-        map_change_requested: false,
-        paused: false,
-        pause_timer: Timer::new(1., false),
-        show_pause_menu: false,
-    };
+        sprites,
+        death_texture,
+    );
     data.reset();
     data.settings.set_window_size(WindowSize::W1440);
 
@@ -367,10 +350,10 @@ async fn main() {
             if data.input.is_just_pressed(Action::Pause) {
                 if data.paused {
                     data.paused = false;
-                    data.ui.focus = None;
                     data.show_pause_menu = false;
                 } else {
                     data.paused = true;
+                    data.ui.focus = None;
                     data.show_pause_menu = true;
                 }
             }
@@ -390,7 +373,7 @@ async fn main() {
                     blood_texture.clone(),
                 );
                 kill_entities(&mut ecs, &mut death_events);
-                handle_enemy_death(&mut data, skull_texture.clone(), &mut ecs, &death_events);
+                handle_death(&mut data, skull_texture.clone(), &mut ecs, &death_events);
                 update_player(&mut data, &mut ecs);
                 update_weapon(&mut ecs, &mut data, bullet_texture.clone());
                 update_enemies(&mut ecs);
@@ -432,6 +415,13 @@ async fn main() {
             if intro_screen.update_and_draw(&mut data) {
                 data.state = GameState::Playing;
                 // TODO: reset
+            }
+        }
+        if data.dead {
+            data.death_screen.update();
+            if data.death_screen.draw(&data) {
+                data.state = GameState::Intro;
+                data.dead = false;
             }
         }
 

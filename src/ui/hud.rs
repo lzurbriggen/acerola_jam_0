@@ -1,11 +1,9 @@
 use macroquad::{
-    color::Color,
     material::{gl_use_default_material, gl_use_material, load_material, Material, MaterialParams},
     math::vec2,
     miniquad::{
         BlendFactor, BlendState, BlendValue, Equation, PipelineParams, ShaderSource, UniformType,
     },
-    shapes::{draw_rectangle_ex, DrawRectangleParams},
 };
 
 use crate::{entity::entities::Ecs, game_data::GameData};

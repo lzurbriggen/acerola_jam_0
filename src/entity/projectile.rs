@@ -38,7 +38,7 @@ pub fn spawn_bullet(
     ecs.components.colliders.insert(
         id,
         CircleCollider {
-            radius: 3.,
+            radius: 2.5,
             trigger: true,
         },
     );

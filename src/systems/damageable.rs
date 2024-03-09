@@ -11,6 +11,7 @@ use crate::{
     },
     game_data::GameData,
     physics::collision::Collision,
+    rand_utils::rand_dir,
 };
 use macroquad::prelude::*;
 
@@ -187,22 +188,36 @@ pub fn kill_entities(ecs: &mut Ecs, death_events: &mut Vec<DeathEvent>) {
         let health = ecs.components.health.get_mut(health_e).unwrap();
 
         if health.hp <= 0. {
+            println!("{:?}", health_e);
             ecs.despawn(*health_e);
             death_events.push(DeathEvent(*health_e));
         }
     }
 }
 
-pub fn handle_enemy_death(
+pub fn handle_death(
     data: &mut GameData,
     skull_texture: Texture2D,
     ecs: &mut Ecs,
     death_events: &Vec<DeathEvent>,
 ) {
+    let mut skull_positions = vec![];
+
     for ev in death_events {
         let pos = ecs.components.positions.get(&ev.0).unwrap();
-        if ecs.components.hoppers.contains_key(&ev.0) {
-            spawn_skull(data, skull_texture.clone(), ecs, *pos);
+        let player = ecs.components.player_entity.get(&ev.0);
+        if player.is_some() {
+            data.dead = true;
+            data.death_screen.show();
+
+            for _ in 0..40 {
+                skull_positions.push(vec2(rand::gen_range(0., 360.), rand::gen_range(0., 240.)))
+            }
         }
+        spawn_skull(data, skull_texture.clone(), ecs, *pos);
+    }
+
+    for pos in skull_positions {
+        spawn_skull(data, skull_texture.clone(), ecs, pos);
     }
 }

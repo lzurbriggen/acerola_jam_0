@@ -48,9 +48,13 @@ pub fn spawn_player(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs) -> E
         aberration: 0.,
         aberration_increase_timer: Timer::new(0.2, true),
     };
-
+    ecs.components.health.insert(
+        id,
+        Health {
+            hp: player_data.max_hp.into(),
+        },
+    );
     ecs.components.player_data.insert(id, player_data);
-    ecs.components.health.insert(id, Health { hp: 10. });
 
     ecs.components.damageables.insert(
         id,

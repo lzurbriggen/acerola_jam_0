@@ -22,10 +22,10 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData, bullet_texture: Texture
             Weapon::Shooter(ref mut shooter) => {
                 shooter.shoot_timer.update();
                 if shooter.shoot_timer.just_completed() {
-                    bullet_data.push((shooter.damage, *position, vec2(160., 0.)));
-                    bullet_data.push((shooter.damage, *position, vec2(-160., 0.)));
-                    bullet_data.push((shooter.damage, *position, vec2(0., 160.)));
-                    bullet_data.push((shooter.damage, *position, vec2(0., -160.)));
+                    bullet_data.push((shooter.damage, *position + vec2(3., 0.), vec2(160., 0.)));
+                    bullet_data.push((shooter.damage, *position + vec2(-3., 0.), vec2(-160., 0.)));
+                    bullet_data.push((shooter.damage, *position + vec2(0., 3.), vec2(0., 160.)));
+                    bullet_data.push((shooter.damage, *position + vec2(0., -3.), vec2(0., -160.)));
                 }
             }
         }

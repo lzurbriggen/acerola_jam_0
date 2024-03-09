@@ -10,7 +10,7 @@ use crate::{
     settings::GameSettings,
     sprite::indexed_sprite::IndexedSprite,
     timer::Timer,
-    ui::{screen_dimmer::ScreenDimmer, ui_data::UIData},
+    ui::{death_screen::DeathScreen, screen_dimmer::ScreenDimmer, ui_data::UIData},
 };
 
 pub struct Sprites {
@@ -37,13 +37,50 @@ pub struct GameData {
     pub paused: bool,
     pub pause_timer: Timer,
     pub show_pause_menu: bool,
+    pub death_screen: DeathScreen,
+    pub dead: bool,
 }
 
 impl GameData {
+    pub fn new(
+        initial_entity_index: u64,
+        settings: GameSettings,
+        ui_data: UIData,
+        maps: Vec<Map>,
+        sprites: Sprites,
+        death_texture: Texture2D,
+    ) -> Self {
+        Self {
+            entity_index: initial_entity_index,
+            settings,
+            state: GameState::default(),
+            ui: ui_data,
+            sprites,
+            input: InputManager::new(),
+            camera: Camera2D::default(),
+            debug_collisions: false,
+            #[cfg(debug_assertions)]
+            show_fps: true,
+            #[cfg(not(debug_assertions))]
+            show_fps: false,
+            weapon: Weapon::Shooter(Shooter::new()),
+            current_room: Room::new(maps.len(), 3.),
+            maps,
+            screen_dimmer: ScreenDimmer::new(),
+            map_change_requested: false,
+            paused: false,
+            pause_timer: Timer::new(1., false),
+            show_pause_menu: false,
+            death_screen: DeathScreen::new(death_texture),
+            dead: true,
+        }
+    }
+
     pub fn reset(&mut self) {
         self.state = GameState::Intro;
         self.weapon = Weapon::Shooter(Shooter::new());
         self.current_room = Room::new(self.maps.len(), 3.);
+        self.dead = false;
     }
 
     pub fn new_entity(&mut self) -> Entity {
