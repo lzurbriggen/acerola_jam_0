@@ -5,12 +5,12 @@ pub struct IndexedSprite {
     // TODO: use reference to texture
     pub texture: Texture2D,
     position_offset: Vec2,
-    frame_width: u8,
+    frame_width: u32,
     row_len: usize,
 }
 
 impl IndexedSprite {
-    pub fn new(texture: Texture2D, frame_width: u8, position_offset: Vec2) -> Self {
+    pub fn new(texture: Texture2D, frame_width: u32, position_offset: Vec2) -> Self {
         let row_len = (texture.width() / frame_width as f32).trunc() as usize;
         Self {
             texture,

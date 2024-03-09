@@ -41,7 +41,7 @@ pub struct GameData {
 
 impl GameData {
     pub fn reset(&mut self) {
-        self.state = GameState::Playing;
+        self.state = GameState::Intro;
         self.weapon = Weapon::Shooter(Shooter::new());
         self.current_room = Room::new(self.maps.len(), 3.);
     }

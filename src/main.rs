@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use entity::{
+    animated_sprite::{AnimatedSprite, Animation},
     entities::Ecs,
     entity_id::Entity,
     events::{DamageEvent, DeathEvent},
@@ -9,11 +10,7 @@ use entity::{
 use fps_counter::FPSCounter;
 use game_state::GameState;
 use items::weapon::{Shooter, Weapon};
-use macroquad::{
-    audio,
-    miniquad::{conf::Icon, window::set_mouse_cursor},
-    prelude::*,
-};
+use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use macroquad_tiled::load_map;
 use room::Room;
 use settings::{GameSettings, WindowSize};
@@ -36,6 +33,7 @@ use timer::Timer;
 use ui::{
     hud::{create_aberration_material, draw_aberration_meter},
     icon,
+    intro_screen::IntroScreen,
     pause_menu::pause_menu,
     screen_dimmer::ScreenDimmer,
     ui_data::UIData,
@@ -254,55 +252,69 @@ async fn main() {
         .aberration_material
         .set_texture("mask", aberration_meter_mask_texture.clone());
 
+    let intro_screen_texture: Texture2D = load_texture("ui/intro_screen.png").await.unwrap();
+    intro_screen_texture.set_filter(FilterMode::Nearest);
+    let mut intro_screen = IntroScreen {
+        sprite: AnimatedSprite::new(
+            IndexedSprite::new(intro_screen_texture, 360, Vec2::ZERO),
+            HashMap::from([(
+                "animate".to_string(),
+                Animation::new(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], 0.12, true),
+            )]),
+        ),
+    };
+
     loop {
-        // Reset
-        if is_key_pressed(KeyCode::F5) {
-            data.reset();
-            let entities = ecs.check_components(|_, _| true);
-            for entity in entities {
-                let entity_i = ecs.entities.iter().position(|e| e == &entity).unwrap();
-                ecs.entities.remove(entity_i);
-                ecs.remove_all_components(&entity);
+        if data.state == GameState::Playing {
+            // Reset
+            if is_key_pressed(KeyCode::F5) {
+                data.reset();
+                let entities = ecs.check_components(|_, _| true);
+                for entity in entities {
+                    let entity_i = ecs.entities.iter().position(|e| e == &entity).unwrap();
+                    ecs.entities.remove(entity_i);
+                    ecs.remove_all_components(&entity);
+                }
+                data.current_room = Room::new(data.maps.len(), rand::gen_range(1., 20.));
+                spawn_player(&mut data, player_texture.clone(), &mut ecs);
+                let new_player_pos = data.spawn_map_entities(&mut ecs);
+                let players = ecs.check_components(|e, comps| {
+                    comps.player_data.contains_key(e) && comps.positions.contains_key(e)
+                });
+                for player_e in &players {
+                    let pos = ecs.components.positions.get_mut(player_e).unwrap();
+                    *pos = new_player_pos;
+                }
             }
-            data.current_room = Room::new(data.maps.len(), rand::gen_range(1., 20.));
-            spawn_player(&mut data, player_texture.clone(), &mut ecs);
-            let new_player_pos = data.spawn_map_entities(&mut ecs);
-            let players = ecs.check_components(|e, comps| {
-                comps.player_data.contains_key(e) && comps.positions.contains_key(e)
-            });
-            for player_e in &players {
-                let pos = ecs.components.positions.get_mut(player_e).unwrap();
-                *pos = new_player_pos;
+
+            let despawned_entities = &ecs.marked_for_despawn.clone();
+            for entity in despawned_entities {
+                let entity_i = ecs.entities.iter().position(|e| e == entity);
+                if let Some(index) = entity_i {
+                    ecs.entities.remove(index);
+                    ecs.remove_all_components(entity);
+                }
             }
-        }
-
-        let despawned_entities = &ecs.marked_for_despawn.clone();
-        for entity in despawned_entities {
-            let entity_i = ecs.entities.iter().position(|e| e == entity);
-            if let Some(index) = entity_i {
-                ecs.entities.remove(index);
-                ecs.remove_all_components(entity);
+            if !data.paused {
+                ecs.marked_for_despawn.clear();
+                death_events.clear();
             }
-        }
-        if !data.paused {
-            ecs.marked_for_despawn.clear();
-            death_events.clear();
-        }
 
-        data.sprites
-            .aberration_material
-            .set_texture("noise1", noise1_texture.clone());
-        data.sprites
-            .aberration_material
-            .set_texture("noise2", noise2_texture.clone());
-        data.sprites
-            .aberration_material
-            .set_uniform("intensity", 1.2f32);
-        data.sprites
-            .aberration_material
-            .set_uniform("time", get_time() as f32);
-
+            data.sprites
+                .aberration_material
+                .set_texture("noise1", noise1_texture.clone());
+            data.sprites
+                .aberration_material
+                .set_texture("noise2", noise2_texture.clone());
+            data.sprites
+                .aberration_material
+                .set_uniform("intensity", 1.2f32);
+            data.sprites
+                .aberration_material
+                .set_uniform("time", get_time() as f32);
+        }
         data.update();
+
         set_mouse_cursor(miniquad::CursorIcon::Default);
 
         set_camera(&data.camera);
@@ -326,94 +338,102 @@ async fn main() {
             data.debug_collisions = !data.debug_collisions;
         }
 
-        // Map transition
-        data.pause_timer.update();
-        if is_key_pressed(KeyCode::F6) {
-            data.map_change_requested = true;
-            data.screen_dimmer.dim();
-            data.paused = true;
-            data.pause_timer.reset();
-        }
-        if data.map_change_requested && data.screen_dimmer.just_dimmed {
-            data.map_change_requested = false;
-            data.current_room.despawn(&mut ecs);
-            data.current_room = Room::new(data.maps.len(), rand::gen_range(1., 20.));
-            let new_player_pos = data.spawn_map_entities(&mut ecs);
-            let players = ecs.check_components(|e, comps| {
-                comps.player_data.contains_key(e) && comps.positions.contains_key(e)
-            });
-            for player_e in &players {
-                let pos = ecs.components.positions.get_mut(player_e).unwrap();
-                *pos = new_player_pos;
-            }
-        }
-        if data.pause_timer.just_completed() {
-            data.paused = false;
-        }
-
-        if data.input.is_just_pressed(Action::Pause) {
-            if data.paused {
-                data.paused = false;
-                data.ui.focus = None;
-                data.show_pause_menu = false;
-            } else {
+        if data.state == GameState::Playing {
+            // Map transition
+            data.pause_timer.update();
+            if is_key_pressed(KeyCode::F6) {
+                data.map_change_requested = true;
+                data.screen_dimmer.dim();
                 data.paused = true;
-                data.show_pause_menu = true;
+                data.pause_timer.reset();
+            }
+            if data.map_change_requested && data.screen_dimmer.just_dimmed {
+                data.map_change_requested = false;
+                data.current_room.despawn(&mut ecs);
+                data.current_room = Room::new(data.maps.len(), rand::gen_range(1., 20.));
+                let new_player_pos = data.spawn_map_entities(&mut ecs);
+                let players = ecs.check_components(|e, comps| {
+                    comps.player_data.contains_key(e) && comps.positions.contains_key(e)
+                });
+                for player_e in &players {
+                    let pos = ecs.components.positions.get_mut(player_e).unwrap();
+                    *pos = new_player_pos;
+                }
+            }
+            if data.pause_timer.just_completed() {
+                data.paused = false;
+            }
+
+            if data.input.is_just_pressed(Action::Pause) {
+                if data.paused {
+                    data.paused = false;
+                    data.ui.focus = None;
+                    data.show_pause_menu = false;
+                } else {
+                    data.paused = true;
+                    data.show_pause_menu = true;
+                }
+            }
+
+            data.current_map().draw_base();
+
+            if !data.paused {
+                spawn_creatures(&mut data, &mut ecs, &hopper_texture);
+                update_timers(&mut ecs);
+                update_damageables(&mut ecs);
+                damage_on_collision(&ecs, &mut damage_events, &collisions);
+                despawn_on_collision(&mut data, &mut ecs, &collisions, dust_texture.clone());
+                apply_damage(
+                    &mut data,
+                    &mut ecs,
+                    &mut damage_events,
+                    blood_texture.clone(),
+                );
+                kill_entities(&mut ecs, &mut death_events);
+                handle_enemy_death(&mut data, skull_texture.clone(), &mut ecs, &death_events);
+                update_player(&mut data, &mut ecs);
+                update_weapon(&mut ecs, &mut data, bullet_texture.clone());
+                update_enemies(&mut ecs);
+                update_animated_sprites(&mut ecs);
+                handle_door_collisions(&mut ecs);
+                collisions = move_entities(&mut data, &mut ecs);
+
+                flash_on_damage(&mut ecs);
+            }
+            draw_animated_sprites(&mut ecs);
+            data.current_map().draw_upper();
+
+            data.screen_dimmer.update();
+            let dim_progress = if data.screen_dimmer.dimming {
+                1. - data.screen_dimmer.progress()
+            } else {
+                data.screen_dimmer.progress()
+            };
+            draw_rectangle_ex(
+                0.,
+                0.,
+                360.,
+                240.,
+                DrawRectangleParams {
+                    color: Color::from_rgba(0, 0, 0, (dim_progress * 255.) as u8),
+                    ..Default::default()
+                },
+            );
+
+            if data.debug_collisions {
+                draw_colliders(&data, &ecs);
+                data.current_map().draw_colliders();
+            }
+
+            draw_hp(&data, &ecs);
+            draw_aberration_meter(&data, &ecs);
+        }
+        if data.state == GameState::Intro {
+            if intro_screen.update_and_draw(&mut data) {
+                data.state = GameState::Playing;
+                // TODO: reset
             }
         }
-
-        data.current_map().draw_base();
-
-        if !data.paused {
-            spawn_creatures(&mut data, &mut ecs, &hopper_texture);
-            update_timers(&mut ecs);
-            update_damageables(&mut ecs);
-            damage_on_collision(&ecs, &mut damage_events, &collisions);
-            despawn_on_collision(&mut data, &mut ecs, &collisions, dust_texture.clone());
-            apply_damage(
-                &mut data,
-                &mut ecs,
-                &mut damage_events,
-                blood_texture.clone(),
-            );
-            kill_entities(&mut ecs, &mut death_events);
-            handle_enemy_death(&mut data, skull_texture.clone(), &mut ecs, &death_events);
-            update_player(&mut data, &mut ecs);
-            update_weapon(&mut ecs, &mut data, bullet_texture.clone());
-            update_enemies(&mut ecs);
-            update_animated_sprites(&mut ecs);
-            handle_door_collisions(&mut ecs);
-            collisions = move_entities(&mut data, &mut ecs);
-
-            flash_on_damage(&mut ecs);
-        }
-        draw_animated_sprites(&mut ecs);
-        data.current_map().draw_upper();
-
-        data.screen_dimmer.update();
-        let dim_progress = if data.screen_dimmer.dimming {
-            1. - data.screen_dimmer.progress()
-        } else {
-            data.screen_dimmer.progress()
-        };
-        draw_rectangle_ex(
-            0.,
-            0.,
-            360.,
-            240.,
-            DrawRectangleParams {
-                color: Color::from_rgba(0, 0, 0, (dim_progress * 255.) as u8),
-                ..Default::default()
-            },
-        );
-
-        if data.debug_collisions {
-            draw_colliders(&data, &ecs);
-            data.current_map().draw_colliders();
-        }
-
-        draw_hp(&data, &ecs);
-        draw_aberration_meter(&data, &ecs);
 
         if data.show_fps {
             fps_counter.update_and_draw(&mut data);

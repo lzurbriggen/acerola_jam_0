@@ -164,7 +164,7 @@ pub fn pause_menu(data: &mut GameData) -> bool {
     let button_width = 70.;
     if button(
         data,
-        &Rect::new(center.x - switcher_width / 2., 165., button_width, 20.),
+        &Rect::new(center.x - button_width / 2., 165., button_width, 20.),
         data.ui.focus.is_some() && show_fps_id == data.ui.focus.unwrap(),
         if data.show_fps {
             "Hide FPS"
@@ -181,7 +181,7 @@ pub fn pause_menu(data: &mut GameData) -> bool {
     #[cfg(not(target_arch = "wasm32"))]
     if button(
         data,
-        &Rect::new(center.x - switcher_width / 2., 200., button_width, 20.),
+        &Rect::new(center.x - button_width / 2., 200., button_width, 20.),
         data.ui.focus.is_some() && leave_game_id == data.ui.focus.unwrap(),
         "Leave Game",
         None,
