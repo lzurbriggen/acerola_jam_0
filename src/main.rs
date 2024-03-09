@@ -31,6 +31,7 @@ use systems::{
 use ui::{
     hud::{create_aberration_material, draw_aberration_meter},
     pause_menu::pause_menu,
+    screen_dimmer::ScreenDimmer,
     ui_data::UIData,
 };
 
@@ -200,6 +201,7 @@ async fn main() {
     let map3 = Map::new(Entity(entity_index), &settings, tiled_map3);
 
     let maps = vec![map1, map2, map3];
+
     let mut data = GameData {
         entity_index,
         settings,
@@ -216,6 +218,8 @@ async fn main() {
         weapon: Weapon::Shooter(Shooter::new()),
         current_room: Room::new(maps.len(), 3.),
         maps,
+        screen_dimmer: ScreenDimmer::new(),
+        map_change_requested: false,
     };
     data.settings.set_window_size(WindowSize::W1440);
 
@@ -293,6 +297,11 @@ async fn main() {
         }
 
         if is_key_pressed(KeyCode::F6) {
+            data.map_change_requested = true;
+            data.screen_dimmer.dim();
+        }
+        if data.map_change_requested && data.screen_dimmer.just_dimmed {
+            data.map_change_requested = false;
             data.current_room.despawn(&mut ecs);
             data.current_room = Room::new(data.maps.len(), rand::gen_range(1., 20.));
             let new_player_pos = data.spawn_map_entities(&mut ecs);
@@ -337,6 +346,23 @@ async fn main() {
         flash_on_damage(&mut ecs);
         draw_animated_sprites(&mut ecs);
         data.current_map().draw_upper();
+
+        data.screen_dimmer.update();
+        let dim_progress = if data.screen_dimmer.dimming {
+            1. - data.screen_dimmer.progress()
+        } else {
+            data.screen_dimmer.progress()
+        };
+        draw_rectangle_ex(
+            0.,
+            0.,
+            360.,
+            240.,
+            DrawRectangleParams {
+                color: Color::from_rgba(0, 0, 0, (dim_progress * 255.) as u8),
+                ..Default::default()
+            },
+        );
 
         if data.debug_collisions {
             draw_colliders(&data, &ecs);

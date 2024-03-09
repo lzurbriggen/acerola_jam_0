@@ -9,7 +9,7 @@ use crate::{
     room::Room,
     settings::GameSettings,
     sprite::indexed_sprite::IndexedSprite,
-    ui::ui_data::UIData,
+    ui::{screen_dimmer::ScreenDimmer, ui_data::UIData},
 };
 
 pub struct Sprites {
@@ -31,6 +31,8 @@ pub struct GameData {
     pub weapon: Weapon,
     pub current_room: Room,
     pub maps: Vec<Map>,
+    pub screen_dimmer: ScreenDimmer,
+    pub map_change_requested: bool,
 }
 
 impl GameData {

@@ -19,6 +19,7 @@ pub struct Room {
     pub enemies_to_spawn: Vec<Enemy>,
     pub items_to_spawn: Vec<Item>,
     pub completed: bool,
+    pub aberration_completed: bool,
 }
 
 impl Room {
@@ -45,6 +46,7 @@ impl Room {
             enemies_to_spawn: enemies,
             items_to_spawn: vec![],
             completed: false,
+            aberration_completed: false,
         }
     }
 
