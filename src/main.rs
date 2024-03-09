@@ -9,7 +9,11 @@ use entity::{
 use fps_counter::FPSCounter;
 use game_state::GameState;
 use items::weapon::{Shooter, Weapon};
-use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
+use macroquad::{
+    audio,
+    miniquad::{conf::Icon, window::set_mouse_cursor},
+    prelude::*,
+};
 use macroquad_tiled::load_map;
 use room::Room;
 use settings::{GameSettings, WindowSize};
@@ -31,6 +35,7 @@ use systems::{
 use timer::Timer;
 use ui::{
     hud::{create_aberration_material, draw_aberration_meter},
+    icon,
     pause_menu::pause_menu,
     screen_dimmer::ScreenDimmer,
     ui_data::UIData,
@@ -73,6 +78,7 @@ fn window_conf() -> Conf {
             swap_interval: None,
             ..Default::default()
         },
+        icon: Some(icon::set()),
         sample_count: 0,
         ..Default::default()
     }
