@@ -33,7 +33,7 @@ pub fn draw_hp(data: &GameData, ecs: &Ecs) {
 pub fn draw_aberration_meter(data: &GameData, ecs: &Ecs) {
     let players = ecs.check_components(|e, comps| comps.player_data.contains_key(e));
 
-    let pos = vec2(310., 78.);
+    let pos = vec2(308., 78.);
     for player_e in players {
         let player = ecs.components.player_data.get(&player_e).unwrap();
 

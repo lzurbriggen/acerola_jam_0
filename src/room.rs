@@ -7,8 +7,18 @@ pub enum Enemy {
     Hopper,
 }
 
+#[derive(Clone, Copy)]
+pub enum Item {
+    Health,
+    SuperHealth,
+    AberrationRelief,
+}
+
 pub struct Room {
+    pub map_index: usize,
     pub enemies_to_spawn: Vec<Enemy>,
+    pub items_to_spawn: Vec<Item>,
+    pub completed: bool,
 }
 
 impl Room {
@@ -29,7 +39,10 @@ impl Room {
         }
 
         Room {
+            map_index: 0,
             enemies_to_spawn: enemies,
+            items_to_spawn: vec![],
+            completed: false,
         }
     }
 

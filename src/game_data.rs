@@ -1,8 +1,14 @@
 use macroquad::prelude::*;
 
 use crate::{
-    entity::entity_id::Entity, game_state::GameState, input_manager::InputManager,
-    items::weapon::Weapon, settings::GameSettings, sprite::indexed_sprite::IndexedSprite,
+    entity::{entities::Ecs, entity_id::Entity, spawner::spawn_spawner},
+    game_state::GameState,
+    input_manager::InputManager,
+    items::weapon::Weapon,
+    map::map::Map,
+    room::Room,
+    settings::GameSettings,
+    sprite::indexed_sprite::IndexedSprite,
     ui::ui_data::UIData,
 };
 
@@ -21,7 +27,10 @@ pub struct GameData {
     pub input: InputManager,
     pub camera: Camera2D,
     pub debug_collisions: bool,
+    pub show_fps: bool,
     pub weapon: Weapon,
+    pub current_room: Room,
+    pub maps: Vec<Map>,
 }
 
 impl GameData {
@@ -42,5 +51,28 @@ impl GameData {
         self.camera.target = target;
         self.camera.zoom = vec2(1. / target_size.x * 2., 1. / target_size.y * 2.);
         self.camera.offset = Vec2::ZERO;
+    }
+
+    pub fn current_map(&self) -> &Map {
+        &self.maps[self.current_room.map_index]
+    }
+
+    pub fn spawn_map_entities(&mut self, ecs: &mut Ecs) {
+        let mut spawner_positions = vec![];
+        for (_, layer) in &self.current_map().tiled_map.layers {
+            for object in &layer.objects {
+                let object_pos = vec2(object.world_x + 4., object.world_y - 4.);
+                // if let Some(_door_dir) = object.properties.get("door") {
+                //     spawn_door(self, object_pos, ecs);
+                // }
+                if let Some(_) = object.properties.get("spawn") {
+                    spawner_positions.push(object_pos);
+                }
+            }
+        }
+
+        for pos in spawner_positions {
+            spawn_spawner(self, pos, ecs);
+        }
     }
 }

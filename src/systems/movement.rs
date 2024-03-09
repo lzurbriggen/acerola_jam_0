@@ -5,15 +5,10 @@ use macroquad::prelude::*;
 use crate::{
     entity::{entities::Ecs, entity_id::Entity},
     game_data::GameData,
-    map::map::Map,
     physics::collision::{resolve_circle_collision, resolve_map_collision, Collision},
 };
 
-pub fn move_entities(
-    data: &mut GameData,
-    map: &Map,
-    ecs: &mut Ecs,
-) -> HashMap<(Entity, Entity), Collision> {
+pub fn move_entities(data: &mut GameData, ecs: &mut Ecs) -> HashMap<(Entity, Entity), Collision> {
     let moveables = ecs.check_components(|e, comps| {
         comps.positions.contains_key(e) && comps.velocities.contains_key(e)
     });
@@ -42,7 +37,7 @@ pub fn move_entities(
             collisions.extend(new_collisions);
             desired_pos = pos;
             let (pos, new_collisions) =
-                resolve_map_collision(*moveable_e, data, map, desired_pos, collider);
+                resolve_map_collision(*moveable_e, data, data.current_map(), desired_pos, collider);
             collisions.extend(new_collisions);
             desired_pos = pos;
         }

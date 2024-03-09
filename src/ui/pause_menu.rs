@@ -10,12 +10,14 @@ pub fn pause_menu(data: &mut GameData) -> bool {
     let window_size_id = hash!();
     let music_volume_id = hash!();
     let sfx_volume_id = hash!();
+    let show_fps_id = hash!();
     let leave_game_id = hash!();
 
     let ids = vec![
         window_size_id,
         music_volume_id,
         sfx_volume_id,
+        show_fps_id,
         leave_game_id,
     ];
 
@@ -159,11 +161,27 @@ pub fn pause_menu(data: &mut GameData) -> bool {
         _ => {}
     }
 
+    let button_width = 70.;
+    if button(
+        data,
+        &Rect::new(center.x - switcher_width / 2., 165., button_width, 20.),
+        data.ui.focus.is_some() && show_fps_id == data.ui.focus.unwrap(),
+        if data.show_fps {
+            "Hide FPS"
+        } else {
+            "Show FPS"
+        },
+        None,
+        Vec2::ZERO,
+    ) {
+        data.show_fps = !data.show_fps;
+    }
+
     let button_width = 100.;
     #[cfg(not(target_arch = "wasm32"))]
     if button(
         data,
-        &Rect::new(center.x - switcher_width / 2., 190., button_width, 20.),
+        &Rect::new(center.x - switcher_width / 2., 200., button_width, 20.),
         data.ui.focus.is_some() && leave_game_id == data.ui.focus.unwrap(),
         "Leave Game",
         None,

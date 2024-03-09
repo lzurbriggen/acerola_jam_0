@@ -6,6 +6,7 @@ use macroquad_tiled::Map as TiledMap;
 use crate::{
     entity::{door::spawn_door, entities::Ecs, entity_id::Entity, spawner::spawn_spawner},
     game_data::GameData,
+    settings::GameSettings,
 };
 
 pub struct Map {
@@ -17,9 +18,7 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(data: &mut GameData, map: TiledMap) -> Self {
-        let id = data.new_entity();
-
+    pub fn new(id: Entity, settings: &GameSettings, map: TiledMap) -> Self {
         let mut tileset_collision_map = HashMap::<String, HashSet<usize>>::new();
         for tileset in &map.raw_tiled_map.tilesets {
             let mut collision = HashSet::<usize>::new();
@@ -54,12 +53,7 @@ impl Map {
             tiled_map: map,
             tileset_collision_map,
             map_collision,
-            map_rect: Rect::new(
-                0.,
-                0.,
-                data.settings.resolution.x,
-                data.settings.resolution.y,
-            ),
+            map_rect: Rect::new(0., 0., settings.resolution.x, settings.resolution.y),
         }
     }
 

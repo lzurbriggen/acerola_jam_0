@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use entity::{
     entities::Ecs,
+    entity_id::Entity,
     events::{DamageEvent, DeathEvent},
     player::spawn_player,
 };
@@ -162,8 +163,25 @@ async fn main() {
 
     let settings = GameSettings::default();
 
+    let mut entity_index = 0;
+
+    // Map
+    let tileset = load_texture("map/tileset_01.png").await.unwrap();
+    tileset.set_filter(FilterMode::Nearest);
+
+    let tiled_map1_json = load_string("map/example_01.tmj").await.unwrap();
+    let tiled_map1 = load_map(
+        tiled_map1_json.as_str(),
+        &[("tileset_01.png", tileset.clone())],
+        &[],
+    )
+    .unwrap();
+
+    entity_index += 1;
+    let map1 = Map::new(Entity(entity_index), &settings, tiled_map1);
+
     let mut data = GameData {
-        entity_index: 0,
+        entity_index,
         settings,
         state: GameState::default(),
         ui: ui_data,
@@ -171,16 +189,15 @@ async fn main() {
         input: InputManager::new(),
         camera,
         debug_collisions: false,
+        #[cfg(debug_assertions)]
+        show_fps: true,
+        #[cfg(not(debug_assertions))]
+        show_fps: false,
         weapon: Weapon::Shooter(Shooter::new()),
+        current_room: Room::new(3.),
+        maps: vec![map1],
     };
     data.settings.set_window_size(WindowSize::W1440);
-
-    // Map
-    let tileset = load_texture("map/tileset_01.png").await.unwrap();
-    tileset.set_filter(FilterMode::Nearest);
-    let tiled_map_json = load_string("map/example_01.tmj").await.unwrap();
-    let tiled_map = load_map(tiled_map_json.as_str(), &[("tileset_01.png", tileset)], &[]).unwrap();
-    let map = Map::new(&mut data, tiled_map);
 
     let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
     player_texture.set_filter(FilterMode::Nearest);
@@ -189,7 +206,7 @@ async fn main() {
 
     spawn_player(&mut data, player_texture, &mut ecs);
 
-    map.spawn_entities(&mut data, &mut ecs);
+    data.spawn_map_entities(&mut ecs);
 
     let mut collisions = HashMap::new();
     let mut damage_events = Vec::<DamageEvent>::new();
@@ -204,8 +221,6 @@ async fn main() {
     data.sprites
         .aberration_material
         .set_texture("mask", aberration_meter_mask_texture.clone());
-
-    let mut room = Room::new(3.);
 
     loop {
         let despawned_entities = &ecs.marked_for_despawn.clone();
@@ -264,9 +279,9 @@ async fn main() {
             }
         }
 
-        map.draw_base();
+        data.current_map().draw_base();
 
-        spawn_creatures(&mut data, &mut ecs, &hopper_texture, &mut room);
+        spawn_creatures(&mut data, &mut ecs, &hopper_texture);
         update_timers(&mut ecs);
         update_damageables(&mut ecs);
         damage_on_collision(&ecs, &mut damage_events, &collisions);
@@ -284,21 +299,23 @@ async fn main() {
         update_enemies(&mut ecs);
         update_animated_sprites(&mut ecs);
         handle_door_collisions(&mut ecs);
-        collisions = move_entities(&mut data, &map, &mut ecs);
+        collisions = move_entities(&mut data, &mut ecs);
 
         flash_on_damage(&mut ecs);
         draw_animated_sprites(&mut ecs);
-        map.draw_upper();
+        data.current_map().draw_upper();
 
         if data.debug_collisions {
             draw_colliders(&data, &ecs);
-            map.draw_colliders();
+            data.current_map().draw_colliders();
         }
 
         draw_hp(&data, &ecs);
         draw_aberration_meter(&data, &ecs);
 
-        fps_counter.update_and_draw(&mut data);
+        if data.show_fps {
+            fps_counter.update_and_draw(&mut data);
+        }
 
         if paused && pause_menu(&mut data) {
             break;
