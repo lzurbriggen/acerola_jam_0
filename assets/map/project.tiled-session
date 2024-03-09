@@ -10,6 +10,7 @@
     ],
     "fileStates": {
         "": {
+            "scaleInDock": 5.5,
             "scaleInEditor": 11
         },
         ":/automap-tiles.tsx": {
@@ -23,14 +24,46 @@
             "scaleInEditor": 11
         },
         "example_01.tmj": {
-            "scale": 3,
-            "selectedLayer": 4,
+            "expandedObjectLayers": [
+                8
+            ],
+            "scale": 2,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 177.33333333333331,
-                "y": 106.66666666666666
+                "x": 181,
+                "y": 201
             }
         },
         "example_01.tmj#tileset_01": {
+            "scaleInDock": 8,
+            "scaleInEditor": 23
+        },
+        "map2.tmj": {
+            "expandedObjectLayers": [
+                5
+            ],
+            "scale": 3,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 183.33333333333331,
+                "y": 157.66666666666666
+            }
+        },
+        "map2.tmj#base_01": {
+            "scaleInDock": 4
+        },
+        "map2.tmj#tileset_01": {
+            "scaleInDock": 5.5
+        },
+        "map3.tmj": {
+            "scale": 2,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 175,
+                "y": 63
+            }
+        },
+        "map3.tmj#tileset_01": {
             "scaleInDock": 8
         },
         "map_01.tmx": {
@@ -51,14 +84,19 @@
             "scale": 3,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 127,
-                "y": 126.99999999999997
+                "x": 126.66666666666664,
+                "y": 126.66666666666666
             }
         },
         "rules_ground.tmx#AutoMap Rules": {
             "scaleInDock": 1
+        },
+        "tileset_01.tsj": {
+            "scaleInDock": 5.5,
+            "scaleInEditor": 11
         }
     },
+    "last.externalTilesetPath": "C:/Users/leo/projects/acerola_jam_0/assets/map",
     "last.imagePath": "C:/Users/leo/projects/acerola_jam_0/assets/map",
     "map.height": 30,
     "map.lastUsedFormat": "json",
@@ -71,10 +109,12 @@
     "project": "project.tiled-project",
     "property.type": "string",
     "recentFiles": [
-        "example_01.tmj",
+        "map3.tmj",
+        "tileset_01.tsj",
+        "base_01.tsx",
         "rules_ground.tmx",
-        "map_01.tmx",
-        "base_01.tsx"
+        "example_01.tmj",
+        "map_01.tmx"
     ],
     "tileset.embedInMap": true,
     "tileset.lastUsedFormat": "tsx",

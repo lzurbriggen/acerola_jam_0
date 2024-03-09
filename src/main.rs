@@ -176,10 +176,30 @@ async fn main() {
         &[],
     )
     .unwrap();
-
     entity_index += 1;
     let map1 = Map::new(Entity(entity_index), &settings, tiled_map1);
 
+    let tiled_map2_json = load_string("map/map2.tmj").await.unwrap();
+    let tiled_map2 = load_map(
+        tiled_map2_json.as_str(),
+        &[("tileset_01.png", tileset.clone())],
+        &[],
+    )
+    .unwrap();
+    entity_index += 1;
+    let map2 = Map::new(Entity(entity_index), &settings, tiled_map2);
+
+    let tiled_map3_json = load_string("map/map3.tmj").await.unwrap();
+    let tiled_map3 = load_map(
+        tiled_map3_json.as_str(),
+        &[("tileset_01.png", tileset.clone())],
+        &[],
+    )
+    .unwrap();
+    entity_index += 1;
+    let map3 = Map::new(Entity(entity_index), &settings, tiled_map3);
+
+    let maps = vec![map1, map2, map3];
     let mut data = GameData {
         entity_index,
         settings,
@@ -194,8 +214,8 @@ async fn main() {
         #[cfg(not(debug_assertions))]
         show_fps: false,
         weapon: Weapon::Shooter(Shooter::new()),
-        current_room: Room::new(3.),
-        maps: vec![map1],
+        current_room: Room::new(maps.len(), 3.),
+        maps,
     };
     data.settings.set_window_size(WindowSize::W1440);
 
@@ -270,6 +290,19 @@ async fn main() {
 
         if is_key_pressed(KeyCode::F1) {
             data.debug_collisions = !data.debug_collisions;
+        }
+
+        if is_key_pressed(KeyCode::F6) {
+            data.current_room.despawn(&mut ecs);
+            data.current_room = Room::new(data.maps.len(), rand::gen_range(1., 20.));
+            let new_player_pos = data.spawn_map_entities(&mut ecs);
+            let players = ecs.check_components(|e, comps| {
+                comps.player_data.contains_key(e) && comps.positions.contains_key(e)
+            });
+            for player_e in &players {
+                let pos = ecs.components.positions.get_mut(player_e).unwrap();
+                *pos = new_player_pos;
+            }
         }
 
         if data.input.is_just_pressed(Action::Pause) {

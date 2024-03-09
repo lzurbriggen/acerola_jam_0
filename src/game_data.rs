@@ -57,7 +57,8 @@ impl GameData {
         &self.maps[self.current_room.map_index]
     }
 
-    pub fn spawn_map_entities(&mut self, ecs: &mut Ecs) {
+    pub fn spawn_map_entities(&mut self, ecs: &mut Ecs) -> Vec2 {
+        let mut player_pos = Vec2::ZERO;
         let mut spawner_positions = vec![];
         for (_, layer) in &self.current_map().tiled_map.layers {
             for object in &layer.objects {
@@ -65,6 +66,9 @@ impl GameData {
                 // if let Some(_door_dir) = object.properties.get("door") {
                 //     spawn_door(self, object_pos, ecs);
                 // }
+                if let Some(_door_dir) = object.properties.get("player") {
+                    player_pos = object_pos;
+                }
                 if let Some(_) = object.properties.get("spawn") {
                     spawner_positions.push(object_pos);
                 }
@@ -74,5 +78,7 @@ impl GameData {
         for pos in spawner_positions {
             spawn_spawner(self, pos, ecs);
         }
+
+        player_pos
     }
 }
