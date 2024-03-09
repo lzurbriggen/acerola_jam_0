@@ -9,6 +9,7 @@ use crate::{
     room::Room,
     settings::GameSettings,
     sprite::indexed_sprite::IndexedSprite,
+    timer::Timer,
     ui::{screen_dimmer::ScreenDimmer, ui_data::UIData},
 };
 
@@ -33,6 +34,9 @@ pub struct GameData {
     pub maps: Vec<Map>,
     pub screen_dimmer: ScreenDimmer,
     pub map_change_requested: bool,
+    pub paused: bool,
+    pub pause_timer: Timer,
+    pub show_pause_menu: bool,
 }
 
 impl GameData {

@@ -28,6 +28,7 @@ use systems::{
     timer::update_timers,
     weapon::update_weapon,
 };
+use timer::Timer;
 use ui::{
     hud::{create_aberration_material, draw_aberration_meter},
     pause_menu::pause_menu,
@@ -125,8 +126,6 @@ async fn main() {
 
     let mut fps_counter = FPSCounter::default();
 
-    let mut paused = false;
-
     let hud_heart_texture: Texture2D = load_texture("ui/heart_01.png").await.unwrap();
     hud_heart_texture.set_filter(FilterMode::Nearest);
     let hopper_texture: Texture2D = load_texture("entities/hopper_01.png").await.unwrap();
@@ -220,6 +219,9 @@ async fn main() {
         maps,
         screen_dimmer: ScreenDimmer::new(),
         map_change_requested: false,
+        paused: false,
+        pause_timer: Timer::new(1., false),
+        show_pause_menu: false,
     };
     data.settings.set_window_size(WindowSize::W1440);
 
@@ -255,9 +257,10 @@ async fn main() {
                 ecs.remove_all_components(entity);
             }
         }
-        ecs.marked_for_despawn.clear();
-
-        death_events.clear();
+        if !data.paused {
+            ecs.marked_for_despawn.clear();
+            death_events.clear();
+        }
 
         data.sprites
             .aberration_material
@@ -296,9 +299,12 @@ async fn main() {
             data.debug_collisions = !data.debug_collisions;
         }
 
+        data.pause_timer.update();
         if is_key_pressed(KeyCode::F6) {
             data.map_change_requested = true;
             data.screen_dimmer.dim();
+            data.paused = true;
+            data.pause_timer.reset();
         }
         if data.map_change_requested && data.screen_dimmer.just_dimmed {
             data.map_change_requested = false;
@@ -313,37 +319,46 @@ async fn main() {
                 *pos = new_player_pos;
             }
         }
+        if data.pause_timer.just_completed() {
+            data.paused = false;
+        }
 
         if data.input.is_just_pressed(Action::Pause) {
-            paused = !paused;
-            if !paused {
+            if data.paused {
+                data.paused = false;
                 data.ui.focus = None;
+                data.show_pause_menu = false;
+            } else {
+                data.paused = true;
+                data.show_pause_menu = true;
             }
         }
 
         data.current_map().draw_base();
 
-        spawn_creatures(&mut data, &mut ecs, &hopper_texture);
-        update_timers(&mut ecs);
-        update_damageables(&mut ecs);
-        damage_on_collision(&ecs, &mut damage_events, &collisions);
-        despawn_on_collision(&mut data, &mut ecs, &collisions, dust_texture.clone());
-        apply_damage(
-            &mut data,
-            &mut ecs,
-            &mut damage_events,
-            blood_texture.clone(),
-        );
-        kill_entities(&mut ecs, &mut death_events);
-        handle_enemy_death(&mut data, skull_texture.clone(), &mut ecs, &death_events);
-        update_player(&mut data, &mut ecs);
-        update_weapon(&mut ecs, &mut data, bullet_texture.clone());
-        update_enemies(&mut ecs);
-        update_animated_sprites(&mut ecs);
-        handle_door_collisions(&mut ecs);
-        collisions = move_entities(&mut data, &mut ecs);
+        if !data.paused {
+            spawn_creatures(&mut data, &mut ecs, &hopper_texture);
+            update_timers(&mut ecs);
+            update_damageables(&mut ecs);
+            damage_on_collision(&ecs, &mut damage_events, &collisions);
+            despawn_on_collision(&mut data, &mut ecs, &collisions, dust_texture.clone());
+            apply_damage(
+                &mut data,
+                &mut ecs,
+                &mut damage_events,
+                blood_texture.clone(),
+            );
+            kill_entities(&mut ecs, &mut death_events);
+            handle_enemy_death(&mut data, skull_texture.clone(), &mut ecs, &death_events);
+            update_player(&mut data, &mut ecs);
+            update_weapon(&mut ecs, &mut data, bullet_texture.clone());
+            update_enemies(&mut ecs);
+            update_animated_sprites(&mut ecs);
+            handle_door_collisions(&mut ecs);
+            collisions = move_entities(&mut data, &mut ecs);
 
-        flash_on_damage(&mut ecs);
+            flash_on_damage(&mut ecs);
+        }
         draw_animated_sprites(&mut ecs);
         data.current_map().draw_upper();
 
@@ -376,7 +391,7 @@ async fn main() {
             fps_counter.update_and_draw(&mut data);
         }
 
-        if paused && pause_menu(&mut data) {
+        if data.show_pause_menu && data.paused && pause_menu(&mut data) {
             break;
         }
 
