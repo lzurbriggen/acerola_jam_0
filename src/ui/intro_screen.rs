@@ -1,9 +1,6 @@
 use macroquad::{prelude::*, ui::hash};
 
-use crate::{
-    entity::animated_sprite::AnimatedSprite, game_data::GameData,
-    sprite::indexed_sprite::IndexedSprite,
-};
+use crate::{entity::animated_sprite::AnimatedSprite, game_data::GameData};
 
 use super::button::button;
 

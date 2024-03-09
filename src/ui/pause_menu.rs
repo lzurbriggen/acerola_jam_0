@@ -21,11 +21,11 @@ pub fn pause_menu(data: &mut GameData) -> bool {
         leave_game_id,
     ];
 
-    if data.ui.focus.is_none() {
+    if data.ui.focus.is_none() || !ids.contains(&data.ui.focus.unwrap()) {
         data.ui.focus = Some(ids[0]);
     }
-
     let focus = data.ui.focus.unwrap();
+
     let current_index = ids.iter().position(|s| s == &focus).unwrap();
     if data.input.is_just_pressed(Action::Up) {
         let index = if current_index as i8 - 1 < 0 {

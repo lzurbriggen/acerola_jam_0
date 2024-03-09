@@ -37,6 +37,7 @@ use ui::{
     intro_screen::IntroScreen,
     pause_menu::pause_menu,
     ui_data::UIData,
+    upgrade_screen::UpgradeScreen,
 };
 
 use crate::{
@@ -104,6 +105,8 @@ async fn main() {
     button_texture_pressed.set_filter(FilterMode::Nearest);
     let frame_texture: Texture2D = load_texture("ui/window_bg.png").await.unwrap();
     frame_texture.set_filter(FilterMode::Nearest);
+    let frame_texture_pretty: Texture2D = load_texture("ui/window_bg_pretty.png").await.unwrap();
+    frame_texture_pretty.set_filter(FilterMode::Nearest);
     let focus_bg_texture: Texture2D = load_texture("ui/focus_bg.png").await.unwrap();
     focus_bg_texture.set_filter(FilterMode::Nearest);
 
@@ -116,6 +119,7 @@ async fn main() {
         button_texture_pressed: button_texture_pressed,
         button_click_sfx: button_click_sfx,
         frame_texture: frame_texture.clone(),
+        frame_texture_pretty: frame_texture_pretty.clone(),
         focus_background_texture: focus_bg_texture,
         font: font.clone(),
         icon_font: icon_font.clone(),
@@ -264,6 +268,8 @@ async fn main() {
         ),
     };
 
+    let mut upgrade_screen = UpgradeScreen::new();
+
     loop {
         if data.state == GameState::Playing {
             // Reset
@@ -360,7 +366,7 @@ async fn main() {
                     *pos = new_player_pos;
                 }
             }
-            if data.pause_timer.just_completed() {
+            if data.pause_timer.just_completed() && !data.show_pause_menu {
                 data.paused = false;
             }
 
@@ -370,7 +376,6 @@ async fn main() {
                     data.show_pause_menu = false;
                 } else {
                     data.paused = true;
-                    data.ui.focus = None;
                     data.show_pause_menu = true;
                 }
             }
@@ -445,8 +450,15 @@ async fn main() {
             fps_counter.update_and_draw(&mut data);
         }
 
-        if data.show_pause_menu && data.paused && pause_menu(&mut data) {
-            break;
+        if data.show_pause_menu {
+            if data.paused && pause_menu(&mut data) {
+                break;
+            }
+        } else {
+            // if data.current_room.completed {
+            // data.upgrade_screen.update();
+            if upgrade_screen.draw(&mut data) {}
+            // }
         }
 
         next_frame().await

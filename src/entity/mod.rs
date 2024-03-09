@@ -9,3 +9,4 @@ pub mod projectile;
 pub mod skull;
 pub mod spawner;
 pub mod tags;
+pub mod upgrades;

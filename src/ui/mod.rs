@@ -9,3 +9,4 @@ pub mod pause_menu;
 pub mod screen_dimmer;
 pub mod switcher;
 pub mod ui_data;
+pub mod upgrade_screen;
