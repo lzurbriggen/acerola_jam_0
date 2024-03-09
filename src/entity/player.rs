@@ -1,7 +1,5 @@
 use crate::{
-    game_data::GameData,
-    sprite::{flash_material::create_sprite_color_material, indexed_sprite::IndexedSprite},
-    systems::collision::CircleCollider,
+    game_data::GameData, sprite::indexed_sprite::IndexedSprite, systems::collision::CircleCollider,
     timer::Timer,
 };
 use macroquad::prelude::*;
@@ -66,7 +64,7 @@ pub fn spawn_player(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs) -> E
 
     ecs.components
         .materials
-        .insert(id, create_sprite_color_material());
+        .insert(id, "aberration".to_string());
 
     println!("PLAYER {:?}", id);
 

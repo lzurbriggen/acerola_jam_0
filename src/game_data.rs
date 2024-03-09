@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use macroquad::prelude::*;
 
 use crate::{
@@ -13,10 +15,19 @@ use crate::{
     ui::{death_screen::DeathScreen, screen_dimmer::ScreenDimmer, ui_data::UIData},
 };
 
-pub struct Sprites {
+pub enum GameMaterial {
+    Aberration(Material),
+    Color(Material),
+}
+
+pub struct Graphics {
     pub hud_heart: IndexedSprite,
     pub aberration_meter: IndexedSprite,
+    pub aberration_meter_material: Material,
     pub aberration_material: Material,
+    pub noise1_texture: Texture2D,
+    pub noise2_texture: Texture2D,
+    pub materials: HashMap<String, GameMaterial>,
 }
 
 pub struct GameData {
@@ -24,7 +35,7 @@ pub struct GameData {
     pub state: GameState,
     pub settings: GameSettings,
     pub ui: UIData,
-    pub sprites: Sprites,
+    pub graphics: Graphics,
     pub input: InputManager,
     pub camera: Camera2D,
     pub debug_collisions: bool,
@@ -47,7 +58,7 @@ impl GameData {
         settings: GameSettings,
         ui_data: UIData,
         maps: Vec<Map>,
-        sprites: Sprites,
+        graphics: Graphics,
         death_texture: Texture2D,
     ) -> Self {
         Self {
@@ -55,7 +66,7 @@ impl GameData {
             settings,
             state: GameState::default(),
             ui: ui_data,
-            sprites,
+            graphics,
             input: InputManager::new(),
             camera: Camera2D::default(),
             debug_collisions: false,
@@ -91,6 +102,16 @@ impl GameData {
     pub fn update(&mut self) {
         self.input.gamepads.poll();
         self.update_camera();
+
+        for mat in &self.graphics.materials {
+            match mat.1 {
+                GameMaterial::Aberration(mat) => {
+                    // mat.set_uniform("intensity", 2.58f32);
+                    mat.set_uniform("time", get_time() as f32);
+                }
+                GameMaterial::Color(_mat) => {}
+            }
+        }
     }
 
     pub fn update_camera(&mut self) {

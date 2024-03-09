@@ -1,6 +1,5 @@
 pub mod collision;
 pub mod damageable;
-pub mod door;
 pub mod enemy;
 pub mod movement;
 pub mod player;

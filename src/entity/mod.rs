@@ -1,5 +1,4 @@
 pub mod animated_sprite;
-pub mod door;
 pub mod entities;
 pub mod entity_id;
 pub mod events;

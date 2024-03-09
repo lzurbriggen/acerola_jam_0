@@ -48,9 +48,9 @@ pub fn flash_on_damage(ecs: &mut Ecs) {
                 color.g = intensity;
                 color.b = intensity;
                 color.a = (0.5 - hit_fx_timer.progress() % 0.5) * 2.;
-                material.set_uniform("color", color);
+                // material.set_uniform("color", color);
             } else {
-                material.set_uniform("color", WHITE);
+                // material.set_uniform("color", WHITE);
             }
         }
     }
@@ -188,7 +188,6 @@ pub fn kill_entities(ecs: &mut Ecs, death_events: &mut Vec<DeathEvent>) {
         let health = ecs.components.health.get_mut(health_e).unwrap();
 
         if health.hp <= 0. {
-            println!("{:?}", health_e);
             ecs.despawn(*health_e);
             death_events.push(DeathEvent(*health_e));
         }

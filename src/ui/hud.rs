@@ -20,7 +20,7 @@ pub fn draw_hp(data: &GameData, ecs: &Ecs) {
 
         for i in 0..player.max_hp {
             let heart_index = if (i as f32) < health.hp { 0 } else { 2 };
-            data.sprites.hud_heart.draw(
+            data.graphics.hud_heart.draw(
                 start_pos.x + (vec2(i as f32 * 16., start_pos.y)),
                 heart_index,
             )
@@ -35,7 +35,7 @@ pub fn draw_aberration_meter(data: &GameData, ecs: &Ecs) {
     for player_e in players {
         let player = ecs.components.player_data.get(&player_e).unwrap();
 
-        gl_use_material(&data.sprites.aberration_material);
+        gl_use_material(&data.graphics.aberration_meter_material);
 
         let h = player.aberration * 65.;
         // TODO: texture instead so material applies properly
@@ -52,8 +52,8 @@ pub fn draw_aberration_meter(data: &GameData, ecs: &Ecs) {
         // data.sprites
         //     .aberration_material
         //     .set_uniform("enable_mask", 1);
-        data.sprites
-            .aberration_material
+        data.graphics
+            .aberration_meter_material
             .set_uniform("cutoff", player.aberration);
         // data.sprites.aberration_meter.draw_with_dest(
         //     vec2(pos.x + 9., pos.y + 16. + 65. - h),
@@ -65,30 +65,32 @@ pub fn draw_aberration_meter(data: &GameData, ecs: &Ecs) {
         //     3,
         //     Some(vec2(30., h)),
         // );
-        data.sprites.aberration_meter.draw(pos, 3);
+        data.graphics.aberration_meter.draw(pos, 3);
 
-        data.sprites.aberration_material.set_uniform("cutoff", 1f32);
+        data.graphics
+            .aberration_meter_material
+            .set_uniform("cutoff", 1f32);
         // data.sprites
         //     .aberration_material
         //     .set_uniform("enable_mask", 0);
-        data.sprites.aberration_meter.draw(pos, 0);
+        data.graphics.aberration_meter.draw(pos, 0);
         // data.sprites
         //     .aberration_material
         //     .set_uniform("enable_mask", 1);
-        data.sprites
+        data.graphics
             .aberration_meter
             .draw(pos + vec2(0., (1. - player.aberration) * 65.), 2);
         // data.sprites
         //     .aberration_material
         //     .set_uniform("enable_mask", 0);
 
-        data.sprites.aberration_meter.draw(pos, 1);
+        data.graphics.aberration_meter.draw(pos, 1);
 
         gl_use_default_material();
     }
 }
 
-pub fn create_aberration_material() -> Material {
+pub fn create_aberration_meter_material() -> Material {
     let fragment_shader = FRAGMENT_SHADER.to_string();
     let vertex_shader = VERTEX_SHADER.to_string();
 

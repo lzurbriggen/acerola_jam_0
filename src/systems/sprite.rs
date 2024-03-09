@@ -1,7 +1,10 @@
 use macroquad::material::{gl_use_default_material, gl_use_material};
 use std::cmp::Ordering;
 
-use crate::entity::entities::Ecs;
+use crate::{
+    entity::entities::Ecs,
+    game_data::{GameData, GameMaterial},
+};
 
 pub fn update_animated_sprites(ecs: &mut Ecs) {
     let sprites = ecs.check_components(|e, comps| comps.animated_sprites.contains_key(e));
@@ -15,7 +18,7 @@ pub fn update_animated_sprites(ecs: &mut Ecs) {
     }
 }
 
-pub fn draw_animated_sprites(ecs: &Ecs) {
+pub fn draw_animated_sprites(ecs: &Ecs, data: &GameData) {
     let mut sprites = ecs
         .check_components(|e, comps| {
             comps.positions.contains_key(e) && comps.animated_sprites.contains_key(e)
@@ -50,8 +53,16 @@ pub fn draw_animated_sprites(ecs: &Ecs) {
         let sprite = ecs.components.animated_sprites.get(&sprite_e).unwrap();
         let material = ecs.components.materials.get(&sprite_e);
 
-        if let Some(material) = material {
-            gl_use_material(&material);
+        if let Some(mat_name) = material {
+            let mat = data.graphics.materials.get(mat_name).unwrap();
+            match mat {
+                GameMaterial::Aberration(mat) => {
+                    gl_use_material(&mat);
+                }
+                GameMaterial::Color(mat) => {
+                    gl_use_material(&mat);
+                }
+            }
         }
 
         sprite.draw(*position);

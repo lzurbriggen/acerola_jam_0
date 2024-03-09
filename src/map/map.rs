@@ -3,11 +3,7 @@ use std::collections::{HashMap, HashSet};
 use macroquad::prelude::*;
 use macroquad_tiled::Map as TiledMap;
 
-use crate::{
-    entity::{door::spawn_door, entities::Ecs, entity_id::Entity, spawner::spawn_spawner},
-    game_data::GameData,
-    settings::GameSettings,
-};
+use crate::{entity::entity_id::Entity, settings::GameSettings};
 
 pub struct Map {
     pub id: Entity,
@@ -54,20 +50,6 @@ impl Map {
             tileset_collision_map,
             map_collision,
             map_rect: Rect::new(0., 0., settings.resolution.x, settings.resolution.y),
-        }
-    }
-
-    pub fn spawn_entities(&self, data: &mut GameData, ecs: &mut Ecs) {
-        for (_, layer) in &self.tiled_map.layers {
-            for object in &layer.objects {
-                let object_pos = vec2(object.world_x + 4., object.world_y - 4.);
-                if let Some(_door_dir) = object.properties.get("door") {
-                    spawn_door(data, object_pos, ecs);
-                }
-                if let Some(_) = object.properties.get("spawn") {
-                    spawn_spawner(data, object_pos, ecs);
-                }
-            }
         }
     }
 

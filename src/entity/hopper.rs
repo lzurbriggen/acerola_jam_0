@@ -3,9 +3,7 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 
 use crate::{
-    game_data::GameData,
-    sprite::{flash_material::create_sprite_color_material, indexed_sprite::IndexedSprite},
-    systems::collision::CircleCollider,
+    game_data::GameData, sprite::indexed_sprite::IndexedSprite, systems::collision::CircleCollider,
     timer::Timer,
 };
 
@@ -79,7 +77,8 @@ pub fn spawn_hopper(
 
     ecs.components
         .materials
-        .insert(id, create_sprite_color_material());
+        .insert(id, "aberration".to_string());
+
     ecs.components.room_entity.insert(id, ());
 
     ecs.entities.push(id);

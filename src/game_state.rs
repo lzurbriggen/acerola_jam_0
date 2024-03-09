@@ -3,5 +3,4 @@ pub enum GameState {
     #[default]
     Intro,
     Playing,
-    Paused,
 }

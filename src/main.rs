@@ -8,18 +8,21 @@ use entity::{
     player::spawn_player,
 };
 use fps_counter::FPSCounter;
+use game_data::GameMaterial;
 use game_state::GameState;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use macroquad_tiled::load_map;
 use room::Room;
 use settings::{GameSettings, WindowSize};
+use sprite::{
+    aberration_material::create_aberration_material, flash_material::create_sprite_color_material,
+};
 use systems::{
     collision::draw_colliders,
     damageable::{
         apply_damage, damage_on_collision, despawn_on_collision, flash_on_damage, handle_death,
         kill_entities, update_damageables,
     },
-    door::handle_door_collisions,
     enemy::update_enemies,
     movement::move_entities,
     player::update_player,
@@ -29,7 +32,7 @@ use systems::{
     weapon::update_weapon,
 };
 use ui::{
-    hud::{create_aberration_material, draw_aberration_meter},
+    hud::{create_aberration_meter_material, draw_aberration_meter},
     icon,
     intro_screen::IntroScreen,
     pause_menu::pause_menu,
@@ -37,7 +40,7 @@ use ui::{
 };
 
 use crate::{
-    game_data::{GameData, Sprites},
+    game_data::{GameData, Graphics},
     input_manager::Action,
     map::map::Map,
     sprite::indexed_sprite::IndexedSprite,
@@ -154,12 +157,26 @@ async fn main() {
     let death_texture: Texture2D = load_texture("ui/death.png").await.unwrap();
     death_texture.set_filter(FilterMode::Nearest);
 
+    let mut materials = HashMap::new();
     let aberration_material = create_aberration_material();
+    aberration_material.set_texture("noise1", noise1_texture.clone());
+    aberration_material.set_texture("noise2", noise2_texture.clone());
+    materials.insert(
+        "aberration".to_string(),
+        GameMaterial::Aberration(aberration_material),
+    );
 
-    let sprites = Sprites {
+    let color_material = create_sprite_color_material();
+    materials.insert("color".to_string(), GameMaterial::Color(color_material));
+
+    let sprites = Graphics {
         hud_heart: IndexedSprite::new(hud_heart_texture, 16, Vec2::ZERO),
         aberration_meter: IndexedSprite::new(aberration_meter_texture, 48, Vec2::ZERO),
-        aberration_material,
+        aberration_meter_material: create_aberration_meter_material(),
+        aberration_material: create_aberration_material(),
+        noise1_texture,
+        noise2_texture,
+        materials,
     };
 
     let settings = GameSettings::default();
@@ -225,14 +242,14 @@ async fn main() {
     let mut damage_events = Vec::<DamageEvent>::new();
     let mut death_events = Vec::<DeathEvent>::new();
 
-    data.sprites
-        .aberration_material
-        .set_texture("noise1", noise1_texture.clone());
-    data.sprites
-        .aberration_material
-        .set_texture("noise2", noise2_texture.clone());
-    data.sprites
-        .aberration_material
+    data.graphics
+        .aberration_meter_material
+        .set_texture("noise1", data.graphics.noise1_texture.clone());
+    data.graphics
+        .aberration_meter_material
+        .set_texture("noise2", data.graphics.noise2_texture.clone());
+    data.graphics
+        .aberration_meter_material
         .set_texture("mask", aberration_meter_mask_texture.clone());
 
     let intro_screen_texture: Texture2D = load_texture("ui/intro_screen.png").await.unwrap();
@@ -283,17 +300,17 @@ async fn main() {
                 death_events.clear();
             }
 
-            data.sprites
-                .aberration_material
-                .set_texture("noise1", noise1_texture.clone());
-            data.sprites
-                .aberration_material
-                .set_texture("noise2", noise2_texture.clone());
-            data.sprites
-                .aberration_material
+            data.graphics
+                .aberration_meter_material
+                .set_texture("noise1", data.graphics.noise1_texture.clone());
+            data.graphics
+                .aberration_meter_material
+                .set_texture("noise2", data.graphics.noise2_texture.clone());
+            data.graphics
+                .aberration_meter_material
                 .set_uniform("intensity", 1.2f32);
-            data.sprites
-                .aberration_material
+            data.graphics
+                .aberration_meter_material
                 .set_uniform("time", get_time() as f32);
         }
         data.update();
@@ -378,12 +395,11 @@ async fn main() {
                 update_weapon(&mut ecs, &mut data, bullet_texture.clone());
                 update_enemies(&mut ecs);
                 update_animated_sprites(&mut ecs);
-                handle_door_collisions(&mut ecs);
                 collisions = move_entities(&mut data, &mut ecs);
 
                 flash_on_damage(&mut ecs);
             }
-            draw_animated_sprites(&mut ecs);
+            draw_animated_sprites(&mut ecs, &data);
             data.current_map().draw_upper();
 
             data.screen_dimmer.update();
