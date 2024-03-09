@@ -4,7 +4,7 @@ use crate::{
     entity::{entities::Ecs, entity_id::Entity, spawner::spawn_spawner},
     game_state::GameState,
     input_manager::InputManager,
-    items::weapon::Weapon,
+    items::weapon::{Shooter, Weapon},
     map::map::Map,
     room::Room,
     settings::GameSettings,
@@ -40,6 +40,12 @@ pub struct GameData {
 }
 
 impl GameData {
+    pub fn reset(&mut self) {
+        self.state = GameState::Playing;
+        self.weapon = Weapon::Shooter(Shooter::new());
+        self.current_room = Room::new(self.maps.len(), 3.);
+    }
+
     pub fn new_entity(&mut self) -> Entity {
         self.entity_index += 1;
         Entity(self.entity_index)

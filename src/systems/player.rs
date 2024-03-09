@@ -15,7 +15,10 @@ pub fn update_player(data: &mut GameData, ecs: &mut Ecs) {
         let velocity = ecs.components.velocities.get_mut(player).unwrap();
 
         player_data.aberration_increase_timer.update();
-        if player_data.aberration_increase_timer.just_completed() {
+        if !data.current_room.completed
+            && !data.current_room.aberration_completed
+            && player_data.aberration_increase_timer.just_completed()
+        {
             player_data.aberration += 0.01;
             player_data.aberration = player_data.aberration.clamp(0., 1.);
         }
