@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use macroquad::{audio::Sound, prelude::*};
 
 use crate::{
-    entity::{entities::Ecs, entity_id::Entity, spawner::spawn_spawner},
+    entity::{entities::Ecs, entity_id::Entity, player::spawn_player, spawner::spawn_spawner},
     game_state::GameState,
     input_manager::InputManager,
     items::weapon::{Shooter, Weapon},
@@ -164,5 +164,25 @@ impl GameData {
         }
 
         player_pos
+    }
+}
+
+pub fn reset_game(data: &mut GameData, ecs: &mut Ecs) {
+    data.reset();
+    let entities = ecs.check_components(|_, _| true);
+    for entity in entities {
+        let entity_i = ecs.entities.iter().position(|e| e == &entity).unwrap();
+        ecs.entities.remove(entity_i);
+        ecs.remove_all_components(&entity);
+    }
+    data.current_room = Room::new(data.maps.len(), rand::gen_range(1., 20.));
+    spawn_player(data, ecs);
+    let new_player_pos = data.spawn_map_entities(ecs);
+    let players = ecs.check_components(|e, comps| {
+        comps.player_data.contains_key(e) && comps.positions.contains_key(e)
+    });
+    for player_e in &players {
+        let pos = ecs.components.positions.get_mut(player_e).unwrap();
+        *pos = new_player_pos;
     }
 }

@@ -250,6 +250,7 @@ pub fn kill_entities(ecs: &mut Ecs, death_events: &mut Vec<DeathEvent>) {
 
 pub fn handle_death(data: &mut GameData, ecs: &mut Ecs, death_events: &Vec<DeathEvent>) {
     let mut skull_positions = vec![];
+    let mut pickups = vec![];
 
     for ev in death_events {
         let pos = ecs.components.positions.get(&ev.0).unwrap();
@@ -268,6 +269,9 @@ pub fn handle_death(data: &mut GameData, ecs: &mut Ecs, death_events: &Vec<Death
             for _ in 0..40 {
                 skull_positions.push(vec2(rand::gen_range(0., 360.), rand::gen_range(0., 240.)))
             }
+        } else {
+            // TODO: randomize
+            pickups.push((Pickup::Health(1.), *pos));
         }
         audio::play_sound(
             &data.audio.death,
@@ -280,12 +284,11 @@ pub fn handle_death(data: &mut GameData, ecs: &mut Ecs, death_events: &Vec<Death
         skull_positions.push(*pos);
     }
 
+    for (pickup, pos) in pickups {
+        spawn_pickup(data, pos, ecs, pickup);
+    }
+
     for pos in skull_positions {
         spawn_skull(data, ecs, pos);
-
-        // TODO: move into loop, optional, other pickups
-        // spawn_pickup(data, pos, ecs, Pickup::Health(1.));
-        // spawn_pickup(data, pos, ecs, Pickup::Health(1.));
-        spawn_pickup(data, pos, ecs, Pickup::AnomalyBig);
     }
 }

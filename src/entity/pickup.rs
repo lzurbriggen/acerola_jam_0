@@ -28,7 +28,7 @@ pub fn spawn_pickup(data: &mut GameData, position: Vec2, ecs: &mut Ecs, pickup: 
         Pickup::AnomalyBig => "anomaly_big",
         Pickup::AnomalySmall => "anomaly_small",
     };
-    let indexed_sprite = IndexedSprite::new(data, texture, 16, vec2(8., 8.));
+    let indexed_sprite = IndexedSprite::new(data, texture, 16, vec2(8., 9.));
     let sprite = AnimatedSprite::new(
         indexed_sprite,
         HashMap::from([("noop".to_string(), Animation::new(vec![0], 0., false))]),

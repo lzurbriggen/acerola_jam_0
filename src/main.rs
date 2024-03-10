@@ -7,7 +7,7 @@ use entity::{
     player::spawn_player,
 };
 use fps_counter::FPSCounter;
-use game_data::{Audio, GameMaterial};
+use game_data::{reset_game, Audio, GameMaterial};
 use game_state::GameState;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use macroquad_tiled::load_map;
@@ -331,25 +331,8 @@ async fn main() {
 
     loop {
         if data.state == GameState::Playing {
-            // Reset
             if is_key_pressed(KeyCode::F5) {
-                data.reset();
-                let entities = ecs.check_components(|_, _| true);
-                for entity in entities {
-                    let entity_i = ecs.entities.iter().position(|e| e == &entity).unwrap();
-                    ecs.entities.remove(entity_i);
-                    ecs.remove_all_components(&entity);
-                }
-                data.current_room = Room::new(data.maps.len(), rand::gen_range(1., 20.));
-                spawn_player(&mut data, &mut ecs);
-                let new_player_pos = data.spawn_map_entities(&mut ecs);
-                let players = ecs.check_components(|e, comps| {
-                    comps.player_data.contains_key(e) && comps.positions.contains_key(e)
-                });
-                for player_e in &players {
-                    let pos = ecs.components.positions.get_mut(player_e).unwrap();
-                    *pos = new_player_pos;
-                }
+                reset_game(&mut data, &mut ecs);
             }
 
             let despawned_entities = &ecs.marked_for_despawn.clone();
@@ -488,6 +471,7 @@ async fn main() {
         }
         if data.state == GameState::Intro {
             if intro_screen.update_and_draw(&mut data) {
+                reset_game(&mut data, &mut ecs);
                 data.state = GameState::Playing;
                 // TODO: reset
             }
