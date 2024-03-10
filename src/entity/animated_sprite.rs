@@ -9,6 +9,7 @@ pub struct Animation {
     pub frames: Vec<usize>,
     pub current_frame: usize,
     pub timer: Timer,
+    pub completed: bool,
 }
 
 impl Animation {
@@ -18,6 +19,7 @@ impl Animation {
             frames,
             current_frame: 0,
             timer: Timer::new(frame_duration, true),
+            completed: false,
         }
     }
 }
@@ -51,21 +53,21 @@ impl AnimatedSprite {
         )
     }
 
-    pub fn update(&mut self) -> bool {
+    pub fn update(&mut self) {
         let (_, anim) = self.current_animation_mut();
         anim.timer.update();
         if anim.timer.just_completed() {
             if anim.current_frame + 1 >= anim.frames.len() {
                 if !anim.repeat {
-                    return true;
+                    anim.completed = true;
+                    return;
                 }
                 anim.current_frame = 0;
-                return true;
             } else {
                 anim.current_frame += 1;
             }
         }
-        false
+        anim.completed = false;
     }
 
     pub fn draw(&self, data: &GameData, position: Vec2, flipped: bool) {
@@ -77,5 +79,6 @@ impl AnimatedSprite {
     pub fn set_animation(&mut self, name: &str) {
         self.current_animation = name.to_string();
         self.current_animation_mut().1.current_frame = 0;
+        self.current_animation_mut().1.completed = false;
     }
 }

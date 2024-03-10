@@ -14,8 +14,10 @@ pub fn update_animated_sprites(ecs: &mut Ecs) {
 
     for sprite_e in &sprites {
         let sprite = ecs.components.animated_sprites.get_mut(&sprite_e).unwrap();
-        let anim_completed = sprite.update();
-        if anim_completed && ecs.components.despawn_on_anim_end.contains_key(sprite_e) {
+        sprite.update();
+        if sprite.current_animation().1.completed
+            && ecs.components.despawn_on_anim_end.contains_key(sprite_e)
+        {
             ecs.despawn(*sprite_e);
         }
     }

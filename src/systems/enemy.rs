@@ -1,8 +1,11 @@
 use macroquad::prelude::*;
 
-use crate::entity::entities::Ecs;
+use crate::{
+    entity::{entities::Ecs, projectile::spawn_bullet, tags::EntityType},
+    game_data::GameData,
+};
 
-pub fn update_enemies(ecs: &mut Ecs) {
+pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs) {
     let hoppers = ecs.check_components(|e, comps| {
         comps.hoppers.contains_key(e)
             && comps.positions.contains_key(e)
@@ -30,19 +33,19 @@ pub fn update_enemies(ecs: &mut Ecs) {
         let velocity = ecs.components.velocities.get_mut(hopper_e).unwrap();
         let sprite = ecs.components.animated_sprites.get_mut(hopper_e).unwrap();
 
-        hopper.timer.update();
+        hopper.jump_timer.update();
 
-        if hopper.timer.just_completed() {
+        if hopper.jump_timer.just_completed() {
             hopper.jumping = !hopper.jumping;
 
             if hopper.jumping {
                 sprite.set_animation("jump");
-                hopper.timer.time = 0.96;
-                hopper.timer.reset();
+                hopper.jump_timer.time = 0.96;
+                hopper.jump_timer.reset();
             } else {
                 sprite.set_animation("move");
-                hopper.timer.time = rand::gen_range(0.5, 1.5);
-                hopper.timer.reset();
+                hopper.jump_timer.time = rand::gen_range(0.5, 1.5);
+                hopper.jump_timer.reset();
             }
         }
         *velocity = if hopper.jumping {
@@ -63,25 +66,32 @@ pub fn update_enemies(ecs: &mut Ecs) {
             && comps.animated_sprites.contains_key(e)
     });
 
+    let mut bullets = vec![];
     for spitter_e in &spitters {
         let spitter = ecs.components.spitters.get_mut(spitter_e).unwrap();
         let position = ecs.components.positions.get_mut(spitter_e).unwrap();
         let sprite = ecs.components.animated_sprites.get_mut(spitter_e).unwrap();
 
-        spitter.timer.update();
+        spitter.attack_timer.update();
+        spitter.spit_timer.update();
 
-        if spitter.timer.just_completed() {
-            spitter.jumping = !spitter.jumping;
-
-            if spitter.jumping {
-                sprite.set_animation("idle");
-                spitter.timer.time = 0.96;
-                spitter.timer.reset();
-            } else {
-                sprite.set_animation("spit");
-                spitter.timer.time = rand::gen_range(0.5, 1.5);
-                spitter.timer.reset();
-            }
+        if spitter.attack_timer.just_completed() {
+            sprite.set_animation("spit");
+            spitter.attack_timer.reset();
+            spitter.spit_timer.reset();
         }
+        if spitter.spit_timer.just_completed() {
+            let bullet_velocity = (player_pos - *position).normalize() * 50.;
+            bullets.push((*position + vec2(0., -5.), bullet_velocity))
+        }
+
+        if sprite.current_animation == "spit".to_string() && sprite.current_animation().1.completed
+        {
+            sprite.set_animation("idle");
+        }
+    }
+
+    for (pos, vel) in bullets {
+        spawn_bullet(data, ecs, pos, EntityType::Player, 1., vel);
     }
 }

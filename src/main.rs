@@ -141,6 +141,8 @@ async fn main() {
     skull_texture.set_filter(FilterMode::Nearest);
     let bullet_texture: Texture2D = load_texture("entities/bullet_01.png").await.unwrap();
     bullet_texture.set_filter(FilterMode::Nearest);
+    let bullet_enemy_texture: Texture2D = load_texture("entities/bullet_enemy.png").await.unwrap();
+    bullet_enemy_texture.set_filter(FilterMode::Nearest);
     let dust_texture: Texture2D = load_texture("entities/dust_01.png").await.unwrap();
     dust_texture.set_filter(FilterMode::Nearest);
     let blood_texture: Texture2D = load_texture("entities/blood_01.png").await.unwrap();
@@ -184,6 +186,7 @@ async fn main() {
         ("stomper", stomper_texture),
         ("skull", skull_texture),
         ("bullet", bullet_texture),
+        ("bullet_enemy", bullet_enemy_texture),
         ("dust", dust_texture),
         ("blood", blood_texture),
         ("player", player_texture),
@@ -399,7 +402,7 @@ async fn main() {
                 handle_death(&mut data, &mut ecs, &death_events);
                 update_player(&mut data, &mut ecs);
                 update_weapon(&mut ecs, &mut data);
-                update_enemies(&mut ecs);
+                update_enemies(&mut data, &mut ecs);
                 update_animated_sprites(&mut ecs);
                 collisions = move_entities(&mut data, &mut ecs);
 

@@ -15,10 +15,8 @@ use super::{
 };
 
 pub struct Spitter {
-    pub timer: Timer,
-    pub jumping: bool,
-    pub move_speed: f32,
-    pub jump_move_speed: f32,
+    pub attack_timer: Timer,
+    pub spit_timer: Timer,
 }
 
 pub fn spawn_spitter(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entity {
@@ -34,7 +32,7 @@ pub fn spawn_spitter(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
             ),
             (
                 "spit".to_string(),
-                Animation::new(vec![4, 5, 6, 7], 0.12, true),
+                Animation::new(vec![4, 5, 6, 7], 0.12, false),
             ),
         ]),
     );
@@ -51,10 +49,8 @@ pub fn spawn_spitter(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
     ecs.components.velocities.insert(id, Vec2::ZERO);
 
     let spitter = Spitter {
-        timer: Timer::new(2., false),
-        jumping: false,
-        move_speed: 25.,
-        jump_move_speed: 25.,
+        attack_timer: Timer::new(2., false),
+        spit_timer: Timer::new(0.36, false),
     };
     ecs.components.spitters.insert(id, spitter);
 

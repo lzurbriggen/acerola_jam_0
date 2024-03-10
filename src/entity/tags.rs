@@ -1,6 +1,6 @@
 use crate::timer::Timer;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum EntityType {
     Player,
     Enemy,

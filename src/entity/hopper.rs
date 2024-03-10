@@ -15,7 +15,7 @@ use super::{
 };
 
 pub struct Hopper {
-    pub timer: Timer,
+    pub jump_timer: Timer,
     pub jumping: bool,
     pub move_speed: f32,
     pub jump_move_speed: f32,
@@ -47,7 +47,7 @@ pub fn spawn_hopper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entit
     ecs.components.velocities.insert(id, Vec2::ZERO);
 
     let hopper = Hopper {
-        timer: Timer::new(2., false),
+        jump_timer: Timer::new(2., false),
         jumping: false,
         move_speed: 25.,
         jump_move_speed: 25.,

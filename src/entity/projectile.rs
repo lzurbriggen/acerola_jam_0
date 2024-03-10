@@ -21,7 +21,12 @@ pub fn spawn_bullet(
 ) -> Entity {
     let id = data.new_entity();
 
-    let indexed_sprite = IndexedSprite::new(data, "bullet", 16, vec2(8., 8.));
+    let texture = if target == EntityType::Player {
+        "bullet_enemy"
+    } else {
+        "bullet"
+    };
+    let indexed_sprite = IndexedSprite::new(data, texture, 16, vec2(8., 8.));
     let sprite = AnimatedSprite::new(
         indexed_sprite,
         HashMap::from([("idle".to_string(), Animation::new(vec![0], 4., false))]),
@@ -45,7 +50,11 @@ pub fn spawn_bullet(
         id,
         DamageOnCollision {
             damage,
-            source: EntityType::Player,
+            source: if target == EntityType::Player {
+                EntityType::Enemy
+            } else {
+                EntityType::Player
+            },
         },
     );
     ecs.components.velocities.insert(id, velocity);
