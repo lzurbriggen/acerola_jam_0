@@ -14,33 +14,27 @@ use super::{
     tags::{DamageOnCollision, Damageable, EntityType, Health},
 };
 
-pub struct Spitter {
+pub struct Stomper {
     pub attack_timer: Timer,
     pub spit_timer: Timer,
+    pub move_speed: f32,
 }
 
-pub fn spawn_spitter(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entity {
+pub fn spawn_stomper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entity {
     let id = data.new_entity();
 
-    let indexed_sprite = IndexedSprite::new(data, "spitter", 16, vec2(8., 10.));
+    let indexed_sprite = IndexedSprite::new(data, "stomper", 32, vec2(16., 16.));
     let sprite = AnimatedSprite::new(
         indexed_sprite,
-        HashMap::from([
-            (
-                "idle".to_string(),
-                Animation::new(vec![0, 1, 2, 3], 0.3, true),
-            ),
-            (
-                "spit".to_string(),
-                Animation::new(vec![4, 5, 6, 7], 0.12, false),
-            ),
-        ]),
+        HashMap::from([(
+            "walk".to_string(),
+            Animation::new(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 0.13, true),
+        )]),
     );
     ecs.components.animated_sprites.insert(id, sprite);
-    ecs.components.flip_to_player.insert(id, ());
 
     let collider = CircleCollider {
-        radius: 5.,
+        radius: 6.,
         trigger: false,
     };
     ecs.components.colliders.insert(id, collider);
@@ -48,11 +42,12 @@ pub fn spawn_spitter(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
     ecs.components.positions.insert(id, position);
     ecs.components.velocities.insert(id, Vec2::ZERO);
 
-    let spitter = Spitter {
+    let stomper = Stomper {
         attack_timer: Timer::new(2., false),
         spit_timer: Timer::new(0.36, false),
+        move_speed: 40.,
     };
-    ecs.components.spitters.insert(id, spitter);
+    ecs.components.stompers.insert(id, stomper);
 
     ecs.components.damageables.insert(
         id,

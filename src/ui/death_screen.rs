@@ -1,4 +1,5 @@
 use macroquad::{
+    audio::{self, PlaySoundParams},
     color::Color,
     math::{vec2, Rect, Vec2},
     shapes::{draw_rectangle_ex, DrawRectangleParams},
@@ -85,6 +86,13 @@ impl DeathScreen {
                 Vec2::ZERO,
             ) {
                 should_restart = true;
+                audio::play_sound(
+                    &data.audio.confirm,
+                    PlaySoundParams {
+                        volume: data.settings.sfx_volume,
+                        ..Default::default()
+                    },
+                );
             }
         }
 

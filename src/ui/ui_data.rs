@@ -1,10 +1,9 @@
-use macroquad::{audio::Sound, prelude::*};
+use macroquad::prelude::*;
 
 pub struct UIData {
     pub button_texture: Texture2D,
     pub button_texture_hover: Texture2D,
     pub button_texture_pressed: Texture2D,
-    pub button_click_sfx: Sound,
     pub frame_texture: Texture2D,
     pub frame_texture_pretty: Texture2D,
     pub focus_background_texture: Texture2D,

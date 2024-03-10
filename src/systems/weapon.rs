@@ -1,4 +1,5 @@
 use macroquad::{
+    audio::{self, PlaySoundParams},
     math::{vec2, Vec2},
     texture::Texture2D,
 };
@@ -29,6 +30,16 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
                 }
             }
         }
+    }
+
+    if bullet_data.len() > 0 {
+        audio::play_sound(
+            &data.audio.shoot,
+            PlaySoundParams {
+                volume: data.settings.sfx_volume * 0.5,
+                ..Default::default()
+            },
+        );
     }
 
     for (damage, position, vel) in &bullet_data {

@@ -30,7 +30,11 @@ impl Room {
         let map_index = rand::gen_range(0, maps_len);
 
         let mut remaining_difficulty = difficulty;
-        let enemy_values = vec![(Enemy::Hopper, 1.), (Enemy::Spitter, 2.)];
+        let enemy_values = vec![
+            (Enemy::Hopper, 1.),
+            (Enemy::Spitter, 2.),
+            (Enemy::Stomper, 5.),
+        ];
 
         let mut enemies = vec![];
 

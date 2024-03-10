@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use macroquad::prelude::*;
+use macroquad::{audio::Sound, prelude::*};
 
 use crate::{
     entity::{entities::Ecs, entity_id::Entity, spawner::spawn_spawner},
@@ -28,12 +28,26 @@ pub struct Graphics {
     pub textures: HashMap<&'static str, Texture2D>,
 }
 
+pub struct Audio {
+    pub ui_switch: Sound,
+    pub shoot: Sound,
+    pub death: Sound,
+    pub death2: Sound,
+    pub spawn: Sound,
+    pub kill: Sound,
+    pub confirm: Sound,
+    pub confirm2: Sound,
+    pub hit: Sound,
+    pub hit2: Sound,
+}
+
 pub struct GameData {
     pub entity_index: u64,
     pub state: GameState,
     pub settings: GameSettings,
     pub ui: UIData,
     pub graphics: Graphics,
+    pub audio: Audio,
     pub input: InputManager,
     pub camera: Camera2D,
     pub debug_collisions: bool,
@@ -57,6 +71,7 @@ impl GameData {
         ui_data: UIData,
         maps: Vec<Map>,
         graphics: Graphics,
+        audio: Audio,
         death_texture: Texture2D,
     ) -> Self {
         Self {
@@ -65,6 +80,7 @@ impl GameData {
             state: GameState::default(),
             ui: ui_data,
             graphics,
+            audio,
             input: InputManager::new(),
             camera: Camera2D::default(),
             debug_collisions: false,

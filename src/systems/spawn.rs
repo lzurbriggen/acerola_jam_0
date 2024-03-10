@@ -1,5 +1,8 @@
 use crate::{
-    entity::{entities::Ecs, hopper::spawn_hopper, impact::spawn_dust, spitter::spawn_spitter},
+    entity::{
+        entities::Ecs, hopper::spawn_hopper, impact::spawn_dust, spitter::spawn_spitter,
+        stomper::spawn_stomper,
+    },
     game_data::GameData,
     room::Enemy,
 };
@@ -31,6 +34,10 @@ pub fn spawn_creatures(data: &mut GameData, ecs: &mut Ecs) {
                 }
                 Enemy::Spitter => {
                     spawn_spitter(data, spawn_pos, ecs);
+                    spawn_dust(data, ecs, spawn_pos);
+                }
+                Enemy::Stomper => {
+                    spawn_stomper(data, spawn_pos, ecs);
                     spawn_dust(data, ecs, spawn_pos);
                 }
                 _ => todo!(),

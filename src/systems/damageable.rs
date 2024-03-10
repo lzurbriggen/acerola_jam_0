@@ -12,7 +12,10 @@ use crate::{
     game_data::GameData,
     physics::collision::Collision,
 };
-use macroquad::prelude::*;
+use macroquad::{
+    audio::{self, PlaySoundParams},
+    prelude::*,
+};
 
 pub fn update_damageables(ecs: &mut Ecs) {
     let damageables = ecs.check_components(|e, comps| comps.damageables.contains_key(e));
@@ -85,6 +88,24 @@ pub fn apply_damage(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Vec<
             if let Some(invulnerable_timer) = &mut damageable.invulnerable_timer {
                 if invulnerable_timer.completed() {
                     health.hp -= event.damage;
+
+                    if ecs.components.player_data.get(damageable_e).is_some() {
+                        audio::play_sound(
+                            &data.audio.hit2,
+                            PlaySoundParams {
+                                volume: data.settings.sfx_volume,
+                                ..Default::default()
+                            },
+                        );
+                    }
+                    audio::play_sound(
+                        &data.audio.hit,
+                        PlaySoundParams {
+                            volume: data.settings.sfx_volume,
+                            ..Default::default()
+                        },
+                    );
+
                     if let Some(position) = ecs.components.positions.get(damageable_e) {
                         splatter_positions.push(*position);
                     }
@@ -195,12 +216,26 @@ pub fn handle_death(data: &mut GameData, ecs: &mut Ecs, death_events: &Vec<Death
         let player = ecs.components.player_entity.get(&ev.0);
         if player.is_some() {
             data.dead = true;
+            audio::play_sound(
+                &data.audio.death2,
+                PlaySoundParams {
+                    volume: data.settings.sfx_volume,
+                    ..Default::default()
+                },
+            );
             data.death_screen.show();
 
             for _ in 0..40 {
                 skull_positions.push(vec2(rand::gen_range(0., 360.), rand::gen_range(0., 240.)))
             }
         }
+        audio::play_sound(
+            &data.audio.death,
+            PlaySoundParams {
+                volume: data.settings.sfx_volume,
+                ..Default::default()
+            },
+        );
         spawn_skull(data, ecs, *pos);
     }
 

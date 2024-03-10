@@ -68,7 +68,7 @@ pub fn switcher(
     {
         action = SwitcherAction::Left;
         audio::play_sound(
-            &data.ui.button_click_sfx,
+            &data.audio.confirm,
             PlaySoundParams {
                 volume: settings.sfx_volume,
                 ..Default::default()
@@ -97,7 +97,7 @@ pub fn switcher(
     {
         action = SwitcherAction::Right;
         audio::play_sound(
-            &data.ui.button_click_sfx,
+            &data.audio.confirm,
             PlaySoundParams {
                 volume: settings.sfx_volume,
                 ..Default::default()

@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "example_01.tmj",
+    "activeFile": "map3.tmj",
     "automapping.whileDrawing": false,
     "expandedProjectPaths": [
         "."
@@ -56,11 +56,11 @@
             "scaleInDock": 5.5
         },
         "map3.tmj": {
-            "scale": 2,
-            "selectedLayer": 3,
+            "scale": 3,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 175,
-                "y": 63
+                "x": 182.66666666666663,
+                "y": 113.99999999999997
             }
         },
         "map3.tmj#tileset_01": {
@@ -104,16 +104,19 @@
     "map.tileWidth": 8,
     "map.width": 45,
     "openFiles": [
-        "example_01.tmj"
+        "example_01.tmj",
+        "map2.tmj",
+        "map3.tmj"
     ],
     "project": "project.tiled-project",
     "property.type": "string",
     "recentFiles": [
+        "example_01.tmj",
+        "map2.tmj",
         "map3.tmj",
         "tileset_01.tsj",
         "base_01.tsx",
         "rules_ground.tmx",
-        "example_01.tmj",
         "map_01.tmx"
     ],
     "tileset.embedInMap": true,

@@ -1,6 +1,10 @@
 use std::collections::HashMap;
 
-use macroquad::{prelude::*, ui::hash};
+use macroquad::{
+    audio::{self, PlaySoundParams},
+    prelude::*,
+    ui::hash,
+};
 
 use crate::{
     entity::animated_sprite::{AnimatedSprite, Animation},
@@ -40,9 +44,6 @@ impl IntroScreen {
 
         let center = vec2(360. / 2., 240. / 2.);
 
-        self.sprite.update();
-        self.sprite.draw(data, Vec2::ZERO, false);
-
         let button_width = 90.;
         if button(
             data,
@@ -53,7 +54,17 @@ impl IntroScreen {
             Vec2::ZERO,
         ) {
             should_start = true;
+            audio::play_sound(
+                &data.audio.confirm2,
+                PlaySoundParams {
+                    volume: data.settings.sfx_volume,
+                    ..Default::default()
+                },
+            );
         }
+
+        self.sprite.update();
+        self.sprite.draw(data, Vec2::ZERO, false);
 
         should_start
     }

@@ -1,4 +1,7 @@
-use macroquad::prelude::*;
+use macroquad::{
+    audio::{self, PlaySoundParams},
+    prelude::*,
+};
 
 use crate::{
     entity::{entities::Ecs, projectile::spawn_bullet, tags::EntityType},
@@ -82,7 +85,14 @@ pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs) {
         }
         if spitter.spit_timer.just_completed() {
             let bullet_velocity = (player_pos - *position).normalize() * 50.;
-            bullets.push((*position + vec2(0., -5.), bullet_velocity))
+            bullets.push((*position + vec2(0., -5.), bullet_velocity));
+            audio::play_sound(
+                &data.audio.shoot,
+                PlaySoundParams {
+                    volume: data.settings.sfx_volume * 0.6,
+                    ..Default::default()
+                },
+            );
         }
 
         if sprite.current_animation == "spit".to_string() && sprite.current_animation().1.completed
@@ -93,5 +103,25 @@ pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs) {
 
     for (pos, vel) in bullets {
         spawn_bullet(data, ecs, pos, EntityType::Player, 1., vel);
+    }
+
+    let stompers = ecs.check_components(|e, comps| {
+        comps.stompers.contains_key(e)
+            && comps.positions.contains_key(e)
+            && comps.velocities.contains_key(e)
+            && comps.colliders.contains_key(e)
+            && comps.animated_sprites.contains_key(e)
+    });
+
+    for stomper_e in &stompers {
+        let stomper = ecs.components.stompers.get_mut(stomper_e).unwrap();
+        let position = ecs.components.positions.get_mut(stomper_e).unwrap();
+        let sprite = ecs.components.animated_sprites.get_mut(stomper_e).unwrap();
+        let velocity = ecs.components.velocities.get_mut(stomper_e).unwrap();
+
+        stomper.attack_timer.update();
+        stomper.spit_timer.update();
+
+        *velocity = (player_pos - *position).normalize() * stomper.move_speed;
     }
 }

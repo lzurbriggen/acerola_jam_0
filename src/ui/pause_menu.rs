@@ -1,4 +1,8 @@
-use macroquad::{prelude::*, ui::hash};
+use macroquad::{
+    audio::{self, PlaySoundParams},
+    prelude::*,
+    ui::hash,
+};
 
 use crate::{game_data::GameData, input_manager::Action, settings::WindowSize};
 
@@ -34,6 +38,13 @@ pub fn pause_menu(data: &mut GameData) -> bool {
             current_index - 1
         };
         data.ui.focus = Some(ids[index]);
+        audio::play_sound(
+            &data.audio.ui_switch,
+            PlaySoundParams {
+                volume: data.settings.sfx_volume,
+                ..Default::default()
+            },
+        );
     } else if data.input.is_just_pressed(Action::Down) {
         let index = if current_index + 1 > ids.len() - 1 {
             0
@@ -41,6 +52,13 @@ pub fn pause_menu(data: &mut GameData) -> bool {
             current_index + 1
         };
         data.ui.focus = Some(ids[index]);
+        audio::play_sound(
+            &data.audio.ui_switch,
+            PlaySoundParams {
+                volume: data.settings.sfx_volume,
+                ..Default::default()
+            },
+        );
     }
 
     let frame_size = vec2(200., 220.);
@@ -175,6 +193,13 @@ pub fn pause_menu(data: &mut GameData) -> bool {
         Vec2::ZERO,
     ) {
         data.show_fps = !data.show_fps;
+        audio::play_sound(
+            &data.audio.confirm,
+            PlaySoundParams {
+                volume: data.settings.sfx_volume,
+                ..Default::default()
+            },
+        );
     }
 
     let button_width = 100.;
@@ -188,6 +213,13 @@ pub fn pause_menu(data: &mut GameData) -> bool {
         Vec2::ZERO,
     ) {
         should_quit = true;
+        audio::play_sound(
+            &data.audio.confirm,
+            PlaySoundParams {
+                volume: data.settings.sfx_volume,
+                ..Default::default()
+            },
+        );
     }
 
     should_quit

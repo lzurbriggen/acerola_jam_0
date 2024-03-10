@@ -7,7 +7,7 @@ use entity::{
     player::spawn_player,
 };
 use fps_counter::FPSCounter;
-use game_data::GameMaterial;
+use game_data::{Audio, GameMaterial};
 use game_state::GameState;
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use macroquad_tiled::load_map;
@@ -107,14 +107,10 @@ async fn main() {
     let focus_bg_texture: Texture2D = load_texture("ui/focus_bg.png").await.unwrap();
     focus_bg_texture.set_filter(FilterMode::Nearest);
 
-    // Sfx
-    let button_click_sfx = audio::load_sound("audio/ui/bookClose.ogg").await.unwrap();
-
     let ui_data = UIData {
         button_texture: button_texture,
         button_texture_hover: button_texture_hover,
         button_texture_pressed: button_texture_pressed,
-        button_click_sfx: button_click_sfx,
         frame_texture: frame_texture.clone(),
         frame_texture_pretty: frame_texture_pretty.clone(),
         focus_background_texture: focus_bg_texture,
@@ -204,6 +200,49 @@ async fn main() {
         textures,
     };
 
+    // Sfx
+    let ui_switch_sfx = audio::load_sound("audio/mini_sounds_pack_40/touch_4.wav")
+        .await
+        .unwrap();
+    let shoot_sfx = audio::load_sound("audio/mini_sounds_pack_40/hurt_1.wav")
+        .await
+        .unwrap();
+    let death_sfx = audio::load_sound("audio/mini_sounds_pack_40/expl_2.wav")
+        .await
+        .unwrap();
+    let death2_sfx = audio::load_sound("audio/mini_sounds_pack_40/down.wav")
+        .await
+        .unwrap();
+    let spawn_sfx = audio::load_sound("audio/mini_sounds_pack_40/touch_4.wav")
+        .await
+        .unwrap();
+    let kill_sfx = audio::load_sound("audio/mini_sounds_pack_40/touch_4.wav")
+        .await
+        .unwrap();
+    let confirm_sfx = audio::load_sound("audio/ui/bookClose.ogg").await.unwrap();
+    let confirm2_sfx = audio::load_sound("audio/mini_sounds_pack_40/jump_5.wav")
+        .await
+        .unwrap();
+    let hit_sfx = audio::load_sound("audio/mini_sounds_pack_40/hurt_5.wav")
+        .await
+        .unwrap();
+    let hit2_sfx = audio::load_sound("audio/mini_sounds_pack_40/2.wav")
+        .await
+        .unwrap();
+
+    let audio = Audio {
+        ui_switch: ui_switch_sfx.clone(),
+        shoot: shoot_sfx.clone(),
+        death: death_sfx.clone(),
+        death2: death2_sfx.clone(),
+        spawn: spawn_sfx.clone(),
+        kill: kill_sfx.clone(),
+        confirm: confirm_sfx.clone(),
+        confirm2: confirm2_sfx.clone(),
+        hit: hit_sfx.clone(),
+        hit2: hit2_sfx.clone(),
+    };
+
     let settings = GameSettings::default();
 
     let mut entity_index = 0;
@@ -250,6 +289,7 @@ async fn main() {
         ui_data,
         maps,
         graphics,
+        audio,
         death_texture,
     );
     data.reset();
