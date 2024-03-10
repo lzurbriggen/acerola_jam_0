@@ -15,15 +15,16 @@ pub fn update_enemies(ecs: &mut Ecs) {
         comps.player_data.contains_key(e) && comps.positions.contains_key(e)
     });
 
+    let player_pos = {
+        let mut pos = Vec2::ZERO;
+        for player_e in &players {
+            pos = *ecs.components.positions.get(player_e).unwrap();
+            break;
+        }
+        pos
+    };
+
     for hopper_e in &hoppers {
-        let player_pos = {
-            let mut pos = Vec2::ZERO;
-            for player_e in &players {
-                pos = *ecs.components.positions.get(player_e).unwrap();
-                break;
-            }
-            pos
-        };
         let hopper = ecs.components.hoppers.get_mut(hopper_e).unwrap();
         let position = ecs.components.positions.get_mut(hopper_e).unwrap();
         let velocity = ecs.components.velocities.get_mut(hopper_e).unwrap();
@@ -53,5 +54,34 @@ pub fn update_enemies(ecs: &mut Ecs) {
         } else {
             (player_pos - *position).normalize() * hopper.move_speed
         };
+    }
+
+    let spitters = ecs.check_components(|e, comps| {
+        comps.spitters.contains_key(e)
+            && comps.positions.contains_key(e)
+            && comps.colliders.contains_key(e)
+            && comps.animated_sprites.contains_key(e)
+    });
+
+    for spitter_e in &spitters {
+        let spitter = ecs.components.spitters.get_mut(spitter_e).unwrap();
+        let position = ecs.components.positions.get_mut(spitter_e).unwrap();
+        let sprite = ecs.components.animated_sprites.get_mut(spitter_e).unwrap();
+
+        spitter.timer.update();
+
+        if spitter.timer.just_completed() {
+            spitter.jumping = !spitter.jumping;
+
+            if spitter.jumping {
+                sprite.set_animation("idle");
+                spitter.timer.time = 0.96;
+                spitter.timer.reset();
+            } else {
+                sprite.set_animation("spit");
+                spitter.timer.time = rand::gen_range(0.5, 1.5);
+                spitter.timer.reset();
+            }
+        }
     }
 }

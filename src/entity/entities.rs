@@ -18,6 +18,7 @@ pub struct Components {
     pub player_data: ComponentColl<PlayerData>,
     pub timers: ComponentColl<Timer>,
     pub animated_sprites: ComponentColl<AnimatedSprite>,
+    pub flip_to_player: ComponentColl<()>,
     pub colliders: ComponentColl<CircleCollider>,
     pub positions: ComponentColl<Vec2>,
     pub velocities: ComponentColl<Vec2>,
@@ -63,6 +64,7 @@ impl Ecs {
         self.components.player_data.remove(entity);
         self.components.timers.remove(entity);
         self.components.animated_sprites.remove(entity);
+        self.components.flip_to_player.remove(entity);
         self.components.colliders.remove(entity);
         self.components.positions.remove(entity);
         self.components.velocities.remove(entity);

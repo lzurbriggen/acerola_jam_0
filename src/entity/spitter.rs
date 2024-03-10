@@ -39,6 +39,7 @@ pub fn spawn_spitter(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
         ]),
     );
     ecs.components.animated_sprites.insert(id, sprite);
+    ecs.components.flip_to_player.insert(id, ());
 
     let collider = CircleCollider {
         radius: 3.,

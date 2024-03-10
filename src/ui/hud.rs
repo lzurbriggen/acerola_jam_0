@@ -35,6 +35,7 @@ impl HudHearts {
                     data,
                     start_pos.x + (vec2(i as f32 * 16., start_pos.y)),
                     heart_index,
+                    false,
                 )
             }
         }
@@ -89,7 +90,7 @@ impl AberrationMeter {
             //     3,
             //     Some(vec2(30., h)),
             // );
-            self.sprite.draw(data, pos, 3);
+            self.sprite.draw(data, pos, 3, false);
 
             data.graphics
                 .aberration_meter_material
@@ -97,17 +98,21 @@ impl AberrationMeter {
             // data.sprites
             //     .aberration_material
             //     .set_uniform("enable_mask", 0);
-            self.sprite.draw(data, pos, 0);
+            self.sprite.draw(data, pos, 0, false);
             // data.sprites
             //     .aberration_material
             //     .set_uniform("enable_mask", 1);
-            self.sprite
-                .draw(data, pos + vec2(0., (1. - player.aberration) * 65.), 2);
+            self.sprite.draw(
+                data,
+                pos + vec2(0., (1. - player.aberration) * 65.),
+                2,
+                false,
+            );
             // data.sprites
             //     .aberration_material
             //     .set_uniform("enable_mask", 0);
 
-            self.sprite.draw(data, pos, 1);
+            self.sprite.draw(data, pos, 1, false);
 
             gl_use_default_material();
         }

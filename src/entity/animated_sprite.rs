@@ -68,10 +68,10 @@ impl AnimatedSprite {
         false
     }
 
-    pub fn draw(&self, data: &GameData, position: Vec2) {
+    pub fn draw(&self, data: &GameData, position: Vec2, flipped: bool) {
         let (_, anim) = self.current_animation();
         let index = anim.frames[anim.current_frame];
-        self.indexed_sprite.draw(data, position, index)
+        self.indexed_sprite.draw(data, position, index, flipped)
     }
 
     pub fn set_animation(&mut self, name: &str) {

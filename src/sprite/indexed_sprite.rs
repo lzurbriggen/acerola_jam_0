@@ -27,8 +27,8 @@ impl IndexedSprite {
         }
     }
 
-    pub fn draw(&self, data: &GameData, pos: Vec2, index: usize) {
-        self.draw_with_dest(data, pos, index, None);
+    pub fn draw(&self, data: &GameData, pos: Vec2, index: usize, flipped: bool) {
+        self.draw_with_dest(data, pos, index, None, flipped);
     }
 
     pub fn draw_with_dest(
@@ -37,6 +37,7 @@ impl IndexedSprite {
         pos: Vec2,
         index: usize,
         destination_size: Option<Vec2>,
+        flipped: bool,
     ) {
         let pos = pos - self.position_offset;
         let tex = data.graphics.textures.get(self.texture).unwrap();
@@ -48,6 +49,7 @@ impl IndexedSprite {
             DrawTextureParams {
                 dest_size: destination_size,
                 source: Some(self.texture_source(data, index)),
+                flip_x: flipped,
                 ..Default::default()
             },
         )

@@ -41,7 +41,7 @@ impl IntroScreen {
         let center = vec2(360. / 2., 240. / 2.);
 
         self.sprite.update();
-        self.sprite.draw(data, Vec2::ZERO);
+        self.sprite.draw(data, Vec2::ZERO, false);
 
         let button_width = 90.;
         if button(

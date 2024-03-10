@@ -1,4 +1,7 @@
-use macroquad::material::{gl_use_default_material, gl_use_material};
+use macroquad::{
+    material::{gl_use_default_material, gl_use_material},
+    math::{vec2, Vec2},
+};
 use std::cmp::Ordering;
 
 use crate::{
@@ -48,10 +51,25 @@ pub fn draw_animated_sprites(ecs: &Ecs, data: &GameData) {
         }
     });
 
+    let players = ecs.check_components(|e, comps| {
+        comps.player_data.contains_key(e) && comps.positions.contains_key(e)
+    });
+    let player_pos = {
+        let mut pos = vec2(360. / 2., 240. / 2.);
+        for player_e in &players {
+            pos = *ecs.components.positions.get(player_e).unwrap();
+            break;
+        }
+        pos
+    };
+
     for sprite_e in &sprites {
         let position = ecs.components.positions.get(&sprite_e).unwrap();
         let sprite = ecs.components.animated_sprites.get(&sprite_e).unwrap();
         let material = ecs.components.materials.get(&sprite_e);
+
+        let flipped =
+            ecs.components.flip_to_player.get(&sprite_e).is_some() && position.x > player_pos.x;
 
         if let Some(mat_name) = material {
             let mat = data.graphics.materials.get(mat_name).unwrap();
@@ -65,7 +83,7 @@ pub fn draw_animated_sprites(ecs: &Ecs, data: &GameData) {
             }
         }
 
-        sprite.draw(data, *position);
+        sprite.draw(data, *position, flipped);
 
         gl_use_default_material();
     }
