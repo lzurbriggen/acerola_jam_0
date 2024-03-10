@@ -4,6 +4,7 @@ use crate::timer::Timer;
 pub enum EntityType {
     Player,
     Enemy,
+    Pickup,
 }
 
 pub struct DamageOnCollision {

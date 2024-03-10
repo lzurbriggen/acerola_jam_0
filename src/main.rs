@@ -163,6 +163,13 @@ async fn main() {
     player_texture.set_filter(FilterMode::Nearest);
     let intro_screen_texture: Texture2D = load_texture("ui/intro_screen.png").await.unwrap();
     intro_screen_texture.set_filter(FilterMode::Nearest);
+    let health_texture: Texture2D = load_texture("entities/health.png").await.unwrap();
+    health_texture.set_filter(FilterMode::Nearest);
+    let anomaly_big_texture: Texture2D = load_texture("entities/anomaly_big_01.png").await.unwrap();
+    anomaly_big_texture.set_filter(FilterMode::Nearest);
+    let anomaly_small_texture: Texture2D =
+        load_texture("entities/anomaly_small_01.png").await.unwrap();
+    anomaly_small_texture.set_filter(FilterMode::Nearest);
 
     let mut materials = HashMap::new();
     let aberration_material = create_aberration_material();
@@ -189,6 +196,9 @@ async fn main() {
         ("intro_screen", intro_screen_texture),
         ("hud_heart", hud_heart_texture),
         ("aberration_meter", aberration_meter_texture),
+        ("health", health_texture),
+        ("anomaly_big", anomaly_big_texture),
+        ("anomaly_small", anomaly_small_texture),
     ]);
 
     let graphics = Graphics {

@@ -6,6 +6,7 @@ use crate::{
         entity_id::Entity,
         events::{DamageEvent, DeathEvent},
         impact::{spawn_dust, splatter_blood},
+        pickup::{spawn_pickup, Pickup},
         skull::spawn_skull,
         tags::EntityType,
     },
@@ -182,6 +183,45 @@ pub fn despawn_on_collision(
                         ecs.despawn(*despawn_e);
                         break;
                     };
+
+                    if let Some(player) = ecs.components.player_data.get_mut(e2) {
+                        if let Some(pickup) = ecs.components.pickups.get(despawn_e) {
+                            if match pickup {
+                                Pickup::Health(increase) => {
+                                    let mut low_hp = false;
+                                    if let Some(health) = ecs.components.health.get_mut(e2) {
+                                        low_hp = health.hp < player.max_hp as f32;
+                                        if low_hp {
+                                            health.hp =
+                                                (health.hp + increase).min(player.max_hp as f32);
+                                        }
+                                    }
+                                    low_hp
+                                }
+                                Pickup::AnomalyBig => {
+                                    player.aberration = (player.aberration - 0.5).max(0.);
+                                    true
+                                }
+                                Pickup::AnomalySmall => {
+                                    player.aberration = (player.aberration - 0.1).max(0.);
+                                    true
+                                }
+                            } {
+                                spawn_dust(data, ecs, *position);
+                                ecs.despawn(*despawn_e);
+                                audio::play_sound(
+                                    &data.audio.confirm2,
+                                    PlaySoundParams {
+                                        volume: data.settings.sfx_volume * 1.2,
+                                        ..Default::default()
+                                    },
+                                );
+                            }
+
+                            break;
+                        }
+                    }
+
                     if !ecs.components.player_entity.contains_key(e2)
                         && despawn_on_hit.0 == EntityType::Enemy
                     {
@@ -236,10 +276,16 @@ pub fn handle_death(data: &mut GameData, ecs: &mut Ecs, death_events: &Vec<Death
                 ..Default::default()
             },
         );
-        spawn_skull(data, ecs, *pos);
+
+        skull_positions.push(*pos);
     }
 
     for pos in skull_positions {
         spawn_skull(data, ecs, pos);
+
+        // TODO: move into loop, optional, other pickups
+        // spawn_pickup(data, pos, ecs, Pickup::Health(1.));
+        // spawn_pickup(data, pos, ecs, Pickup::Health(1.));
+        spawn_pickup(data, pos, ecs, Pickup::AnomalyBig);
     }
 }

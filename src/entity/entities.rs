@@ -2,6 +2,7 @@ use super::{
     animated_sprite::AnimatedSprite,
     entity_id::Entity,
     hopper::Hopper,
+    pickup::Pickup,
     player::PlayerData,
     spawner::Spawner,
     spitter::Spitter,
@@ -36,6 +37,7 @@ pub struct Components {
     pub player_entity: ComponentColl<()>,
     pub room_entity: ComponentColl<()>,
     pub layer_offset: ComponentColl<i8>,
+    pub pickups: ComponentColl<Pickup>,
 }
 
 #[derive(Default)]
@@ -83,5 +85,6 @@ impl Ecs {
         self.components.player_entity.remove(entity);
         self.components.room_entity.remove(entity);
         self.components.layer_offset.remove(entity);
+        self.components.pickups.remove(entity);
     }
 }
