@@ -9,15 +9,10 @@ use super::{
     tags::DespawnOnAnimEnd,
 };
 
-pub fn spawn_dust(
-    data: &mut GameData,
-    texture: Texture2D,
-    ecs: &mut Ecs,
-    position: Vec2,
-) -> Entity {
+pub fn spawn_dust(data: &mut GameData, ecs: &mut Ecs, position: Vec2) -> Entity {
     let id = data.new_entity();
 
-    let indexed_sprite = IndexedSprite::new(texture.clone(), 16, vec2(8., 8.));
+    let indexed_sprite = IndexedSprite::new(data, "dust", 16, vec2(8., 8.));
     let sprite = AnimatedSprite::new(
         indexed_sprite,
         HashMap::from([(
@@ -36,16 +31,10 @@ pub fn spawn_dust(
     id
 }
 
-pub fn spawn_blood(
-    data: &mut GameData,
-    texture: Texture2D,
-    ecs: &mut Ecs,
-    position: Vec2,
-    index: usize,
-) -> Entity {
+pub fn spawn_blood(data: &mut GameData, ecs: &mut Ecs, position: Vec2, index: usize) -> Entity {
     let id = data.new_entity();
 
-    let indexed_sprite = IndexedSprite::new(texture.clone(), 16, vec2(8., 8.));
+    let indexed_sprite = IndexedSprite::new(data, "blood", 16, vec2(8., 8.));
     let sprite = AnimatedSprite::new(
         indexed_sprite,
         HashMap::from([("static".to_string(), Animation::new(vec![index], 0., false))]),
@@ -59,15 +48,9 @@ pub fn spawn_blood(
     id
 }
 
-pub fn splatter_blood(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs, position: Vec2) {
+pub fn splatter_blood(data: &mut GameData, ecs: &mut Ecs, position: Vec2) {
     for _ in 0..rand::gen_range(5, 10) {
         let offset = rand_dir() * rand::gen_range(0., 14.);
-        spawn_blood(
-            data,
-            texture.clone(),
-            ecs,
-            position + offset,
-            rand::gen_range(0, 7),
-        );
+        spawn_blood(data, ecs, position + offset, rand::gen_range(0, 7));
     }
 }

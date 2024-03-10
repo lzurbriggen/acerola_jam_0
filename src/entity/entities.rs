@@ -4,6 +4,7 @@ use super::{
     hopper::Hopper,
     player::PlayerData,
     spawner::Spawner,
+    spitter::Spitter,
     tags::{DamageOnCollision, Damageable, DespawnOnAnimEnd, DespawnOnHit, Health},
 };
 use crate::{systems::collision::CircleCollider, timer::Timer};
@@ -22,6 +23,7 @@ pub struct Components {
     pub velocities: ComponentColl<Vec2>,
     pub spawners: ComponentColl<Spawner>,
     pub hoppers: ComponentColl<Hopper>,
+    pub spitters: ComponentColl<Spitter>,
     pub damage_on_collision: ComponentColl<DamageOnCollision>,
     pub health: ComponentColl<Health>,
     pub materials: ComponentColl<String>,
@@ -66,6 +68,7 @@ impl Ecs {
         self.components.velocities.remove(entity);
         self.components.spawners.remove(entity);
         self.components.hoppers.remove(entity);
+        self.components.spitters.remove(entity);
         self.components.damage_on_collision.remove(entity);
         self.components.health.remove(entity);
         self.components.materials.remove(entity);

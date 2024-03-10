@@ -20,10 +20,10 @@ pub struct PlayerData {
     pub aberration_increase_timer: Timer,
 }
 
-pub fn spawn_player(data: &mut GameData, texture: Texture2D, ecs: &mut Ecs) -> Entity {
+pub fn spawn_player(data: &mut GameData, ecs: &mut Ecs) -> Entity {
     let id = data.new_entity();
 
-    let indexed_sprite = IndexedSprite::new(texture.clone(), 16, vec2(8., 10.));
+    let indexed_sprite = IndexedSprite::new(data, "player", 16, vec2(8., 10.));
     let sprite = AnimatedSprite::new(
         indexed_sprite,
         HashMap::from([("idle".to_string(), Animation::new(vec![0], 0., false))]),

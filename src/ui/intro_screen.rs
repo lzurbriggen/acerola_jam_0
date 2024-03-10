@@ -1,6 +1,12 @@
+use std::collections::HashMap;
+
 use macroquad::{prelude::*, ui::hash};
 
-use crate::{entity::animated_sprite::AnimatedSprite, game_data::GameData};
+use crate::{
+    entity::animated_sprite::{AnimatedSprite, Animation},
+    game_data::GameData,
+    sprite::indexed_sprite::IndexedSprite,
+};
 
 use super::button::button;
 
@@ -9,6 +15,18 @@ pub struct IntroScreen {
 }
 
 impl IntroScreen {
+    pub fn new(data: &GameData) -> Self {
+        Self {
+            sprite: AnimatedSprite::new(
+                IndexedSprite::new(data, "intro_screen", 360, Vec2::ZERO),
+                HashMap::from([(
+                    "animate".to_string(),
+                    Animation::new(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], 0.12, true),
+                )]),
+            ),
+        }
+    }
+
     pub fn update_and_draw(&mut self, data: &mut GameData) -> bool {
         let mut should_start = false;
 
@@ -23,7 +41,7 @@ impl IntroScreen {
         let center = vec2(360. / 2., 240. / 2.);
 
         self.sprite.update();
-        self.sprite.draw(Vec2::ZERO);
+        self.sprite.draw(data, Vec2::ZERO);
 
         let button_width = 90.;
         if button(

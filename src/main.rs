@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use entity::{
-    animated_sprite::{AnimatedSprite, Animation},
     entities::Ecs,
     entity_id::Entity,
     events::{DamageEvent, DeathEvent},
@@ -32,7 +31,7 @@ use systems::{
     weapon::update_weapon,
 };
 use ui::{
-    hud::{create_aberration_meter_material, draw_aberration_meter},
+    hud::{create_aberration_meter_material, AberrationMeter, HudHearts},
     icon,
     intro_screen::IntroScreen,
     pause_menu::pause_menu,
@@ -44,8 +43,6 @@ use crate::{
     game_data::{GameData, Graphics},
     input_manager::Action,
     map::map::Map,
-    sprite::indexed_sprite::IndexedSprite,
-    ui::hud::draw_hp,
 };
 
 mod entity;
@@ -136,6 +133,10 @@ async fn main() {
     hud_heart_texture.set_filter(FilterMode::Nearest);
     let hopper_texture: Texture2D = load_texture("entities/hopper_01.png").await.unwrap();
     hopper_texture.set_filter(FilterMode::Nearest);
+    let spitter_texture: Texture2D = load_texture("entities/spitter.png").await.unwrap();
+    spitter_texture.set_filter(FilterMode::Nearest);
+    let stomper_texture: Texture2D = load_texture("entities/stomper.png").await.unwrap();
+    stomper_texture.set_filter(FilterMode::Nearest);
     let skull_texture: Texture2D = load_texture("entities/skull_01.png").await.unwrap();
     skull_texture.set_filter(FilterMode::Nearest);
     let bullet_texture: Texture2D = load_texture("entities/bullet_01.png").await.unwrap();
@@ -160,6 +161,10 @@ async fn main() {
     aberration_meter_mask_texture.set_filter(FilterMode::Nearest);
     let death_texture: Texture2D = load_texture("ui/death.png").await.unwrap();
     death_texture.set_filter(FilterMode::Nearest);
+    let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
+    player_texture.set_filter(FilterMode::Nearest);
+    let intro_screen_texture: Texture2D = load_texture("ui/intro_screen.png").await.unwrap();
+    intro_screen_texture.set_filter(FilterMode::Nearest);
 
     let mut materials = HashMap::new();
     let aberration_material = create_aberration_material();
@@ -173,14 +178,27 @@ async fn main() {
     let color_material = create_sprite_color_material();
     materials.insert("color".to_string(), GameMaterial::Color(color_material));
 
-    let sprites = Graphics {
-        hud_heart: IndexedSprite::new(hud_heart_texture, 16, Vec2::ZERO),
-        aberration_meter: IndexedSprite::new(aberration_meter_texture, 48, Vec2::ZERO),
+    let textures = HashMap::from([
+        ("hopper", hopper_texture),
+        ("spitter", spitter_texture),
+        ("stomper", stomper_texture),
+        ("skull", skull_texture),
+        ("bullet", bullet_texture),
+        ("dust", dust_texture),
+        ("blood", blood_texture),
+        ("player", player_texture),
+        ("intro_screen", intro_screen_texture),
+        ("hud_heart", hud_heart_texture),
+        ("aberration_meter", aberration_meter_texture),
+    ]);
+
+    let graphics = Graphics {
         aberration_meter_material: create_aberration_meter_material(),
         aberration_material: create_aberration_material(),
         noise1_texture,
         noise2_texture,
         materials,
+        textures,
     };
 
     let settings = GameSettings::default();
@@ -228,23 +246,20 @@ async fn main() {
         settings,
         ui_data,
         maps,
-        sprites,
+        graphics,
         death_texture,
     );
     data.reset();
     data.settings.set_window_size(WindowSize::W1440);
 
-    let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
-    player_texture.set_filter(FilterMode::Nearest);
-
     let mut ecs = Ecs::default();
-
-    // spawn_player(&mut data, player_texture.clone(), &mut ecs);
-    // data.spawn_map_entities(&mut ecs);
 
     let mut collisions = HashMap::new();
     let mut damage_events = Vec::<DamageEvent>::new();
     let mut death_events = Vec::<DeathEvent>::new();
+
+    let hud_hearts = HudHearts::new(&data);
+    let aberration_meter = AberrationMeter::new(&data);
 
     data.graphics
         .aberration_meter_material
@@ -256,17 +271,8 @@ async fn main() {
         .aberration_meter_material
         .set_texture("mask", aberration_meter_mask_texture.clone());
 
-    let intro_screen_texture: Texture2D = load_texture("ui/intro_screen.png").await.unwrap();
-    intro_screen_texture.set_filter(FilterMode::Nearest);
-    let mut intro_screen = IntroScreen {
-        sprite: AnimatedSprite::new(
-            IndexedSprite::new(intro_screen_texture, 360, Vec2::ZERO),
-            HashMap::from([(
-                "animate".to_string(),
-                Animation::new(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], 0.12, true),
-            )]),
-        ),
-    };
+    // let intro_screen_texture = data.graphics.textures.get("intro_screen").unwrap();
+    let mut intro_screen = IntroScreen::new(&data);
 
     let mut upgrade_screen = UpgradeScreen::new();
 
@@ -282,7 +288,7 @@ async fn main() {
                     ecs.remove_all_components(&entity);
                 }
                 data.current_room = Room::new(data.maps.len(), rand::gen_range(1., 20.));
-                spawn_player(&mut data, player_texture.clone(), &mut ecs);
+                spawn_player(&mut data, &mut ecs);
                 let new_player_pos = data.spawn_map_entities(&mut ecs);
                 let players = ecs.check_components(|e, comps| {
                     comps.player_data.contains_key(e) && comps.positions.contains_key(e)
@@ -383,21 +389,16 @@ async fn main() {
             data.current_map().draw_base();
 
             if !data.paused {
-                spawn_creatures(&mut data, &mut ecs, &hopper_texture);
+                spawn_creatures(&mut data, &mut ecs);
                 update_timers(&mut ecs);
                 update_damageables(&mut ecs);
                 damage_on_collision(&ecs, &mut damage_events, &collisions);
-                despawn_on_collision(&mut data, &mut ecs, &collisions, dust_texture.clone());
-                apply_damage(
-                    &mut data,
-                    &mut ecs,
-                    &mut damage_events,
-                    blood_texture.clone(),
-                );
+                despawn_on_collision(&mut data, &mut ecs, &collisions);
+                apply_damage(&mut data, &mut ecs, &mut damage_events);
                 kill_entities(&mut ecs, &mut death_events);
-                handle_death(&mut data, skull_texture.clone(), &mut ecs, &death_events);
+                handle_death(&mut data, &mut ecs, &death_events);
                 update_player(&mut data, &mut ecs);
-                update_weapon(&mut ecs, &mut data, bullet_texture.clone());
+                update_weapon(&mut ecs, &mut data);
                 update_enemies(&mut ecs);
                 update_animated_sprites(&mut ecs);
                 collisions = move_entities(&mut data, &mut ecs);
@@ -429,8 +430,8 @@ async fn main() {
                 data.current_map().draw_colliders();
             }
 
-            draw_hp(&data, &ecs);
-            draw_aberration_meter(&data, &ecs);
+            hud_hearts.draw(&data, &ecs);
+            aberration_meter.draw(&data, &ecs);
         }
         if data.state == GameState::Intro {
             if intro_screen.update_and_draw(&mut data) {
@@ -457,7 +458,7 @@ async fn main() {
         } else {
             // if data.current_room.completed {
             // data.upgrade_screen.update();
-            if upgrade_screen.draw(&mut data) {}
+            // if upgrade_screen.draw(&mut data) {}
             // }
         }
 

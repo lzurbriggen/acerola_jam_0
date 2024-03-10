@@ -9,7 +9,7 @@ use crate::{
     items::weapon::Weapon,
 };
 
-pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData, bullet_texture: Texture2D) {
+pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
     let players = ecs.check_components(|e, comps| {
         comps.player_data.contains_key(e) && comps.positions.contains_key(e)
     });
@@ -32,14 +32,6 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData, bullet_texture: Texture
     }
 
     for (damage, position, vel) in &bullet_data {
-        spawn_bullet(
-            data,
-            bullet_texture.clone(),
-            ecs,
-            *position,
-            EntityType::Enemy,
-            *damage,
-            *vel,
-        );
+        spawn_bullet(data, ecs, *position, EntityType::Enemy, *damage, *vel);
     }
 }

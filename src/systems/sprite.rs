@@ -65,7 +65,7 @@ pub fn draw_animated_sprites(ecs: &Ecs, data: &GameData) {
             }
         }
 
-        sprite.draw(*position);
+        sprite.draw(data, *position);
 
         gl_use_default_material();
     }

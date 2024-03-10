@@ -11,7 +11,6 @@ use crate::{
     },
     game_data::GameData,
     physics::collision::Collision,
-    rand_utils::rand_dir,
 };
 use macroquad::prelude::*;
 
@@ -56,12 +55,7 @@ pub fn flash_on_damage(ecs: &mut Ecs) {
     }
 }
 
-pub fn apply_damage(
-    data: &mut GameData,
-    ecs: &mut Ecs,
-    damage_events: &mut Vec<DamageEvent>,
-    blood_texture: Texture2D,
-) {
+pub fn apply_damage(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Vec<DamageEvent>) {
     let damageables = ecs.check_components(|e, comps| {
         comps.damageables.contains_key(e) && comps.health.contains_key(e)
     });
@@ -108,7 +102,7 @@ pub fn apply_damage(
     }
 
     for pos in &splatter_positions {
-        splatter_blood(data, blood_texture.clone(), ecs, *pos);
+        splatter_blood(data, ecs, *pos);
     }
 
     damage_events.clear();
@@ -150,7 +144,6 @@ pub fn despawn_on_collision(
     data: &mut GameData,
     ecs: &mut Ecs,
     collisions: &HashMap<(Entity, Entity), Collision>,
-    dust_texture: Texture2D,
 ) {
     let despawn_on_hits = ecs.check_components(|e, comps| comps.despawn_on_hit.contains_key(e));
 
@@ -164,14 +157,14 @@ pub fn despawn_on_collision(
                     if ecs.components.player_entity.contains_key(e2)
                         && despawn_on_hit.0 == EntityType::Player
                     {
-                        spawn_dust(data, dust_texture.clone(), ecs, *position);
+                        spawn_dust(data, ecs, *position);
                         ecs.despawn(*despawn_e);
                         break;
                     };
                     if !ecs.components.player_entity.contains_key(e2)
                         && despawn_on_hit.0 == EntityType::Enemy
                     {
-                        spawn_dust(data, dust_texture.clone(), ecs, *position);
+                        spawn_dust(data, ecs, *position);
                         ecs.despawn(*despawn_e);
                         break;
                     };
@@ -194,12 +187,7 @@ pub fn kill_entities(ecs: &mut Ecs, death_events: &mut Vec<DeathEvent>) {
     }
 }
 
-pub fn handle_death(
-    data: &mut GameData,
-    skull_texture: Texture2D,
-    ecs: &mut Ecs,
-    death_events: &Vec<DeathEvent>,
-) {
+pub fn handle_death(data: &mut GameData, ecs: &mut Ecs, death_events: &Vec<DeathEvent>) {
     let mut skull_positions = vec![];
 
     for ev in death_events {
@@ -213,10 +201,10 @@ pub fn handle_death(
                 skull_positions.push(vec2(rand::gen_range(0., 360.), rand::gen_range(0., 240.)))
             }
         }
-        spawn_skull(data, skull_texture.clone(), ecs, *pos);
+        spawn_skull(data, ecs, *pos);
     }
 
     for pos in skull_positions {
-        spawn_skull(data, skull_texture.clone(), ecs, pos);
+        spawn_skull(data, ecs, pos);
     }
 }

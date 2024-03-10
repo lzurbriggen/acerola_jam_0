@@ -1,92 +1,116 @@
 use macroquad::{
     material::{gl_use_default_material, gl_use_material, load_material, Material, MaterialParams},
-    math::vec2,
+    math::{vec2, Vec2},
     miniquad::{
         BlendFactor, BlendState, BlendValue, Equation, PipelineParams, ShaderSource, UniformType,
     },
 };
 
-use crate::{entity::entities::Ecs, game_data::GameData};
+use crate::{entity::entities::Ecs, game_data::GameData, sprite::indexed_sprite::IndexedSprite};
 
-pub fn draw_hp(data: &GameData, ecs: &Ecs) {
-    let players = ecs.check_components(|e, comps| {
-        comps.player_data.contains_key(e) && comps.health.contains_key(e)
-    });
+pub struct HudHearts {
+    sprite: IndexedSprite,
+}
 
-    let start_pos = vec2(16., 0.);
-    for player_e in players {
-        let player = ecs.components.player_data.get(&player_e).unwrap();
-        let health = ecs.components.health.get(&player_e).unwrap();
+impl HudHearts {
+    pub fn new(data: &GameData) -> Self {
+        Self {
+            sprite: IndexedSprite::new(data, "hud_heart", 16, Vec2::ZERO),
+        }
+    }
 
-        for i in 0..player.max_hp {
-            let heart_index = if (i as f32) < health.hp { 0 } else { 2 };
-            data.graphics.hud_heart.draw(
-                start_pos.x + (vec2(i as f32 * 16., start_pos.y)),
-                heart_index,
-            )
+    pub fn draw(&self, data: &GameData, ecs: &Ecs) {
+        let players = ecs.check_components(|e, comps| {
+            comps.player_data.contains_key(e) && comps.health.contains_key(e)
+        });
+
+        let start_pos = vec2(16., 0.);
+        for player_e in players {
+            let player = ecs.components.player_data.get(&player_e).unwrap();
+            let health = ecs.components.health.get(&player_e).unwrap();
+
+            for i in 0..player.max_hp {
+                let heart_index = if (i as f32) < health.hp { 0 } else { 2 };
+                self.sprite.draw(
+                    data,
+                    start_pos.x + (vec2(i as f32 * 16., start_pos.y)),
+                    heart_index,
+                )
+            }
         }
     }
 }
 
-pub fn draw_aberration_meter(data: &GameData, ecs: &Ecs) {
-    let players = ecs.check_components(|e, comps| comps.player_data.contains_key(e));
+pub struct AberrationMeter {
+    sprite: IndexedSprite,
+}
 
-    let pos = vec2(308., 78.);
-    for player_e in players {
-        let player = ecs.components.player_data.get(&player_e).unwrap();
+impl AberrationMeter {
+    pub fn new(data: &GameData) -> Self {
+        Self {
+            sprite: IndexedSprite::new(data, "aberration_meter", 48, Vec2::ZERO),
+        }
+    }
 
-        gl_use_material(&data.graphics.aberration_meter_material);
+    pub fn draw(&self, data: &GameData, ecs: &Ecs) {
+        let players = ecs.check_components(|e, comps| comps.player_data.contains_key(e));
 
-        let h = player.aberration * 65.;
-        // TODO: texture instead so material applies properly
-        // draw_rectangle_ex(
-        //     pos.x + 9.,
-        //     pos.y + 16. + 65. - h,
-        //     30.,
-        //     h,
-        //     DrawRectangleParams {
-        //         color: Color::from_hex(0x793a80),
-        //         ..Default::default()
-        //     },
-        // );
-        // data.sprites
-        //     .aberration_material
-        //     .set_uniform("enable_mask", 1);
-        data.graphics
-            .aberration_meter_material
-            .set_uniform("cutoff", player.aberration);
-        // data.sprites.aberration_meter.draw_with_dest(
-        //     vec2(pos.x + 9., pos.y + 16. + 65. - h),
-        //     3,
-        //     Some(vec2(30., h)),
-        // );
-        // data.sprites.aberration_meter.draw_with_dest(
-        //     vec2(pos.x + 9., pos.y + 16. + 65. - h),
-        //     3,
-        //     Some(vec2(30., h)),
-        // );
-        data.graphics.aberration_meter.draw(pos, 3);
+        let pos = vec2(308., 78.);
+        for player_e in players {
+            let player = ecs.components.player_data.get(&player_e).unwrap();
 
-        data.graphics
-            .aberration_meter_material
-            .set_uniform("cutoff", 1f32);
-        // data.sprites
-        //     .aberration_material
-        //     .set_uniform("enable_mask", 0);
-        data.graphics.aberration_meter.draw(pos, 0);
-        // data.sprites
-        //     .aberration_material
-        //     .set_uniform("enable_mask", 1);
-        data.graphics
-            .aberration_meter
-            .draw(pos + vec2(0., (1. - player.aberration) * 65.), 2);
-        // data.sprites
-        //     .aberration_material
-        //     .set_uniform("enable_mask", 0);
+            gl_use_material(&data.graphics.aberration_meter_material);
 
-        data.graphics.aberration_meter.draw(pos, 1);
+            let h = player.aberration * 65.;
+            // TODO: texture instead so material applies properly
+            // draw_rectangle_ex(
+            //     pos.x + 9.,
+            //     pos.y + 16. + 65. - h,
+            //     30.,
+            //     h,
+            //     DrawRectangleParams {
+            //         color: Color::from_hex(0x793a80),
+            //         ..Default::default()
+            //     },
+            // );
+            // data.sprites
+            //     .aberration_material
+            //     .set_uniform("enable_mask", 1);
+            data.graphics
+                .aberration_meter_material
+                .set_uniform("cutoff", player.aberration);
+            // data.sprites.aberration_meter.draw_with_dest(
+            //     vec2(pos.x + 9., pos.y + 16. + 65. - h),
+            //     3,
+            //     Some(vec2(30., h)),
+            // );
+            // data.sprites.aberration_meter.draw_with_dest(
+            //     vec2(pos.x + 9., pos.y + 16. + 65. - h),
+            //     3,
+            //     Some(vec2(30., h)),
+            // );
+            self.sprite.draw(data, pos, 3);
 
-        gl_use_default_material();
+            data.graphics
+                .aberration_meter_material
+                .set_uniform("cutoff", 1f32);
+            // data.sprites
+            //     .aberration_material
+            //     .set_uniform("enable_mask", 0);
+            self.sprite.draw(data, pos, 0);
+            // data.sprites
+            //     .aberration_material
+            //     .set_uniform("enable_mask", 1);
+            self.sprite
+                .draw(data, pos + vec2(0., (1. - player.aberration) * 65.), 2);
+            // data.sprites
+            //     .aberration_material
+            //     .set_uniform("enable_mask", 0);
+
+            self.sprite.draw(data, pos, 1);
+
+            gl_use_default_material();
+        }
     }
 }
 

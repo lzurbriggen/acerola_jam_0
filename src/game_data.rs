@@ -10,7 +10,6 @@ use crate::{
     map::map::Map,
     room::Room,
     settings::GameSettings,
-    sprite::indexed_sprite::IndexedSprite,
     timer::Timer,
     ui::{death_screen::DeathScreen, screen_dimmer::ScreenDimmer, ui_data::UIData},
 };
@@ -21,13 +20,12 @@ pub enum GameMaterial {
 }
 
 pub struct Graphics {
-    pub hud_heart: IndexedSprite,
-    pub aberration_meter: IndexedSprite,
     pub aberration_meter_material: Material,
     pub aberration_material: Material,
     pub noise1_texture: Texture2D,
     pub noise2_texture: Texture2D,
     pub materials: HashMap<String, GameMaterial>,
+    pub textures: HashMap<&'static str, Texture2D>,
 }
 
 pub struct GameData {

@@ -8,5 +8,6 @@ pub mod player;
 pub mod projectile;
 pub mod skull;
 pub mod spawner;
+pub mod spitter;
 pub mod tags;
 pub mod upgrades;

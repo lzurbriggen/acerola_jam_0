@@ -2,9 +2,12 @@ use macroquad::rand;
 
 use crate::entity::entities::Ecs;
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum Enemy {
     Hopper,
+    Spitter,
+    Stomper,
+    Mirituhg,
 }
 
 #[derive(Clone, Copy)]
@@ -27,7 +30,7 @@ impl Room {
         let map_index = rand::gen_range(0, maps_len);
 
         let mut remaining_difficulty = difficulty;
-        let enemy_values = vec![(Enemy::Hopper, 1., Enemy::Hopper, 2.)];
+        let enemy_values = vec![(Enemy::Hopper, 1.), (Enemy::Spitter, 2.)];
 
         let mut enemies = vec![];
 

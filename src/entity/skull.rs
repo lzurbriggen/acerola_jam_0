@@ -9,15 +9,10 @@ use super::{
     tags::DespawnOnAnimEnd,
 };
 
-pub fn spawn_skull(
-    data: &mut GameData,
-    texture: Texture2D,
-    ecs: &mut Ecs,
-    position: Vec2,
-) -> Entity {
+pub fn spawn_skull(data: &mut GameData, ecs: &mut Ecs, position: Vec2) -> Entity {
     let id = data.new_entity();
 
-    let indexed_sprite = IndexedSprite::new(texture.clone(), 16, vec2(8., 8.));
+    let indexed_sprite = IndexedSprite::new(data, "skull", 16, vec2(8., 8.));
     let sprite = AnimatedSprite::new(
         indexed_sprite,
         HashMap::from([(

@@ -1,12 +1,10 @@
-use macroquad::texture::Texture2D;
-
 use crate::{
-    entity::{entities::Ecs, hopper::spawn_hopper},
+    entity::{entities::Ecs, hopper::spawn_hopper, spitter::spawn_spitter},
     game_data::GameData,
     room::Enemy,
 };
 
-pub fn spawn_creatures(data: &mut GameData, ecs: &mut Ecs, hopper_texture: &Texture2D) {
+pub fn spawn_creatures(data: &mut GameData, ecs: &mut Ecs) {
     let spawners = ecs.check_components(|e, comps| {
         comps.positions.contains_key(e) && comps.spawners.contains_key(e)
     });
@@ -19,15 +17,21 @@ pub fn spawn_creatures(data: &mut GameData, ecs: &mut Ecs, hopper_texture: &Text
             continue;
         }
         spawns.push(position.clone());
-        spawner.active = false;
+        if data.current_room.enemies_to_spawn.len() == 0 {
+            spawner.active = false;
+        }
     }
 
     for spawn_pos in spawns {
         if data.current_room.enemies_to_spawn.len() > 0 {
-            match data.current_room.enemies_to_spawn[0] {
+            match data.current_room.enemies_to_spawn[data.current_room.enemies_to_spawn.len() - 1] {
                 Enemy::Hopper => {
-                    spawn_hopper(data, hopper_texture.clone(), spawn_pos, ecs);
+                    spawn_hopper(data, spawn_pos, ecs);
                 }
+                Enemy::Spitter => {
+                    spawn_spitter(data, spawn_pos, ecs);
+                }
+                _ => todo!(),
             }
             data.current_room.enemies_to_spawn.pop();
         }
