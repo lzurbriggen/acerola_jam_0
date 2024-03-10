@@ -119,9 +119,25 @@ pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs) {
         let sprite = ecs.components.animated_sprites.get_mut(stomper_e).unwrap();
         let velocity = ecs.components.velocities.get_mut(stomper_e).unwrap();
 
-        stomper.attack_timer.update();
-        stomper.spit_timer.update();
+        stomper.damage_timer.update();
+        stomper.jump_timer.update();
 
-        *velocity = (player_pos - *position).normalize() * stomper.move_speed;
+        // TODO: check range to player to start
+        if !stomper.jumping && stomper.jump_timer.completed() {
+            sprite.set_animation("jump");
+            stomper.damage_timer.reset();
+            stomper.jumping = true
+        }
+        if stomper.jumping {
+            *velocity = (player_pos - *position).normalize() * stomper.jump_move_speed;
+            // TODO: deal damage
+            if sprite.current_animation().1.completed {
+                stomper.jumping = false;
+                sprite.set_animation("walk");
+                stomper.jump_timer.reset();
+            }
+        } else {
+            *velocity = (player_pos - *position).normalize() * stomper.move_speed;
+        }
     }
 }

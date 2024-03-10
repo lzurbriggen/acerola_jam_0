@@ -15,9 +15,11 @@ use super::{
 };
 
 pub struct Stomper {
-    pub attack_timer: Timer,
-    pub spit_timer: Timer,
+    pub damage_timer: Timer,
+    pub jump_timer: Timer,
     pub move_speed: f32,
+    pub jump_move_speed: f32,
+    pub jumping: bool,
 }
 
 pub fn spawn_stomper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entity {
@@ -26,10 +28,16 @@ pub fn spawn_stomper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
     let indexed_sprite = IndexedSprite::new(data, "stomper", 32, vec2(16., 16.));
     let sprite = AnimatedSprite::new(
         indexed_sprite,
-        HashMap::from([(
-            "walk".to_string(),
-            Animation::new(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 0.13, true),
-        )]),
+        HashMap::from([
+            (
+                "walk".to_string(),
+                Animation::new(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 0.13, true),
+            ),
+            (
+                "jump".to_string(),
+                Animation::new(vec![10, 11, 12, 13, 14, 15, 16, 17, 18, 19], 0.13, false),
+            ),
+        ]),
     );
     ecs.components.animated_sprites.insert(id, sprite);
 
@@ -43,9 +51,11 @@ pub fn spawn_stomper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
     ecs.components.velocities.insert(id, Vec2::ZERO);
 
     let stomper = Stomper {
-        attack_timer: Timer::new(2., false),
-        spit_timer: Timer::new(0.36, false),
+        damage_timer: Timer::new(0.6, false),
+        jump_timer: Timer::new(2.5, false),
         move_speed: 40.,
+        jump_move_speed: 10.,
+        jumping: false,
     };
     ecs.components.stompers.insert(id, stomper);
 
