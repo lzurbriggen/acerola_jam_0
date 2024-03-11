@@ -81,6 +81,7 @@ pub fn spawn_stomper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
         .insert(id, "aberration".to_string());
 
     ecs.components.room_entity.insert(id, ());
+    ecs.components.enemies.insert(id, ());
 
     ecs.entities.push(id);
     id

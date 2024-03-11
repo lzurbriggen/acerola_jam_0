@@ -388,6 +388,7 @@ async fn main() {
     let mut upgrade_screen = UpgradeScreen::new(Upgrades::weapon_selection());
 
     loop {
+        data.current_room.check_completed(&ecs);
         if data.state == GameState::Playing {
             if is_key_pressed(KeyCode::F5) {
                 reset_game(&mut data, &mut ecs);
@@ -450,18 +451,19 @@ async fn main() {
 
         if data.state == GameState::Playing {
             // Map transition
-            data.pause_timer.update();
             if is_key_pressed(KeyCode::F6) {
                 data.map_change_requested = true;
                 data.screen_dimmer.dim();
                 data.paused = true;
                 data.pause_timer.reset();
             }
+
             if data.map_change_requested && data.screen_dimmer.just_dimmed {
                 data.map_change_requested = false;
                 data.current_room.despawn(&mut ecs);
                 data.current_room = Room::new(data.maps.len(), rand::gen_range(1., 20.));
                 let new_player_pos = data.spawn_map_entities(&mut ecs);
+                data.current_room.started = true;
                 let players = ecs.check_components(|e, comps| {
                     comps.player_data.contains_key(e) && comps.positions.contains_key(e)
                 });
@@ -482,6 +484,11 @@ async fn main() {
                     data.paused = true;
                     data.show_pause_menu = true;
                 }
+            }
+
+            if data.current_room.completed && !data.current_room.upgrade_chosen {
+                upgrade_screen.visible = true;
+                data.paused = true;
             }
 
             data.current_map().draw_base();
@@ -556,7 +563,6 @@ async fn main() {
             }
         } else if upgrade_screen.visible {
             if let Some(upgrade) = upgrade_screen.draw(&mut data) {
-                upgrade_screen.visible = false;
                 match upgrade {
                     Upgrade::Item(ref _item) => {}
                     Upgrade::CommonUpgrade(ref _upgrade) => {}
@@ -589,6 +595,15 @@ async fn main() {
                         }
                     },
                 }
+
+                data.map_change_requested = true;
+                data.screen_dimmer.dim();
+                data.paused = true;
+                data.pause_timer.reset();
+                data.current_room.upgrade_chosen = true;
+
+                upgrade_screen.visible = false;
+                data.paused = false;
             }
         };
 

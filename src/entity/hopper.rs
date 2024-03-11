@@ -75,6 +75,7 @@ pub fn spawn_hopper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entit
         .insert(id, "aberration".to_string());
 
     ecs.components.room_entity.insert(id, ());
+    ecs.components.enemies.insert(id, ());
 
     ecs.entities.push(id);
     id

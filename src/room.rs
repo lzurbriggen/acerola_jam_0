@@ -21,8 +21,10 @@ pub struct Room {
     pub map_index: usize,
     pub enemies_to_spawn: Vec<Enemy>,
     pub items_to_spawn: Vec<Item>,
-    pub completed: bool,
+    pub started: bool,
     pub aberration_completed: bool,
+    pub completed: bool,
+    pub upgrade_chosen: bool,
 }
 
 impl Room {
@@ -52,9 +54,16 @@ impl Room {
             map_index,
             enemies_to_spawn: enemies,
             items_to_spawn: vec![],
-            completed: false,
+            started: false,
             aberration_completed: false,
+            completed: false,
+            upgrade_chosen: false,
         }
+    }
+
+    pub fn check_completed(&mut self, ecs: &Ecs) {
+        let enemy_entities = ecs.check_components(|e, comps| comps.enemies.contains_key(e));
+        self.completed = self.started && enemy_entities.len() == 0;
     }
 
     pub fn despawn(&self, ecs: &mut Ecs) {

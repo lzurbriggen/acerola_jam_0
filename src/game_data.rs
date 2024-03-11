@@ -114,6 +114,7 @@ impl GameData {
     }
 
     pub fn update(&mut self) {
+        self.pause_timer.update();
         self.input.gamepads.poll();
         self.update_camera();
 
@@ -178,6 +179,7 @@ pub fn reset_game(data: &mut GameData, ecs: &mut Ecs) {
     data.current_room = Room::new(data.maps.len(), rand::gen_range(1., 20.));
     spawn_player(data, ecs);
     let new_player_pos = data.spawn_map_entities(ecs);
+    data.current_room.started = true;
     let players = ecs.check_components(|e, comps| {
         comps.player_data.contains_key(e) && comps.positions.contains_key(e)
     });
