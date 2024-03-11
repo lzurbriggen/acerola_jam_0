@@ -5,6 +5,7 @@ use entity::{
     entity_id::Entity,
     events::{DamageEvent, DeathEvent},
     player::spawn_player,
+    upgrades::Upgrades,
 };
 use fps_counter::FPSCounter;
 use game_data::{reset_game, Audio, GameMaterial};
@@ -171,6 +172,47 @@ async fn main() {
         load_texture("entities/anomaly_small_01.png").await.unwrap();
     anomaly_small_texture.set_filter(FilterMode::Nearest);
 
+    let upgrade_frame_inner_texture: Texture2D =
+        load_texture("ui/upgrade_frame_inner.png").await.unwrap();
+    upgrade_frame_inner_texture.set_filter(FilterMode::Nearest);
+    let upgrade_frame_inner_dark_texture: Texture2D =
+        load_texture("ui/upgrade_frame_inner_dark.png")
+            .await
+            .unwrap();
+    upgrade_frame_inner_dark_texture.set_filter(FilterMode::Nearest);
+    let upgrade_banner_item_texture: Texture2D =
+        load_texture("ui/upgrade_banner_item.png").await.unwrap();
+    upgrade_banner_item_texture.set_filter(FilterMode::Nearest);
+    let upgrade_banner_upgrade_texture: Texture2D =
+        load_texture("ui/upgrade_banner_upgrade.png").await.unwrap();
+    upgrade_banner_upgrade_texture.set_filter(FilterMode::Nearest);
+    let upgrade_banner_weapon_texture: Texture2D =
+        load_texture("ui/upgrade_banner_weapon.png").await.unwrap();
+    upgrade_banner_weapon_texture.set_filter(FilterMode::Nearest);
+
+    let upgrade_launcher_texture: Texture2D =
+        load_texture("ui/upgrade_launcher.png").await.unwrap();
+    upgrade_launcher_texture.set_filter(FilterMode::Nearest);
+    let upgrade_balls_texture: Texture2D = load_texture("ui/upgrade_balls.png").await.unwrap();
+    upgrade_balls_texture.set_filter(FilterMode::Nearest);
+    let upgrade_dash_texture: Texture2D = load_texture("ui/upgrade_dash.png").await.unwrap();
+    upgrade_dash_texture.set_filter(FilterMode::Nearest);
+    let upgrade_common_max_hp_texture: Texture2D =
+        load_texture("ui/upgrade_common_max_hp.png").await.unwrap();
+    upgrade_common_max_hp_texture.set_filter(FilterMode::Nearest);
+    let upgrade_item_hp_texture: Texture2D = load_texture("ui/upgrade_item_hp.png").await.unwrap();
+    upgrade_item_hp_texture.set_filter(FilterMode::Nearest);
+    let upgrade_item_anomaly_big_texture: Texture2D =
+        load_texture("ui/upgrade_item_anomaly_big.png")
+            .await
+            .unwrap();
+    upgrade_item_anomaly_big_texture.set_filter(FilterMode::Nearest);
+    let upgrade_item_anomaly_small_texture: Texture2D =
+        load_texture("ui/upgrade_item_anomaly_small.png")
+            .await
+            .unwrap();
+    upgrade_item_anomaly_small_texture.set_filter(FilterMode::Nearest);
+
     let mut materials = HashMap::new();
     let aberration_material = create_aberration_material();
     aberration_material.set_texture("noise1", noise1_texture.clone());
@@ -199,6 +241,21 @@ async fn main() {
         ("health", health_texture),
         ("anomaly_big", anomaly_big_texture),
         ("anomaly_small", anomaly_small_texture),
+        ("upgrade_frame_inner", upgrade_frame_inner_texture),
+        ("upgrade_frame_inner_dark", upgrade_frame_inner_dark_texture),
+        ("upgrade_banner_item", upgrade_banner_item_texture),
+        ("upgrade_banner_upgrade", upgrade_banner_upgrade_texture),
+        ("upgrade_banner_weapon", upgrade_banner_weapon_texture),
+        ("upgrade_launcher", upgrade_launcher_texture),
+        ("upgrade_balls", upgrade_balls_texture),
+        ("upgrade_dash", upgrade_dash_texture),
+        ("upgrade_common_max_hp", upgrade_common_max_hp_texture),
+        ("upgrade_item_hp", upgrade_item_hp_texture),
+        ("upgrade_item_anomaly_big", upgrade_item_anomaly_big_texture),
+        (
+            "upgrade_item_anomaly_small",
+            upgrade_item_anomaly_small_texture,
+        ),
     ]);
 
     let graphics = Graphics {
@@ -327,7 +384,8 @@ async fn main() {
     // let intro_screen_texture = data.graphics.textures.get("intro_screen").unwrap();
     let mut intro_screen = IntroScreen::new(&data);
 
-    let mut upgrade_screen = UpgradeScreen::new();
+    let mut upgrades = Upgrades::new();
+    let mut upgrade_screen = UpgradeScreen::new(Upgrades::weapon_selection());
 
     loop {
         if data.state == GameState::Playing {
@@ -495,7 +553,7 @@ async fn main() {
         } else {
             // if data.current_room.completed {
             // upgrade_screen.update();
-            if upgrade_screen.draw(&mut data) {}
+            upgrade_screen.draw(&mut data);
             // }
         }
 

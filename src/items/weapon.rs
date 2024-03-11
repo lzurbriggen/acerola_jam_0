@@ -1,5 +1,12 @@
 use crate::timer::Timer;
 
+#[derive(Clone)]
+pub enum WeaponType {
+    Launcher,
+    Balls,
+    Dash,
+}
+
 pub enum Weapon {
     Shooter(Shooter),
 }

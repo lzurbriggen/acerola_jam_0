@@ -9,6 +9,7 @@ pub fn nice_slice(texture: &Texture2D, offsets: &RectOffset, rect: &Rect) {
         rect.y,
         WHITE,
         DrawTextureParams {
+            dest_size: Some(vec2(offsets.left, offsets.top)),
             source: Some(Rect::new(0., 0., offsets.left, offsets.top)),
             ..Default::default()
         },
