@@ -1,6 +1,6 @@
 use macroquad::{
     material::{gl_use_default_material, gl_use_material},
-    math::{vec2, Vec2},
+    math::vec2,
 };
 use std::cmp::Ordering;
 
@@ -70,6 +70,10 @@ pub fn draw_animated_sprites(ecs: &Ecs, data: &GameData) {
         let sprite = ecs.components.animated_sprites.get(&sprite_e).unwrap();
         let material = ecs.components.materials.get(&sprite_e);
 
+        if !sprite.visible {
+            continue;
+        }
+
         let flipped =
             ecs.components.flip_to_player.get(&sprite_e).is_some() && position.x > player_pos.x;
 
@@ -80,6 +84,7 @@ pub fn draw_animated_sprites(ecs: &Ecs, data: &GameData) {
                     gl_use_material(&mat);
                 }
                 GameMaterial::Color(mat) => {
+                    mat.set_uniform("color", sprite.color);
                     gl_use_material(&mat);
                 }
             }

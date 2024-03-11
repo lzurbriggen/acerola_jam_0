@@ -4,6 +4,7 @@ use macroquad::prelude::*;
 
 use crate::{game_data::GameData, sprite::indexed_sprite::IndexedSprite, timer::Timer};
 
+#[derive(Clone)]
 pub struct Animation {
     pub repeat: bool,
     pub frames: Vec<usize>,
@@ -24,18 +25,23 @@ impl Animation {
     }
 }
 
+#[derive(Clone)]
 pub struct AnimatedSprite {
+    pub visible: bool,
     pub indexed_sprite: IndexedSprite,
     pub animations: HashMap<String, Animation>,
     pub current_animation: String,
+    pub color: Color,
 }
 
 impl AnimatedSprite {
     pub fn new(indexed_sprite: IndexedSprite, animations: HashMap<String, Animation>) -> Self {
         Self {
+            visible: true,
             indexed_sprite,
             current_animation: animations.iter().next().unwrap().0.clone(),
             animations,
+            color: WHITE,
         }
     }
 

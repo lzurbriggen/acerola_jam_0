@@ -11,6 +11,7 @@ use crate::{
         tags::EntityType,
     },
     game_data::GameData,
+    items::weapon::Weapon,
     physics::collision::Collision,
 };
 use macroquad::{
@@ -51,6 +52,7 @@ pub fn flash_on_damage(ecs: &mut Ecs) {
                 color.g = intensity;
                 color.b = intensity;
                 color.a = (0.5 - hit_fx_timer.progress() % 0.5) * 2.;
+                // TODO: flash color
                 // material.set_uniform("color", color);
             } else {
                 // material.set_uniform("color", WHITE);
@@ -88,17 +90,29 @@ pub fn apply_damage(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Vec<
         if let Some(event) = event {
             if let Some(invulnerable_timer) = &mut damageable.invulnerable_timer {
                 if invulnerable_timer.completed() {
-                    health.hp -= event.damage;
+                    let is_player = ecs.components.player_data.contains_key(damageable_e);
 
-                    if ecs.components.player_data.get(damageable_e).is_some() {
-                        audio::play_sound(
-                            &data.audio.hit2,
-                            PlaySoundParams {
-                                volume: data.settings.sfx_volume,
-                                ..Default::default()
-                            },
-                        );
+                    let mut apply_damage = true;
+                    if is_player {
+                        if let Weapon::Dash(ref dash) = data.weapon {
+                            if dash.dashing {
+                                apply_damage = false;
+                            } else {
+                                audio::play_sound(
+                                    &data.audio.hit2,
+                                    PlaySoundParams {
+                                        volume: data.settings.sfx_volume,
+                                        ..Default::default()
+                                    },
+                                );
+                            }
+                        }
                     }
+
+                    if apply_damage {
+                        health.hp -= event.damage;
+                    }
+
                     audio::play_sound(
                         &data.audio.hit,
                         PlaySoundParams {

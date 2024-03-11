@@ -129,6 +129,9 @@ impl InputManager {
         // let input_dir = input_dir.unwrap();
         // self.last_aim_dir = input_dir;
 
+        return self.last_aim_dir;
+
+        // TODO: don't really need this?
         let dirs = [
             vec2(-1., 0.).normalize(),
             vec2(-1., -1.).normalize(),

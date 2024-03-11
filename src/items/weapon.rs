@@ -1,6 +1,6 @@
 use std::f32::consts::TAU;
 
-use macroquad::time::get_frame_time;
+use macroquad::{math::Vec2, time::get_frame_time};
 
 use crate::{
     entity::upgrades::{BallsUpgrade, Upgrade},
@@ -91,10 +91,32 @@ impl Balls {
     }
 }
 
-pub struct Dash {}
+pub struct Dash {
+    pub dash_timer: Timer,
+    pub dashing_timer: Timer,
+    pub speed: f32,
+    pub dashing: bool,
+    pub direction: Vec2,
+    pub shadow_timer: Timer,
+    pub shadow_index: usize,
+}
 
 impl Dash {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            dash_timer: Timer::new(0.6, false),
+            dashing_timer: Timer::new(0.24, false),
+            shadow_timer: Timer::new(0.08, false),
+            speed: 150.,
+            dashing: false,
+            direction: Vec2::X,
+            shadow_index: 0,
+        }
+    }
+
+    pub fn update(&mut self) {
+        self.dash_timer.update();
+        self.dashing_timer.update();
+        self.shadow_timer.update();
     }
 }

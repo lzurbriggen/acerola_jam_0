@@ -204,7 +204,7 @@ impl Upgrades {
 
     pub fn weapon_selection() -> Vec<Upgrade> {
         vec![
-            Upgrade::Weapon(WeaponType::Launcher),
+            Upgrade::Weapon(WeaponType::Dash),
             // Upgrade::Weapon(WeaponType::Balls),
             // Upgrade::Weapon(WeaponType::Dash),
             Upgrade::Weapon(WeaponType::Balls),

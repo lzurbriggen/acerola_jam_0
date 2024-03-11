@@ -1,6 +1,8 @@
 use macroquad::prelude::*;
 
-use crate::{entity::entities::Ecs, game_data::GameData, input_manager::Action};
+use crate::{
+    entity::entities::Ecs, game_data::GameData, input_manager::Action, items::weapon::Weapon,
+};
 
 pub fn update_player(data: &mut GameData, ecs: &mut Ecs) {
     let players = ecs.check_components(|e, comps| {
@@ -25,6 +27,13 @@ pub fn update_player(data: &mut GameData, ecs: &mut Ecs) {
         data.graphics
             .aberration_meter_material
             .set_uniform("intensity", player_data.aberration * 2.2);
+
+        if let Weapon::Dash(ref dash) = data.weapon {
+            if dash.dashing {
+                *velocity = dash.direction * dash.speed;
+                return;
+            }
+        }
 
         let mut dir = Vec2::ZERO;
         if data.input.is_currently_pressed(Action::Left) {

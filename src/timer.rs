@@ -1,5 +1,6 @@
 use macroquad::time::get_frame_time;
 
+#[derive(Clone)]
 pub struct Timer {
     pub time: f32,
     pub repeating: bool,
