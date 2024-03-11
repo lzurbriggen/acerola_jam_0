@@ -36,9 +36,7 @@ pub fn spawn_bullet(
     ecs.components
         .despawn_on_hit
         .insert(id, DespawnOnHit(target));
-    ecs.components
-        .despawn_on_anim_end
-        .insert(id, DespawnOnAnimEnd);
+
     ecs.components.colliders.insert(
         id,
         CircleCollider {

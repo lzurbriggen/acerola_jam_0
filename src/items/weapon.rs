@@ -1,4 +1,11 @@
-use crate::timer::Timer;
+use std::f32::consts::TAU;
+
+use macroquad::time::get_frame_time;
+
+use crate::{
+    entity::upgrades::{BallsUpgrade, Upgrade},
+    timer::Timer,
+};
 
 #[derive(Clone)]
 pub enum WeaponType {
@@ -28,15 +35,58 @@ impl Launcher {
 }
 
 pub struct Balls {
+    pub ball_spawn_timer: Timer,
+    pub base_amount: usize,
+    pub base_damage: f32,
+    pub rotation_progress: f32,
+    pub upgrades: Vec<BallsUpgrade>,
+    pub base_rotation_speed: f32,
+    pub buffered_spawns: usize,
+}
+
+pub struct BallsData {
     pub amount: usize,
     pub damage: f32,
+    pub rotation_speed: f32,
 }
 
 impl Balls {
     pub fn new() -> Self {
         Self {
-            amount: 2,
-            damage: 5.,
+            ball_spawn_timer: Timer::new(0.7, true),
+            base_amount: 3,
+            base_damage: 5.,
+            rotation_progress: 0.,
+            upgrades: vec![],
+            base_rotation_speed: 0.15,
+            buffered_spawns: 3,
+        }
+    }
+
+    pub fn update(&mut self) {
+        let data = self.get_upgraded_data();
+        self.rotation_progress += get_frame_time() * (TAU * data.rotation_speed);
+        self.ball_spawn_timer.update();
+        if self.ball_spawn_timer.just_completed() {
+            self.buffered_spawns = (self.buffered_spawns + 1).min(data.amount);
+        }
+    }
+
+    pub fn get_upgraded_data(&self) -> BallsData {
+        let mut amount = self.base_amount;
+        let mut damage = self.base_damage;
+        let mut rotation_speed = self.base_rotation_speed;
+
+        for upgrade in &self.upgrades {
+            match upgrade {
+                BallsUpgrade::Amount(added_amount) => amount += added_amount,
+            }
+        }
+
+        BallsData {
+            amount,
+            damage,
+            rotation_speed,
         }
     }
 }

@@ -37,6 +37,9 @@ impl Timer {
         }
         self.remaining_time -= get_frame_time();
         if self.remaining_time <= 0. {
+            if self.time == 0.4 {
+                println!("{:?}", self.completed);
+            }
             self.completed = true;
         }
     }

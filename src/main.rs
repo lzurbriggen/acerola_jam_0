@@ -5,7 +5,7 @@ use entity::{
     entity_id::Entity,
     events::{DamageEvent, DeathEvent},
     player::spawn_player,
-    upgrades::{Upgrade, Upgrades},
+    upgrades::{BallsUpgrade, LauncherUpgrade, Upgrade, Upgrades, WeaponUpgrade},
 };
 use fps_counter::FPSCounter;
 use game_data::{reset_game, Audio, GameMaterial};
@@ -551,7 +551,7 @@ async fn main() {
             fps_counter.update_and_draw(&mut data);
         }
 
-        if data.show_pause_menu {
+        let var_name = if data.show_pause_menu {
             if data.paused && pause_menu(&mut data) {
                 break;
             }
@@ -579,12 +579,28 @@ async fn main() {
                                 data.weapon = Weapon::Dash(Dash::new());
                             }
                         },
-                        Upgrade::WeaponUpgrade(ref _upgrade) => {}
+                        Upgrade::WeaponUpgrade(ref upgrade) => match upgrade {
+                            WeaponUpgrade::Launcher(ref upgrade) => {
+                                if let Weapon::Launcher(ref mut launcher) = data.weapon {
+                                    // launcher.upgrades.push(upgrade.clone());
+                                }
+                            }
+                            WeaponUpgrade::Balls(ref upgrade) => {
+                                if let Weapon::Balls(ref mut balls) = data.weapon {
+                                    balls.upgrades.push(upgrade.clone());
+                                }
+                            }
+                            WeaponUpgrade::Dash(ref upgrade) => {
+                                if let Weapon::Dash(ref mut dash) = data.weapon {
+                                    // dash.upgrades.push(upgrade.clone());
+                                }
+                            }
+                        },
                     }
                 }
             }
             // }
-        }
+        };
 
         next_frame().await
     }

@@ -99,7 +99,7 @@ impl CommonUpgrade {
 
 #[derive(Clone)]
 pub enum WeaponUpgrade {
-    Shooter(ShooterUpgrade),
+    Launcher(LauncherUpgrade),
     Balls(BallsUpgrade),
     Dash(DashUpgrade),
 }
@@ -107,7 +107,7 @@ pub enum WeaponUpgrade {
 impl WeaponUpgrade {
     pub fn description(&self) -> UpgradeDescription {
         match self {
-            WeaponUpgrade::Shooter(upgrade) => upgrade.description(),
+            WeaponUpgrade::Launcher(upgrade) => upgrade.description(),
             WeaponUpgrade::Balls(upgrade) => upgrade.description(),
             WeaponUpgrade::Dash(upgrade) => upgrade.description(),
         }
@@ -115,7 +115,7 @@ impl WeaponUpgrade {
 }
 
 #[derive(Clone)]
-pub enum ShooterUpgrade {
+pub enum LauncherUpgrade {
     FireRate(f32),
 }
 
@@ -127,10 +127,10 @@ pub enum BallsUpgrade {
 #[derive(Clone)]
 pub enum DashUpgrade {}
 
-impl ShooterUpgrade {
+impl LauncherUpgrade {
     pub fn description(&self) -> UpgradeDescription {
         match self {
-            ShooterUpgrade::FireRate(rate) => UpgradeDescription::new_with_line2(
+            LauncherUpgrade::FireRate(rate) => UpgradeDescription::new_with_line2(
                 "upgrade_launcher",
                 format!("+ {}%", rate).as_str(),
                 "Fire Rate",
@@ -145,7 +145,7 @@ impl BallsUpgrade {
             BallsUpgrade::Amount(amount) => UpgradeDescription::new_with_line2(
                 "upgrade_balls",
                 format!("+ {}", amount).as_str(),
-                "Projectiles",
+                "Projectile",
             ),
         }
     }
@@ -182,7 +182,7 @@ pub fn generate_upgrade(data: &GameData) -> Vec<Upgrade> {
 pub struct Upgrades {
     item_upgrades: Vec<ItemUpgrade>,
     common_upgrades: Vec<CommonUpgrade>,
-    shooter_upgrades: Vec<ShooterUpgrade>,
+    shooter_upgrades: Vec<LauncherUpgrade>,
     balls_upgrades: Vec<BallsUpgrade>,
     dash_upgrades: Vec<DashUpgrade>,
 }
@@ -205,8 +205,10 @@ impl Upgrades {
     pub fn weapon_selection() -> Vec<Upgrade> {
         vec![
             Upgrade::Weapon(WeaponType::Launcher),
+            // Upgrade::Weapon(WeaponType::Balls),
+            // Upgrade::Weapon(WeaponType::Dash),
             Upgrade::Weapon(WeaponType::Balls),
-            Upgrade::Weapon(WeaponType::Dash),
+            Upgrade::WeaponUpgrade(WeaponUpgrade::Balls(BallsUpgrade::Amount(1))),
             // Upgrade::CommonUpgrade(CommonUpgrade::MaxHp(1)),
             // Upgrade::Item(ItemUpgrade::Hp(1.)),
             // Upgrade::WeaponUpgrade(WeaponUpgrade::Shooter(ShooterUpgrade::FireRate(15.))),

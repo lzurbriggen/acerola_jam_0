@@ -38,6 +38,7 @@ pub struct Components {
     pub room_entity: ComponentColl<()>,
     pub layer_offset: ComponentColl<i8>,
     pub pickups: ComponentColl<Pickup>,
+    pub balls: ComponentColl<usize>,
 }
 
 #[derive(Default)]
@@ -86,5 +87,6 @@ impl Ecs {
         self.components.room_entity.remove(entity);
         self.components.layer_offset.remove(entity);
         self.components.pickups.remove(entity);
+        self.components.balls.remove(entity);
     }
 }
