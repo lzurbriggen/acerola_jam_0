@@ -60,9 +60,9 @@ impl UpgradeScreen {
         );
         for (i, _upgrade) in self.upgrades.iter().enumerate() {
             let frame_rect = Rect::new(
-                container_pos.x + i as f32 * (frame_size.x + spacing),
+                (container_pos.x + i as f32 * (frame_size.x + spacing)).round(),
                 container_pos.y,
-                frame_size.x,
+                frame_size.x.round(),
                 frame_size.y,
             );
             if focus == ids[i] {

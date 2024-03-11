@@ -494,8 +494,8 @@ async fn main() {
             }
         } else {
             // if data.current_room.completed {
-            // data.upgrade_screen.update();
-            // if upgrade_screen.draw(&mut data) {}
+            // upgrade_screen.update();
+            if upgrade_screen.draw(&mut data) {}
             // }
         }
 

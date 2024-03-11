@@ -26,7 +26,7 @@ pub fn spawn_stomper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
     let id = data.new_entity();
 
     let indexed_sprite = IndexedSprite::new(data, "stomper", 32, vec2(16., 16.));
-    let sprite = AnimatedSprite::new(
+    let mut sprite = AnimatedSprite::new(
         indexed_sprite,
         HashMap::from([
             (
@@ -39,6 +39,7 @@ pub fn spawn_stomper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
             ),
         ]),
     );
+    sprite.set_animation("walk");
     ecs.components.animated_sprites.insert(id, sprite);
 
     let collider = CircleCollider {
