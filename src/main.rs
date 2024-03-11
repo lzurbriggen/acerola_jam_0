@@ -429,7 +429,7 @@ async fn main() {
         set_mouse_cursor(miniquad::CursorIcon::Default);
 
         set_camera(&data.camera);
-
+        data.input.update(&ecs, &data.camera);
         clear_background(BLACK);
 
         if (is_key_down(KeyCode::LeftAlt) || is_key_down(KeyCode::RightAlt))

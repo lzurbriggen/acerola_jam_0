@@ -2,13 +2,14 @@ use std::f32::consts::TAU;
 
 use macroquad::{
     audio::{self, PlaySoundParams},
+    input::{is_mouse_button_pressed, MouseButton},
     math::{vec2, Vec2},
-    time::{get_frame_time, get_time},
 };
 
 use crate::{
     entity::{entities::Ecs, projectile::spawn_bullet, tags::EntityType},
     game_data::GameData,
+    input_manager::Action,
     items::weapon::Weapon,
 };
 
@@ -32,31 +33,35 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
         match &mut data.weapon {
             Weapon::Launcher(ref mut shooter) => {
                 shooter.shoot_timer.update();
-                if shooter.shoot_timer.just_completed() {
+                if shooter.shoot_timer.completed() {
+                    shooter.shoot_timer.reset();
+
+                    let dir = data.input.get_aim_dir(&data.camera, player_pos);
+
                     bullet_data.push((
                         shooter.damage,
-                        *player_position + vec2(3., 0.),
-                        vec2(160., 0.),
+                        *player_position + dir * 3.,
+                        dir * 160.,
                         None,
                     ));
-                    bullet_data.push((
-                        shooter.damage,
-                        *player_position + vec2(-3., 0.),
-                        vec2(-160., 0.),
-                        None,
-                    ));
-                    bullet_data.push((
-                        shooter.damage,
-                        *player_position + vec2(0., 3.),
-                        vec2(0., 160.),
-                        None,
-                    ));
-                    bullet_data.push((
-                        shooter.damage,
-                        *player_position + vec2(0., -3.),
-                        vec2(0., -160.),
-                        None,
-                    ));
+                    // bullet_data.push((
+                    //     shooter.damage,
+                    //     *player_position + vec2(-3., 0.),
+                    //     vec2(-160., 0.),
+                    //     None,
+                    // ));
+                    // bullet_data.push((
+                    //     shooter.damage,
+                    //     *player_position + vec2(0., 3.),
+                    //     vec2(0., 160.),
+                    //     None,
+                    // ));
+                    // bullet_data.push((
+                    //     shooter.damage,
+                    //     *player_position + vec2(0., -3.),
+                    //     vec2(0., -160.),
+                    //     None,
+                    // ));
                 }
             }
             Weapon::Balls(ref mut balls) => {

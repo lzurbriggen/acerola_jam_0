@@ -28,7 +28,7 @@ pub struct Launcher {
 impl Launcher {
     pub fn new() -> Self {
         Self {
-            shoot_timer: Timer::new(0.5, true),
+            shoot_timer: Timer::new(0.25, false),
             damage: 5.,
         }
     }
@@ -53,7 +53,7 @@ pub struct BallsData {
 impl Balls {
     pub fn new() -> Self {
         Self {
-            ball_spawn_timer: Timer::new(0.7, true),
+            ball_spawn_timer: Timer::new(0.4, true),
             base_amount: 3,
             base_damage: 5.,
             rotation_progress: 0.,
