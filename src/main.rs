@@ -385,7 +385,6 @@ async fn main() {
     // let intro_screen_texture = data.graphics.textures.get("intro_screen").unwrap();
     let mut intro_screen = IntroScreen::new(&data);
 
-    let mut upgrades = Upgrades::new();
     let mut upgrade_screen = UpgradeScreen::new(Upgrades::weapon_selection());
 
     loop {
@@ -551,55 +550,46 @@ async fn main() {
             fps_counter.update_and_draw(&mut data);
         }
 
-        let var_name = if data.show_pause_menu {
+        if data.show_pause_menu {
             if data.paused && pause_menu(&mut data) {
                 break;
             }
         } else if upgrade_screen.visible {
-            // if data.current_room.completed {
-            // upgrade_screen.update();
             if let Some(upgrade) = upgrade_screen.draw(&mut data) {
                 upgrade_screen.visible = false;
-                let players = ecs.check_components(|e, comps| {
-                    comps.player_data.contains_key(e) && comps.health.contains_key(e)
-                });
-                for player_e in players {
-                    let player = ecs.components.player_data.get(&player_e).unwrap();
-                    match upgrade {
-                        Upgrade::Item(ref _item) => {}
-                        Upgrade::CommonUpgrade(ref _upgrade) => {}
-                        Upgrade::Weapon(ref weapon) => match weapon {
-                            WeaponType::Launcher => {
-                                data.weapon = Weapon::Launcher(Launcher::new());
+                match upgrade {
+                    Upgrade::Item(ref _item) => {}
+                    Upgrade::CommonUpgrade(ref _upgrade) => {}
+                    Upgrade::Weapon(ref weapon) => match weapon {
+                        WeaponType::Launcher => {
+                            data.weapon = Weapon::Launcher(Launcher::new());
+                        }
+                        WeaponType::Balls => {
+                            data.weapon = Weapon::Balls(Balls::new());
+                        }
+                        WeaponType::Dash => {
+                            data.weapon = Weapon::Dash(Dash::new());
+                        }
+                    },
+                    Upgrade::WeaponUpgrade(ref upgrade) => match upgrade {
+                        WeaponUpgrade::Launcher(ref upgrade) => {
+                            if let Weapon::Launcher(ref mut launcher) = data.weapon {
+                                launcher.upgrades.push(upgrade.clone());
                             }
-                            WeaponType::Balls => {
-                                data.weapon = Weapon::Balls(Balls::new());
+                        }
+                        WeaponUpgrade::Balls(ref upgrade) => {
+                            if let Weapon::Balls(ref mut balls) = data.weapon {
+                                balls.upgrades.push(upgrade.clone());
                             }
-                            WeaponType::Dash => {
-                                data.weapon = Weapon::Dash(Dash::new());
+                        }
+                        WeaponUpgrade::Dash(ref upgrade) => {
+                            if let Weapon::Dash(ref mut dash) = data.weapon {
+                                dash.upgrades.push(upgrade.clone());
                             }
-                        },
-                        Upgrade::WeaponUpgrade(ref upgrade) => match upgrade {
-                            WeaponUpgrade::Launcher(ref upgrade) => {
-                                if let Weapon::Launcher(ref mut launcher) = data.weapon {
-                                    // launcher.upgrades.push(upgrade.clone());
-                                }
-                            }
-                            WeaponUpgrade::Balls(ref upgrade) => {
-                                if let Weapon::Balls(ref mut balls) = data.weapon {
-                                    balls.upgrades.push(upgrade.clone());
-                                }
-                            }
-                            WeaponUpgrade::Dash(ref upgrade) => {
-                                if let Weapon::Dash(ref mut dash) = data.weapon {
-                                    // dash.upgrades.push(upgrade.clone());
-                                }
-                            }
-                        },
-                    }
+                        }
+                    },
                 }
             }
-            // }
         };
 
         next_frame().await

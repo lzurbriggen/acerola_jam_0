@@ -36,15 +36,18 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
         let player_data = ecs.components.player_data.get_mut(&player_e).unwrap();
         player_pos = *player_position;
         match &mut data.weapon {
-            Weapon::Launcher(ref mut shooter) => {
-                shooter.shoot_timer.update();
-                if shooter.shoot_timer.completed() {
-                    shooter.shoot_timer.reset();
+            Weapon::Launcher(ref mut launcher) => {
+                launcher.shoot_timer.update();
+
+                let launcher_data = launcher.get_upgraded_data();
+
+                if launcher.shoot_timer.completed() {
+                    launcher.shoot_timer.reset();
 
                     let dir = data.input.get_aim_dir(&data.camera, player_pos);
 
                     bullet_data.push((
-                        shooter.damage,
+                        launcher_data.damage,
                         *player_position + dir * 3.,
                         dir * 160.,
                         None,
@@ -68,6 +71,8 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
                     //     None,
                     // ));
                 }
+
+                launcher.shoot_timer.time = launcher_data.timer_duration;
             }
             Weapon::Balls(ref mut balls) => {
                 balls.update();
@@ -100,6 +105,8 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
             }
             Weapon::Dash(ref mut dash) => {
                 dash.update();
+                let dash_data = dash.get_upgraded_data();
+
                 if dash.dashing_timer.just_completed() {
                     dash.dashing = false;
                     for shadow_e in &player_data.shadows {
@@ -126,8 +133,7 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
                             *player_e,
                             DamageOnCollision {
                                 source: EntityType::Player,
-                                // TODO: dash damage
-                                damage: 20.,
+                                damage: dash_data.damage,
                             },
                         );
                         dash.dashing = true;
@@ -160,6 +166,7 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
                         };
                     }
                 }
+                dash.dash_timer.time = dash_data.dash_timer_duration;
             }
         }
     }

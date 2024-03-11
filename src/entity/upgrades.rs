@@ -117,23 +117,34 @@ impl WeaponUpgrade {
 #[derive(Clone)]
 pub enum LauncherUpgrade {
     FireRate(f32),
+    Damage(f32),
 }
 
 #[derive(Clone)]
 pub enum BallsUpgrade {
     Amount(usize),
+    Damage(f32),
+    RotateSpeed(f32),
 }
 
 #[derive(Clone)]
-pub enum DashUpgrade {}
+pub enum DashUpgrade {
+    Damage(f32),
+    TimerDecrease(f32),
+}
 
 impl LauncherUpgrade {
     pub fn description(&self) -> UpgradeDescription {
         match self {
             LauncherUpgrade::FireRate(rate) => UpgradeDescription::new_with_line2(
                 "upgrade_launcher",
-                format!("+ {}%", rate).as_str(),
+                format!("+ {:.0}%", rate * 100.).as_str(),
                 "Fire Rate",
+            ),
+            LauncherUpgrade::Damage(dmg) => UpgradeDescription::new_with_line2(
+                "upgrade_launcher",
+                format!("+ {:.0}", dmg).as_str(),
+                "Damage",
             ),
         }
     }
@@ -145,7 +156,17 @@ impl BallsUpgrade {
             BallsUpgrade::Amount(amount) => UpgradeDescription::new_with_line2(
                 "upgrade_balls",
                 format!("+ {}", amount).as_str(),
-                "Projectile",
+                "Ball",
+            ),
+            BallsUpgrade::Damage(dmg) => UpgradeDescription::new_with_line2(
+                "upgrade_balls",
+                format!("+ {:.0}", dmg).as_str(),
+                "Damage",
+            ),
+            BallsUpgrade::RotateSpeed(speed) => UpgradeDescription::new_with_line2(
+                "upgrade_balls",
+                format!("+ {:.0}%", speed * 100.).as_str(),
+                "Rot. Speed",
             ),
         }
     }
@@ -154,7 +175,19 @@ impl BallsUpgrade {
 impl DashUpgrade {
     pub fn description(&self) -> UpgradeDescription {
         // TODO
-        UpgradeDescription::new("upgrade_dash", "")
+
+        match self {
+            DashUpgrade::Damage(dmg) => UpgradeDescription::new_with_line2(
+                "upgrade_dash",
+                format!("+ {:.0}", dmg).as_str(),
+                "Damage",
+            ),
+            DashUpgrade::TimerDecrease(decrease) => UpgradeDescription::new_with_line2(
+                "upgrade_dash",
+                format!("+ {:.0}%", decrease * 100.).as_str(),
+                "Timer dec.",
+            ),
+        }
     }
 }
 
@@ -204,11 +237,13 @@ impl Upgrades {
 
     pub fn weapon_selection() -> Vec<Upgrade> {
         vec![
-            Upgrade::Weapon(WeaponType::Dash),
+            Upgrade::Weapon(WeaponType::Launcher),
             // Upgrade::Weapon(WeaponType::Balls),
             // Upgrade::Weapon(WeaponType::Dash),
-            Upgrade::Weapon(WeaponType::Balls),
-            Upgrade::WeaponUpgrade(WeaponUpgrade::Balls(BallsUpgrade::Amount(1))),
+            // Upgrade::Weapon(WeaponType::Dash),
+            Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(LauncherUpgrade::Damage(5.))),
+            Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(LauncherUpgrade::FireRate(0.1))),
+            // Upgrade::WeaponUpgrade(WeaponUpgrade::Dash(DashUpgrade::Damage(10.))),
             // Upgrade::CommonUpgrade(CommonUpgrade::MaxHp(1)),
             // Upgrade::Item(ItemUpgrade::Hp(1.)),
             // Upgrade::WeaponUpgrade(WeaponUpgrade::Shooter(ShooterUpgrade::FireRate(15.))),
