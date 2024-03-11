@@ -1,7 +1,6 @@
 use macroquad::{
     audio::{self, PlaySoundParams},
     math::{vec2, Vec2},
-    texture::Texture2D,
 };
 
 use crate::{
@@ -20,7 +19,7 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
     for player_e in &players {
         let position = ecs.components.positions.get_mut(&player_e).unwrap();
         match &mut data.weapon {
-            Weapon::Shooter(ref mut shooter) => {
+            Weapon::Launcher(ref mut shooter) => {
                 shooter.shoot_timer.update();
                 if shooter.shoot_timer.just_completed() {
                     bullet_data.push((shooter.damage, *position + vec2(3., 0.), vec2(160., 0.)));
@@ -29,6 +28,8 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
                     bullet_data.push((shooter.damage, *position + vec2(0., -3.), vec2(0., -160.)));
                 }
             }
+            Weapon::Balls(ref mut balls) => {}
+            Weapon::Dash(ref mut dash) => {}
         }
     }
 

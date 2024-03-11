@@ -5,8 +5,9 @@ use crate::{entity::upgrades::Upgrade, game_data::GameData, input_manager::Actio
 use super::{button::button, nine_slice::nice_slice};
 
 pub struct UpgradeScreen {
-    upgrades: Vec<Upgrade>,
+    pub upgrades: Vec<Upgrade>,
     ids: Vec<u64>,
+    pub visible: bool,
 }
 
 impl UpgradeScreen {
@@ -14,6 +15,7 @@ impl UpgradeScreen {
         Self {
             upgrades,
             ids: vec![hash!(), hash!(), hash!()],
+            visible: false,
         }
     }
 

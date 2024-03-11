@@ -5,11 +5,12 @@ use entity::{
     entity_id::Entity,
     events::{DamageEvent, DeathEvent},
     player::spawn_player,
-    upgrades::Upgrades,
+    upgrades::{Upgrade, Upgrades},
 };
 use fps_counter::FPSCounter;
 use game_data::{reset_game, Audio, GameMaterial};
 use game_state::GameState;
+use items::weapon::{Balls, Dash, Launcher, Weapon, WeaponType};
 use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
 use macroquad_tiled::load_map;
 use room::Room;
@@ -393,6 +394,10 @@ async fn main() {
                 reset_game(&mut data, &mut ecs);
             }
 
+            if is_key_pressed(KeyCode::F3) {
+                upgrade_screen.visible = true;
+            }
+
             let despawned_entities = &ecs.marked_for_despawn.clone();
             for entity in despawned_entities {
                 let entity_i = ecs.entities.iter().position(|e| e == entity);
@@ -550,10 +555,34 @@ async fn main() {
             if data.paused && pause_menu(&mut data) {
                 break;
             }
-        } else {
+        } else if upgrade_screen.visible {
             // if data.current_room.completed {
             // upgrade_screen.update();
-            upgrade_screen.draw(&mut data);
+            if let Some(upgrade) = upgrade_screen.draw(&mut data) {
+                upgrade_screen.visible = false;
+                let players = ecs.check_components(|e, comps| {
+                    comps.player_data.contains_key(e) && comps.health.contains_key(e)
+                });
+                for player_e in players {
+                    let player = ecs.components.player_data.get(&player_e).unwrap();
+                    match upgrade {
+                        Upgrade::Item(ref _item) => {}
+                        Upgrade::CommonUpgrade(ref _upgrade) => {}
+                        Upgrade::Weapon(ref weapon) => match weapon {
+                            WeaponType::Launcher => {
+                                data.weapon = Weapon::Launcher(Launcher::new());
+                            }
+                            WeaponType::Balls => {
+                                data.weapon = Weapon::Balls(Balls::new());
+                            }
+                            WeaponType::Dash => {
+                                data.weapon = Weapon::Dash(Dash::new());
+                            }
+                        },
+                        Upgrade::WeaponUpgrade(ref _upgrade) => {}
+                    }
+                }
+            }
             // }
         }
 

@@ -8,19 +8,43 @@ pub enum WeaponType {
 }
 
 pub enum Weapon {
-    Shooter(Shooter),
+    Launcher(Launcher),
+    Balls(Balls),
+    Dash(Dash),
 }
 
-pub struct Shooter {
+pub struct Launcher {
     pub shoot_timer: Timer,
     pub damage: f32,
 }
 
-impl Shooter {
+impl Launcher {
     pub fn new() -> Self {
         Self {
             shoot_timer: Timer::new(0.5, true),
             damage: 5.,
         }
+    }
+}
+
+pub struct Balls {
+    pub amount: usize,
+    pub damage: f32,
+}
+
+impl Balls {
+    pub fn new() -> Self {
+        Self {
+            amount: 2,
+            damage: 5.,
+        }
+    }
+}
+
+pub struct Dash {}
+
+impl Dash {
+    pub fn new() -> Self {
+        Self {}
     }
 }

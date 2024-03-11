@@ -6,7 +6,7 @@ use crate::{
     entity::{entities::Ecs, entity_id::Entity, player::spawn_player, spawner::spawn_spawner},
     game_state::GameState,
     input_manager::InputManager,
-    items::weapon::{Shooter, Weapon},
+    items::weapon::{Launcher, Weapon},
     map::map::Map,
     room::Room,
     settings::GameSettings,
@@ -88,7 +88,7 @@ impl GameData {
             show_fps: true,
             #[cfg(not(debug_assertions))]
             show_fps: false,
-            weapon: Weapon::Shooter(Shooter::new()),
+            weapon: Weapon::Launcher(Launcher::new()),
             current_room: Room::new(maps.len(), 3.),
             maps,
             screen_dimmer: ScreenDimmer::new(),
@@ -103,7 +103,7 @@ impl GameData {
 
     pub fn reset(&mut self) {
         self.state = GameState::Intro;
-        self.weapon = Weapon::Shooter(Shooter::new());
+        self.weapon = Weapon::Launcher(Launcher::new());
         self.current_room = Room::new(self.maps.len(), 3.);
         self.dead = false;
     }

@@ -35,8 +35,8 @@ impl Upgrade {
             Upgrade::Item(item) => item.description(),
             Upgrade::Weapon(weapon) => match weapon {
                 WeaponType::Launcher => UpgradeDescription::new("upgrade_launcher", "Launcher"),
-                WeaponType::Balls => UpgradeDescription::new("upgrade_launcher", "Balls"),
-                WeaponType::Dash => UpgradeDescription::new("upgrade_launcher", "Dash"),
+                WeaponType::Balls => UpgradeDescription::new("upgrade_balls", "Balls"),
+                WeaponType::Dash => UpgradeDescription::new("upgrade_dash", "Dash"),
             },
             Upgrade::WeaponUpgrade(upgrade) => upgrade.description(),
             Upgrade::CommonUpgrade(upgrade) => upgrade.description(),
@@ -204,12 +204,12 @@ impl Upgrades {
 
     pub fn weapon_selection() -> Vec<Upgrade> {
         vec![
-            Upgrade::CommonUpgrade(CommonUpgrade::MaxHp(1)),
-            // Upgrade::Weapon(WeaponType::Launcher),
-            // Upgrade::Weapon(WeaponType::Balls),
-            Upgrade::Item(ItemUpgrade::Hp(1.)),
-            // Upgrade::Weapon(WeaponType::Dash),
-            Upgrade::WeaponUpgrade(WeaponUpgrade::Shooter(ShooterUpgrade::FireRate(15.))),
+            Upgrade::Weapon(WeaponType::Launcher),
+            Upgrade::Weapon(WeaponType::Balls),
+            Upgrade::Weapon(WeaponType::Dash),
+            // Upgrade::CommonUpgrade(CommonUpgrade::MaxHp(1)),
+            // Upgrade::Item(ItemUpgrade::Hp(1.)),
+            // Upgrade::WeaponUpgrade(WeaponUpgrade::Shooter(ShooterUpgrade::FireRate(15.))),
         ]
     }
 }
