@@ -19,6 +19,7 @@ pub fn spawn_creatures(data: &mut GameData, ecs: &mut Ecs) {
         if !spawner.active {
             continue;
         }
+        if position.x.is_nan() || position.y.is_nan() {}
         spawns.push(position.clone());
         if data.current_room.enemies_to_spawn.len() == 0 {
             spawner.active = false;
@@ -45,4 +46,6 @@ pub fn spawn_creatures(data: &mut GameData, ecs: &mut Ecs) {
             data.current_room.enemies_to_spawn.pop();
         }
     }
+
+    data.current_room.entities_spawned = true;
 }

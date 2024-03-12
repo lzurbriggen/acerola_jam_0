@@ -17,6 +17,7 @@ pub enum Item {
     AberrationRelief,
 }
 
+#[derive(Clone)]
 pub struct Room {
     pub map_index: usize,
     pub enemies_to_spawn: Vec<Enemy>,
@@ -25,6 +26,7 @@ pub struct Room {
     pub aberration_completed: bool,
     pub completed: bool,
     pub upgrade_chosen: bool,
+    pub entities_spawned: bool,
 }
 
 impl Room {
@@ -56,12 +58,16 @@ impl Room {
             aberration_completed: false,
             completed: false,
             upgrade_chosen: false,
+            entities_spawned: false,
         }
     }
 
     pub fn check_completed(&mut self, ecs: &Ecs) {
         let enemy_entities = ecs.check_components(|e, comps| comps.enemies.contains_key(e));
-        self.completed = self.started && enemy_entities.len() == 0;
+        self.completed = self.started
+            && self.entities_spawned
+            && self.upgrade_chosen
+            && enemy_entities.len() == 0;
     }
 
     pub fn despawn(&self, ecs: &mut Ecs) {

@@ -4,6 +4,7 @@ use entity::{
     entities::Ecs,
     entity_id::Entity,
     events::{DamageEvent, DeathEvent},
+    player::spawn_player,
     upgrades::{CommonUpgrade, ItemUpgrade, Upgrade, Upgrades, WeaponUpgrade},
 };
 use fps_counter::FPSCounter;
@@ -429,14 +430,15 @@ async fn main() {
         data.update();
         set_sound_volume(&data.audio.music1, data.settings.music_volume);
 
-        data.current_room.check_completed(&ecs);
         if data.state == GameState::Playing {
             if is_key_pressed(KeyCode::F5) {
-                reset_game(&mut data, &mut ecs);
+                // Reset?
+                // reset_game(&mut data, &mut ecs);
             }
 
             if is_key_pressed(KeyCode::F3) {
                 upgrade_screen.visible = true;
+                // data.paused = true;
             }
 
             let despawned_entities = &ecs.marked_for_despawn.clone();
@@ -447,6 +449,11 @@ async fn main() {
                     ecs.remove_all_components(entity);
                 }
             }
+            // TODO: Hack
+            if despawned_entities.len() > 0 {
+                data.current_room.check_completed(&ecs);
+            }
+
             if !data.paused {
                 ecs.marked_for_despawn.clear();
                 death_events.clear();
@@ -496,7 +503,7 @@ async fn main() {
                 data.paused = false;
                 data.show_pause_menu = false;
             } else {
-                data.paused = true;
+                // data.paused = true;
                 data.show_pause_menu = true;
             }
         }
@@ -504,7 +511,7 @@ async fn main() {
         if data.state == GameState::Playing {
             // Map transition
             if is_key_pressed(KeyCode::F6) {
-                data.next_room();
+                data.next_room(&mut ecs);
                 // data.map_change_requested = true;
                 // data.screen_dimmer.dim();
                 // data.paused = true;
@@ -528,13 +535,9 @@ async fn main() {
                     }
                 }
             }
-            if data.pause_timer.just_completed() && !data.show_pause_menu {
+            if data.pause_timer.just_completed() && !data.show_pause_menu && !upgrade_screen.visible
+            {
                 data.paused = false;
-            }
-
-            if data.current_room.completed && !data.current_room.upgrade_chosen {
-                upgrade_screen.visible = true;
-                data.paused = true;
             }
 
             data.current_map().draw_base();
@@ -586,7 +589,9 @@ async fn main() {
         }
         if data.state == GameState::Intro {
             if intro_screen.update_and_draw(&mut data) {
-                reset_game(&mut data, &mut ecs);
+                // reset_game(&mut data, &mut ecs);
+                spawn_player(&mut data, &mut ecs);
+                data.next_room(&mut ecs);
                 data.state = GameState::Playing;
                 // TODO: reset
             }
@@ -606,78 +611,93 @@ async fn main() {
             }
         }
 
+        if data.current_room.started {
+            if !data.current_room.upgrade_chosen {
+                upgrade_screen.visible = true;
+            }
+        }
+
         if data.show_fps {
             fps_counter.update_and_draw(&mut data);
         }
 
-        if data.show_pause_menu {
-            if data.paused && pause_menu(&mut data) {
-                break;
-            }
-        } else if upgrade_screen.visible {
-            if let Some(upgrade) = upgrade_screen.draw(&mut data) {
-                let players = ecs.check_components(|e, comps| comps.player_data.contains_key(e));
-                let player_data = ecs.components.player_data.get_mut(&players[0]).unwrap();
-                let health = ecs.components.health.get_mut(&players[0]).unwrap();
+        if data.current_room.completed && !data.map_change_requested {
+            data.next_room(&mut ecs);
+        }
 
-                match upgrade {
-                    Upgrade::Item(ref item) => match item {
-                        ItemUpgrade::Hp(hp) => {
-                            health.hp += *hp;
-                        }
-                        ItemUpgrade::AnomalySmall => {
-                            player_data.aberration = (player_data.aberration - 0.1).max(0.);
-                        }
-                        ItemUpgrade::AnomalyBig => {
-                            player_data.aberration = (player_data.aberration - 0.5).max(0.);
-                        }
-                    },
-                    Upgrade::CommonUpgrade(ref upgrade) => match upgrade {
-                        CommonUpgrade::MaxHp(hp) => {
-                            health.hp += *hp as f32;
-                            player_data.upgrades.push(upgrade.clone())
-                        }
-                        CommonUpgrade::MoveSpeed(_) => player_data.upgrades.push(upgrade.clone()),
-                        CommonUpgrade::ItemDropChance(increase) => {
-                            data.item_drop_chance_increase += increase;
-                        }
-                    },
-                    Upgrade::Weapon(ref weapon) => match weapon {
-                        WeaponType::Launcher => {
-                            data.weapon = Weapon::Launcher(Launcher::new());
-                        }
-                        WeaponType::Balls => {
-                            data.weapon = Weapon::Balls(Balls::new());
-                        }
-                        WeaponType::Dash => {
-                            data.weapon = Weapon::Dash(Dash::new());
-                        }
-                    },
-                    Upgrade::WeaponUpgrade(ref upgrade) => match upgrade {
-                        WeaponUpgrade::Launcher(ref upgrade) => {
-                            if let Weapon::Launcher(ref mut launcher) = data.weapon {
-                                launcher.upgrades.push(upgrade.clone());
-                            }
-                        }
-                        WeaponUpgrade::Balls(ref upgrade) => {
-                            if let Weapon::Balls(ref mut balls) = data.weapon {
-                                balls.upgrades.push(upgrade.clone());
-                            }
-                        }
-                        WeaponUpgrade::Dash(ref upgrade) => {
-                            if let Weapon::Dash(ref mut dash) = data.weapon {
-                                dash.upgrades.push(upgrade.clone());
-                            }
-                        }
-                    },
+        if data.paused {
+            if data.show_pause_menu {
+                if pause_menu(&mut data) {
+                    break;
                 }
+            } else if upgrade_screen.visible {
+                if let Some(upgrade) = upgrade_screen.draw(&mut data) {
+                    let players =
+                        ecs.check_components(|e, comps| comps.player_data.contains_key(e));
+                    let player_data = ecs.components.player_data.get_mut(&players[0]).unwrap();
+                    let health = ecs.components.health.get_mut(&players[0]).unwrap();
 
-                data.current_room.upgrade_chosen = true;
+                    match upgrade {
+                        Upgrade::Item(ref item) => match item {
+                            ItemUpgrade::Hp(hp) => {
+                                health.hp += *hp;
+                            }
+                            ItemUpgrade::AnomalySmall => {
+                                player_data.aberration = (player_data.aberration - 0.1).max(0.);
+                            }
+                            ItemUpgrade::AnomalyBig => {
+                                player_data.aberration = (player_data.aberration - 0.5).max(0.);
+                            }
+                        },
+                        Upgrade::CommonUpgrade(ref upgrade) => match upgrade {
+                            CommonUpgrade::MaxHp(hp) => {
+                                health.hp += *hp as f32;
+                                player_data.upgrades.push(upgrade.clone())
+                            }
+                            CommonUpgrade::MoveSpeed(_) => {
+                                player_data.upgrades.push(upgrade.clone())
+                            }
+                            CommonUpgrade::ItemDropChance(increase) => {
+                                data.item_drop_chance_increase += increase;
+                            }
+                        },
+                        Upgrade::Weapon(ref weapon) => match weapon {
+                            WeaponType::Launcher => {
+                                data.weapon = Weapon::Launcher(Launcher::new());
+                            }
+                            WeaponType::Balls => {
+                                data.weapon = Weapon::Balls(Balls::new());
+                            }
+                            WeaponType::Dash => {
+                                data.weapon = Weapon::Dash(Dash::new());
+                            }
+                        },
+                        Upgrade::WeaponUpgrade(ref upgrade) => match upgrade {
+                            WeaponUpgrade::Launcher(ref upgrade) => {
+                                if let Weapon::Launcher(ref mut launcher) = data.weapon {
+                                    launcher.upgrades.push(upgrade.clone());
+                                }
+                            }
+                            WeaponUpgrade::Balls(ref upgrade) => {
+                                if let Weapon::Balls(ref mut balls) = data.weapon {
+                                    balls.upgrades.push(upgrade.clone());
+                                }
+                            }
+                            WeaponUpgrade::Dash(ref upgrade) => {
+                                if let Weapon::Dash(ref mut dash) = data.weapon {
+                                    dash.upgrades.push(upgrade.clone());
+                                }
+                            }
+                        },
+                    }
 
-                upgrade_screen.visible = false;
-                data.paused = false;
-            }
-        };
+                    data.current_room.upgrade_chosen = true;
+
+                    upgrade_screen.visible = false;
+                    data.paused = false;
+                }
+            };
+        }
 
         if let Some(render_target) = &mut data.camera.render_target {
             post_processing_material.set_uniform("intensity", 0.21f32);

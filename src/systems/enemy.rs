@@ -32,7 +32,7 @@ pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Ve
 
     for hopper_e in &hoppers {
         let hopper = ecs.components.hoppers.get_mut(hopper_e).unwrap();
-        let position = ecs.components.positions.get_mut(hopper_e).unwrap();
+        let position = ecs.components.positions.get(hopper_e).unwrap();
         let velocity = ecs.components.velocities.get_mut(hopper_e).unwrap();
         let sprite = ecs.components.animated_sprites.get_mut(hopper_e).unwrap();
 
@@ -72,7 +72,7 @@ pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Ve
     let mut bullets = vec![];
     for spitter_e in &spitters {
         let spitter = ecs.components.spitters.get_mut(spitter_e).unwrap();
-        let position = ecs.components.positions.get_mut(spitter_e).unwrap();
+        let position = ecs.components.positions.get(spitter_e).unwrap();
         let sprite = ecs.components.animated_sprites.get_mut(spitter_e).unwrap();
 
         spitter.attack_timer.update();
@@ -115,7 +115,7 @@ pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Ve
 
     for stomper_e in &stompers {
         let stomper = ecs.components.stompers.get_mut(stomper_e).unwrap();
-        let position = ecs.components.positions.get_mut(stomper_e).unwrap();
+        let position = ecs.components.positions.get(stomper_e).unwrap();
         let sprite = ecs.components.animated_sprites.get_mut(stomper_e).unwrap();
         let velocity = ecs.components.velocities.get_mut(stomper_e).unwrap();
 

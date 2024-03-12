@@ -127,7 +127,7 @@ impl GameData {
             #[cfg(not(debug_assertions))]
             show_fps: false,
             weapon: Weapon::Launcher(Launcher::new()),
-            current_room: Room::new(0, 3.),
+            current_room: Room::new(0, 0.),
             next_room: None,
             maps,
             screen_dimmer: ScreenDimmer::new(),
@@ -225,11 +225,12 @@ impl GameData {
         player_pos
     }
 
-    pub fn next_room(&mut self) {
-        let map_index = rand::gen_range(2, self.maps.len() - 1);
-        println!("{:?}", map_index);
+    pub fn next_room(&mut self, ecs: &mut Ecs) {
+        self.current_room.despawn(ecs);
 
-        let new_room = Room::new(map_index, 3.);
+        let map_index = rand::gen_range(0, self.maps.len());
+
+        let new_room = Room::new(map_index, 30.);
         self.next_room = Some(new_room);
         self.map_change_requested = true;
         self.screen_dimmer.dim();

@@ -23,13 +23,20 @@ pub fn move_entities(data: &mut GameData, ecs: &mut Ecs) -> HashMap<(Entity, Ent
         }
     }
 
+    let mut failed_entities = vec![];
+
     let mut collisions = HashMap::<(Entity, Entity), Collision>::new();
     for moveable_e in &moveables {
         let position = comps.positions.get_mut(moveable_e).unwrap();
-        let velocity = comps.velocities.get_mut(moveable_e).unwrap();
+        let velocity = comps.velocities.get(moveable_e).unwrap();
         let collider = comps.colliders.get(moveable_e);
 
         let mut desired_pos = *position + *velocity * get_frame_time();
+        if desired_pos.x.is_nan() || desired_pos.y.is_nan() {
+            failed_entities.push(*moveable_e);
+            println!("WTF {:?} {:?} {:?}", *position, velocity, get_frame_time());
+            continue;
+        }
 
         if let Some(collider) = collider {
             let (pos, new_collisions) =
@@ -43,5 +50,11 @@ pub fn move_entities(data: &mut GameData, ecs: &mut Ecs) -> HashMap<(Entity, Ent
         }
         *position = desired_pos;
     }
+
+    // TODO: emergency fix to issue that prevent room completion
+    for failed_e in failed_entities {
+        ecs.despawn(failed_e);
+    }
+
     collisions
 }
