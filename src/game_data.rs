@@ -69,6 +69,7 @@ pub struct GameData {
     pub dead: bool,
     pub previous_window_size: (f32, f32),
     pub game_completed: bool,
+    pub item_drop_chance_increase: i32,
 }
 
 impl GameData {
@@ -110,6 +111,7 @@ impl GameData {
             dead: true,
             previous_window_size: (screen_width(), screen_height()),
             game_completed: false,
+            item_drop_chance_increase: 0,
         }
     }
 

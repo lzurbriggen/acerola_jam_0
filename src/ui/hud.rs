@@ -28,8 +28,9 @@ impl HudHearts {
         for player_e in players {
             let player = ecs.components.player_data.get(&player_e).unwrap();
             let health = ecs.components.health.get(&player_e).unwrap();
+            let up_data = player.get_upgraded_data();
 
-            for i in 0..player.max_hp {
+            for i in 0..up_data.max_hp {
                 let heart_index = if (i as f32) < health.hp { 0 } else { 2 };
                 self.sprite.draw(
                     data,

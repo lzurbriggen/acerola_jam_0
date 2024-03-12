@@ -15,6 +15,7 @@ pub fn update_player(data: &mut GameData, ecs: &mut Ecs) {
     for player in &players {
         let player_data = ecs.components.player_data.get_mut(player).unwrap();
         let velocity = ecs.components.velocities.get_mut(player).unwrap();
+        let up_data = player_data.get_upgraded_data();
 
         player_data.aberration_increase_timer.update();
         if !data.current_room.completed
@@ -56,7 +57,7 @@ pub fn update_player(data: &mut GameData, ecs: &mut Ecs) {
         }
 
         if dir.length_squared() > 0. {
-            *velocity = player_data.move_speed * dir.normalize();
+            *velocity = up_data.move_speed * dir.normalize();
         } else {
             *velocity = Vec2::ZERO;
         };

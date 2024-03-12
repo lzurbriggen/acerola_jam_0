@@ -12,15 +12,42 @@ use super::{
     entities::Ecs,
     entity_id::Entity,
     tags::{Damageable, Health},
+    upgrades::CommonUpgrade,
 };
 
 pub struct PlayerData {
-    pub move_speed: f32,
+    pub base_move_speed: f32,
     pub sprite_offset: Vec2,
-    pub max_hp: u8,
+    pub base_max_hp: u8,
     pub aberration: f32,
     pub aberration_increase_timer: Timer,
     pub shadows: Vec<Entity>,
+    pub upgrades: Vec<CommonUpgrade>,
+}
+
+pub struct PlayerUpgradeData {
+    pub move_speed: f32,
+    pub max_hp: u8,
+}
+
+impl PlayerData {
+    pub fn get_upgraded_data(&self) -> PlayerUpgradeData {
+        let mut max_hp = self.base_max_hp;
+        let mut move_speed_percentage_increase = 0.;
+
+        for upgrade in &self.upgrades {
+            match upgrade {
+                CommonUpgrade::MaxHp(increase) => max_hp += increase,
+                CommonUpgrade::MoveSpeed(increase) => move_speed_percentage_increase += increase,
+                _ => {}
+            }
+        }
+
+        PlayerUpgradeData {
+            max_hp,
+            move_speed: self.base_move_speed * (1. + move_speed_percentage_increase),
+        }
+    }
 }
 
 pub fn spawn_player(data: &mut GameData, ecs: &mut Ecs) -> Entity {
@@ -77,17 +104,18 @@ pub fn spawn_player(data: &mut GameData, ecs: &mut Ecs) -> Entity {
     ecs.components.velocities.insert(id, Vec2::ZERO);
 
     let player_data = PlayerData {
-        move_speed: 72.,
+        base_move_speed: 72.,
         sprite_offset: vec2(8., 10.),
-        max_hp: 3,
+        base_max_hp: 3,
         aberration: 0.,
         aberration_increase_timer: Timer::new(0.2, true),
         shadows: vec![shadow1_id, shadow2_id],
+        upgrades: vec![],
     };
     ecs.components.health.insert(
         id,
         Health {
-            hp: player_data.max_hp.into(),
+            hp: player_data.base_max_hp.into(),
         },
     );
     ecs.components.player_data.insert(id, player_data);

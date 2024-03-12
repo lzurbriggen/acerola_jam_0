@@ -198,15 +198,16 @@ pub fn despawn_on_collision(
                     };
 
                     if let Some(player) = ecs.components.player_data.get_mut(e2) {
+                        let up_data = player.get_upgraded_data();
                         if let Some(pickup) = ecs.components.pickups.get(despawn_e) {
                             if match pickup {
                                 Pickup::Health(increase) => {
                                     let mut low_hp = false;
                                     if let Some(health) = ecs.components.health.get_mut(e2) {
-                                        low_hp = health.hp < player.max_hp as f32;
+                                        low_hp = health.hp < up_data.max_hp as f32;
                                         if low_hp {
                                             health.hp =
-                                                (health.hp + increase).min(player.max_hp as f32);
+                                                (health.hp + increase).min(up_data.max_hp as f32);
                                         }
                                     }
                                     low_hp
@@ -283,8 +284,13 @@ pub fn handle_death(data: &mut GameData, ecs: &mut Ecs, death_events: &Vec<Death
                 skull_positions.push(vec2(rand::gen_range(0., 360.), rand::gen_range(0., 240.)))
             }
         } else {
-            // TODO: randomize
-            pickups.push((Pickup::Health(1.), *pos));
+            let rand = rand::gen_range(0, (12 - data.item_drop_chance_increase).max(4));
+            match rand {
+                0..=1 => pickups.push((Pickup::Health(1.), *pos)),
+                2..=3 => pickups.push((Pickup::AnomalySmall, *pos)),
+                4 => pickups.push((Pickup::AnomalyBig, *pos)),
+                _ => {}
+            }
         }
         audio::play_sound(
             &data.audio.death,

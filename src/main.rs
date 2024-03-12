@@ -4,7 +4,7 @@ use entity::{
     entities::Ecs,
     entity_id::Entity,
     events::{DamageEvent, DeathEvent},
-    upgrades::{Upgrade, Upgrades, WeaponUpgrade},
+    upgrades::{CommonUpgrade, ItemUpgrade, Upgrade, Upgrades, WeaponUpgrade},
 };
 use fps_counter::FPSCounter;
 use game_data::{reset_game, Audio, GameMaterial};
@@ -205,6 +205,11 @@ async fn main() {
     upgrade_common_max_hp_texture.set_filter(FilterMode::Nearest);
     let upgrade_item_hp_texture: Texture2D = load_texture("ui/upgrade_item_hp.png").await.unwrap();
     upgrade_item_hp_texture.set_filter(FilterMode::Nearest);
+    let upgrade_items_texture: Texture2D = load_texture("ui/upgrade_items.png").await.unwrap();
+    upgrade_items_texture.set_filter(FilterMode::Nearest);
+    let upgrade_move_speed_texture: Texture2D =
+        load_texture("ui/upgrade_move_speed.png").await.unwrap();
+    upgrade_move_speed_texture.set_filter(FilterMode::Nearest);
     let upgrade_item_anomaly_big_texture: Texture2D =
         load_texture("ui/upgrade_item_anomaly_big.png")
             .await
@@ -259,6 +264,8 @@ async fn main() {
             "upgrade_item_anomaly_small",
             upgrade_item_anomaly_small_texture,
         ),
+        ("upgrade_move_speed", upgrade_move_speed_texture),
+        ("upgrade_items", upgrade_items_texture),
     ]);
 
     let graphics = Graphics {
@@ -605,9 +612,32 @@ async fn main() {
             }
         } else if upgrade_screen.visible {
             if let Some(upgrade) = upgrade_screen.draw(&mut data) {
+                let players = ecs.check_components(|e, comps| comps.player_data.contains_key(e));
+                let player_data = ecs.components.player_data.get_mut(&players[0]).unwrap();
+                let health = ecs.components.health.get_mut(&players[0]).unwrap();
+
                 match upgrade {
-                    Upgrade::Item(ref _item) => {}
-                    Upgrade::CommonUpgrade(ref _upgrade) => {}
+                    Upgrade::Item(ref item) => match item {
+                        ItemUpgrade::Hp(hp) => {
+                            health.hp += *hp;
+                        }
+                        ItemUpgrade::AnomalySmall => {
+                            player_data.aberration = (player_data.aberration - 0.1).max(0.);
+                        }
+                        ItemUpgrade::AnomalyBig => {
+                            player_data.aberration = (player_data.aberration - 0.5).max(0.);
+                        }
+                    },
+                    Upgrade::CommonUpgrade(ref upgrade) => match upgrade {
+                        CommonUpgrade::MaxHp(hp) => {
+                            health.hp += *hp as f32;
+                            player_data.upgrades.push(upgrade.clone())
+                        }
+                        CommonUpgrade::MoveSpeed(_) => player_data.upgrades.push(upgrade.clone()),
+                        CommonUpgrade::ItemDropChance(increase) => {
+                            data.item_drop_chance_increase += increase;
+                        }
+                    },
                     Upgrade::Weapon(ref weapon) => match weapon {
                         WeaponType::Launcher => {
                             data.weapon = Weapon::Launcher(Launcher::new());

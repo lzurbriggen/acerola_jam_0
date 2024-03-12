@@ -75,6 +75,7 @@ impl ItemUpgrade {
 pub enum CommonUpgrade {
     MaxHp(u8),
     MoveSpeed(f32),
+    ItemDropChance(i32),
 }
 
 impl CommonUpgrade {
@@ -85,13 +86,13 @@ impl CommonUpgrade {
                 format!("+ {}", hp).as_str(),
                 "Max HP",
             ),
-            CommonUpgrade::MoveSpeed(speed) => {
-                // TODO: texture
-                UpgradeDescription::new_with_line2(
-                    "upgrade_common_max_hp",
-                    format!("+ {}%", speed).as_str(),
-                    "Move Speed",
-                )
+            CommonUpgrade::MoveSpeed(speed) => UpgradeDescription::new_with_line2(
+                "upgrade_move_speed",
+                format!("+ {:.0}%", speed * 100.).as_str(),
+                "Speed",
+            ),
+            CommonUpgrade::ItemDropChance(_) => {
+                UpgradeDescription::new_with_line2("upgrade_items", "Inc. Item", "Drops")
             }
         }
     }
@@ -237,14 +238,16 @@ impl Upgrades {
 
     pub fn weapon_selection() -> Vec<Upgrade> {
         vec![
-            Upgrade::Weapon(WeaponType::Launcher),
+            // Upgrade::Weapon(WeaponType::Launcher),
             // Upgrade::Weapon(WeaponType::Balls),
             // Upgrade::Weapon(WeaponType::Dash),
             // Upgrade::Weapon(WeaponType::Dash),
-            Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(LauncherUpgrade::Damage(5.))),
-            Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(LauncherUpgrade::FireRate(0.1))),
+            // Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(LauncherUpgrade::Damage(5.))),
+            // Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(LauncherUpgrade::FireRate(0.1))),
             // Upgrade::WeaponUpgrade(WeaponUpgrade::Dash(DashUpgrade::Damage(10.))),
-            // Upgrade::CommonUpgrade(CommonUpgrade::MaxHp(1)),
+            Upgrade::CommonUpgrade(CommonUpgrade::MaxHp(1)),
+            Upgrade::CommonUpgrade(CommonUpgrade::MoveSpeed(0.10)),
+            Upgrade::CommonUpgrade(CommonUpgrade::ItemDropChance(1)),
             // Upgrade::Item(ItemUpgrade::Hp(1.)),
             // Upgrade::WeaponUpgrade(WeaponUpgrade::Shooter(ShooterUpgrade::FireRate(15.))),
         ]
