@@ -1,5 +1,7 @@
 use crate::{
-    game_data::GameData, sprite::indexed_sprite::IndexedSprite, systems::collision::CircleCollider,
+    game_data::GameData,
+    sprite::{flash_material::create_sprite_color_material, indexed_sprite::IndexedSprite},
+    systems::collision::CircleCollider,
     timer::Timer,
 };
 use macroquad::prelude::*;
@@ -42,7 +44,7 @@ pub fn spawn_player(data: &mut GameData, ecs: &mut Ecs) -> Entity {
     ecs.components.player_entity.insert(shadow1_id, ());
     ecs.components
         .materials
-        .insert(shadow1_id, "color".to_string());
+        .insert(shadow1_id, create_sprite_color_material());
     ecs.entities.push(shadow1_id);
 
     let shadow2_id = data.new_entity();
@@ -58,7 +60,7 @@ pub fn spawn_player(data: &mut GameData, ecs: &mut Ecs) -> Entity {
     ecs.components.player_entity.insert(shadow2_id, ());
     ecs.components
         .materials
-        .insert(shadow2_id, "color".to_string());
+        .insert(shadow2_id, create_sprite_color_material());
     ecs.entities.push(shadow2_id);
 
     // Player
@@ -100,7 +102,7 @@ pub fn spawn_player(data: &mut GameData, ecs: &mut Ecs) -> Entity {
 
     ecs.components
         .materials
-        .insert(id, "aberration".to_string());
+        .insert(id, create_sprite_color_material());
 
     println!("PLAYER {:?}", id);
 

@@ -77,21 +77,23 @@ pub fn draw_animated_sprites(ecs: &Ecs, data: &GameData) {
         let flipped =
             ecs.components.flip_to_player.get(&sprite_e).is_some() && position.x > player_pos.x;
 
-        if let Some(mat_name) = material {
-            let mat = data.graphics.materials.get(mat_name).unwrap();
-            match mat {
-                GameMaterial::Aberration(mat) => {
-                    gl_use_material(&mat);
-                }
-                GameMaterial::Color(mat) => {
-                    mat.set_uniform("color", sprite.color);
-                    gl_use_material(&mat);
-                }
-            }
+        if let Some(material) = material {
+            //     let mat = data.graphics.materials.get(mat_name).unwrap();
+            //     match mat {
+            //         GameMaterial::Aberration(mat) => {
+            //             gl_use_material(&mat);
+            //         }
+            //         GameMaterial::Color(mat) => {
+            //             mat.set_uniform("color", sprite.color);
+            //             gl_use_material(&mat);
+            //         }
+            //     }
+            gl_use_material(material);
+        } else {
+            gl_use_default_material();
         }
 
         sprite.draw(data, *position, flipped);
-
         gl_use_default_material();
     }
 }

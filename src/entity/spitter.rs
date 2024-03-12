@@ -3,7 +3,9 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 
 use crate::{
-    game_data::GameData, sprite::indexed_sprite::IndexedSprite, systems::collision::CircleCollider,
+    game_data::GameData,
+    sprite::{flash_material::create_sprite_color_material, indexed_sprite::IndexedSprite},
+    systems::collision::CircleCollider,
     timer::Timer,
 };
 
@@ -72,7 +74,7 @@ pub fn spawn_spitter(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
 
     ecs.components
         .materials
-        .insert(id, "aberration".to_string());
+        .insert(id, create_sprite_color_material());
 
     ecs.components.room_entity.insert(id, ());
     ecs.components.enemies.insert(id, ());

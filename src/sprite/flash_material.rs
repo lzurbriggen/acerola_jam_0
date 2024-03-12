@@ -28,7 +28,6 @@ pub fn create_sprite_color_material() -> Material {
         },
     )
     .unwrap();
-    material.set_uniform("intensity", 2.2);
 
     material
 }

@@ -52,10 +52,9 @@ pub fn flash_on_damage(ecs: &mut Ecs) {
                 color.g = intensity;
                 color.b = intensity;
                 color.a = (0.5 - hit_fx_timer.progress() % 0.5) * 2.;
-                // TODO: flash color
-                // material.set_uniform("color", color);
+                material.set_uniform("color", color);
             } else {
-                // material.set_uniform("color", WHITE);
+                material.set_uniform("color", WHITE);
             }
         }
     }

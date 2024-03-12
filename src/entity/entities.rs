@@ -10,7 +10,7 @@ use super::{
     tags::{DamageOnCollision, Damageable, DespawnOnAnimEnd, DespawnOnHit, Health},
 };
 use crate::{systems::collision::CircleCollider, timer::Timer};
-use macroquad::math::Vec2;
+use macroquad::{material::Material, math::Vec2};
 use std::collections::HashMap;
 
 pub type ComponentColl<T> = HashMap<Entity, T>;
@@ -30,7 +30,7 @@ pub struct Components {
     pub stompers: ComponentColl<Stomper>,
     pub damage_on_collision: ComponentColl<DamageOnCollision>,
     pub health: ComponentColl<Health>,
-    pub materials: ComponentColl<String>,
+    pub materials: ComponentColl<Material>,
     pub damageables: ComponentColl<Damageable>,
     pub despawn_on_anim_end: ComponentColl<DespawnOnAnimEnd>,
     pub despawn_on_hit: ComponentColl<DespawnOnHit>,
