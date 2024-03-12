@@ -504,24 +504,28 @@ async fn main() {
         if data.state == GameState::Playing {
             // Map transition
             if is_key_pressed(KeyCode::F6) {
-                data.map_change_requested = true;
-                data.screen_dimmer.dim();
-                data.paused = true;
-                data.pause_timer.reset();
+                data.next_room();
+                // data.map_change_requested = true;
+                // data.screen_dimmer.dim();
+                // data.paused = true;
+                // data.pause_timer.reset();
             }
 
             if data.map_change_requested && data.screen_dimmer.just_dimmed {
-                data.map_change_requested = false;
-                data.current_room.despawn(&mut ecs);
-                data.current_room = Room::new(data.maps.len(), rand::gen_range(19., 20.));
-                let new_player_pos = data.spawn_map_entities(&mut ecs);
-                data.current_room.started = true;
-                let players = ecs.check_components(|e, comps| {
-                    comps.player_data.contains_key(e) && comps.positions.contains_key(e)
-                });
-                for player_e in &players {
-                    let pos = ecs.components.positions.get_mut(player_e).unwrap();
-                    *pos = new_player_pos;
+                if let Some(next_room) = data.next_room {
+                    data.map_change_requested = false;
+                    data.current_room.despawn(&mut ecs);
+                    data.next_room = None;
+                    data.current_room = next_room;
+                    let new_player_pos = data.spawn_map_entities(&mut ecs);
+                    data.current_room.started = true;
+                    let players = ecs.check_components(|e, comps| {
+                        comps.player_data.contains_key(e) && comps.positions.contains_key(e)
+                    });
+                    for player_e in &players {
+                        let pos = ecs.components.positions.get_mut(player_e).unwrap();
+                        *pos = new_player_pos;
+                    }
                 }
             }
             if data.pause_timer.just_completed() && !data.show_pause_menu {
@@ -668,10 +672,6 @@ async fn main() {
                     },
                 }
 
-                data.map_change_requested = true;
-                data.screen_dimmer.dim();
-                data.paused = true;
-                data.pause_timer.reset();
                 data.current_room.upgrade_chosen = true;
 
                 upgrade_screen.visible = false;

@@ -84,6 +84,7 @@ pub struct GameData {
     pub show_fps: bool,
     pub weapon: Weapon,
     pub current_room: Room,
+    pub next_room: Option<Room>,
     pub maps: Vec<Map>,
     pub screen_dimmer: ScreenDimmer,
     pub map_change_requested: bool,
@@ -126,7 +127,8 @@ impl GameData {
             #[cfg(not(debug_assertions))]
             show_fps: false,
             weapon: Weapon::Launcher(Launcher::new()),
-            current_room: Room::new(maps.len(), 3.),
+            current_room: Room::new(0, 3.),
+            next_room: None,
             maps,
             screen_dimmer: ScreenDimmer::new(),
             map_change_requested: false,
@@ -146,7 +148,8 @@ impl GameData {
     pub fn reset(&mut self) {
         self.state = GameState::Intro;
         self.weapon = Weapon::Launcher(Launcher::new());
-        self.current_room = Room::new(self.maps.len(), 3.);
+        self.current_room = Room::new(0, 3.);
+        self.next_room = None;
         self.dead = false;
     }
 
@@ -221,6 +224,18 @@ impl GameData {
 
         player_pos
     }
+
+    pub fn next_room(&mut self) {
+        let map_index = rand::gen_range(2, self.maps.len() - 1);
+        println!("{:?}", map_index);
+
+        let new_room = Room::new(map_index, 3.);
+        self.next_room = Some(new_room);
+        self.map_change_requested = true;
+        self.screen_dimmer.dim();
+        self.paused = true;
+        self.pause_timer.reset();
+    }
 }
 
 pub fn reset_game(data: &mut GameData, ecs: &mut Ecs) {
@@ -231,7 +246,7 @@ pub fn reset_game(data: &mut GameData, ecs: &mut Ecs) {
         ecs.entities.remove(entity_i);
         ecs.remove_all_components(&entity);
     }
-    data.current_room = Room::new(data.maps.len(), rand::gen_range(1., 20.));
+    data.current_room = Room::new(0, rand::gen_range(1., 20.));
     spawn_player(data, ecs);
     let new_player_pos = data.spawn_map_entities(ecs);
     data.current_room.started = true;

@@ -28,9 +28,7 @@ pub struct Room {
 }
 
 impl Room {
-    pub fn new(maps_len: usize, difficulty: f32) -> Room {
-        let map_index = rand::gen_range(0, maps_len);
-
+    pub fn new(map_index: usize, difficulty: f32) -> Room {
         let mut remaining_difficulty = difficulty;
         let enemy_values = vec![
             (Enemy::Hopper, 1.),
