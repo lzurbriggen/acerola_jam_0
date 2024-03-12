@@ -11,7 +11,10 @@ use crate::{
     room::Room,
     settings::GameSettings,
     timer::Timer,
-    ui::{death_screen::DeathScreen, screen_dimmer::ScreenDimmer, ui_data::UIData},
+    ui::{
+        death_screen::DeathScreen, end_game_screen::EndGameScreen, screen_dimmer::ScreenDimmer,
+        ui_data::UIData,
+    },
 };
 
 pub enum GameMaterial {
@@ -62,8 +65,10 @@ pub struct GameData {
     pub pause_timer: Timer,
     pub show_pause_menu: bool,
     pub death_screen: DeathScreen,
+    pub end_game_screen: EndGameScreen,
     pub dead: bool,
     pub previous_window_size: (f32, f32),
+    pub game_completed: bool,
 }
 
 impl GameData {
@@ -75,6 +80,7 @@ impl GameData {
         graphics: Graphics,
         audio: Audio,
         death_texture: Texture2D,
+        end_game_texture: Texture2D,
     ) -> Self {
         let camera = Camera2D::default();
         Self {
@@ -100,8 +106,10 @@ impl GameData {
             pause_timer: Timer::new(1., false),
             show_pause_menu: false,
             death_screen: DeathScreen::new(death_texture),
+            end_game_screen: EndGameScreen::new(end_game_texture),
             dead: true,
             previous_window_size: (screen_width(), screen_height()),
+            game_completed: false,
         }
     }
 

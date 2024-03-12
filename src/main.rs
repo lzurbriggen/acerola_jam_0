@@ -161,6 +161,8 @@ async fn main() {
     aberration_meter_mask_texture.set_filter(FilterMode::Nearest);
     let death_texture: Texture2D = load_texture("ui/death.png").await.unwrap();
     death_texture.set_filter(FilterMode::Nearest);
+    let end_game_screen_texture: Texture2D = load_texture("ui/end_game_screen.png").await.unwrap();
+    end_game_screen_texture.set_filter(FilterMode::Nearest);
     let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
     player_texture.set_filter(FilterMode::Nearest);
     let intro_screen_texture: Texture2D = load_texture("ui/intro_screen.png").await.unwrap();
@@ -365,6 +367,7 @@ async fn main() {
         graphics,
         audio,
         death_texture,
+        end_game_screen_texture,
     );
     data.reset();
     data.settings.set_window_size(WindowSize::W1440);
@@ -582,6 +585,13 @@ async fn main() {
             if data.death_screen.draw(&data) {
                 data.state = GameState::Intro;
                 data.dead = false;
+            }
+        }
+        if data.game_completed {
+            data.end_game_screen.update();
+            if data.end_game_screen.draw(&data) {
+                data.state = GameState::Intro;
+                data.game_completed = false;
             }
         }
 

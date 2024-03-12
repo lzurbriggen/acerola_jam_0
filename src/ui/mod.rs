@@ -1,5 +1,6 @@
 pub mod button;
 pub mod death_screen;
+pub mod end_game_screen;
 pub mod hud;
 pub mod icon;
 pub mod in_rect;
