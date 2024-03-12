@@ -57,7 +57,7 @@ impl Default for GameSettings {
             window_size: Default::default(),
             resolution: vec2(360., 240.),
         };
-        settings.set_music_volume_lin(0.75);
+        settings.set_music_volume_lin(0.60);
         settings.set_sfx_volume_lin(0.75);
 
         settings

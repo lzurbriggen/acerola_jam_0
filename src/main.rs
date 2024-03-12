@@ -4,14 +4,17 @@ use entity::{
     entities::Ecs,
     entity_id::Entity,
     events::{DamageEvent, DeathEvent},
-    player::spawn_player,
-    upgrades::{BallsUpgrade, LauncherUpgrade, Upgrade, Upgrades, WeaponUpgrade},
+    upgrades::{Upgrade, Upgrades, WeaponUpgrade},
 };
 use fps_counter::FPSCounter;
 use game_data::{reset_game, Audio, GameMaterial};
 use game_state::GameState;
 use items::weapon::{Balls, Dash, Launcher, Weapon, WeaponType};
-use macroquad::{audio, miniquad::window::set_mouse_cursor, prelude::*};
+use macroquad::{
+    audio::{self, play_sound, set_sound_volume},
+    miniquad::window::set_mouse_cursor,
+    prelude::*,
+};
 use macroquad_tiled::load_map;
 use room::Room;
 use settings::{GameSettings, WindowSize};
@@ -298,6 +301,11 @@ async fn main() {
         .await
         .unwrap();
 
+    // Music
+    let music1 = audio::load_sound("audio/music/game_240308_mirituhg_battle 2024-03-12 1521.wav")
+        .await
+        .unwrap();
+
     let audio = Audio {
         ui_switch: ui_switch_sfx.clone(),
         shoot: shoot_sfx.clone(),
@@ -309,6 +317,7 @@ async fn main() {
         confirm2: confirm2_sfx.clone(),
         hit: hit_sfx.clone(),
         hit2: hit2_sfx.clone(),
+        music1: music1,
     };
 
     let settings = GameSettings::default();
@@ -382,12 +391,21 @@ async fn main() {
         .aberration_meter_material
         .set_texture("mask", aberration_meter_mask_texture.clone());
 
-    // let intro_screen_texture = data.graphics.textures.get("intro_screen").unwrap();
     let mut intro_screen = IntroScreen::new(&data);
 
     let mut upgrade_screen = UpgradeScreen::new(Upgrades::weapon_selection());
 
+    play_sound(
+        &data.audio.music1,
+        audio::PlaySoundParams {
+            looped: true,
+            volume: data.settings.music_volume,
+        },
+    );
+
     loop {
+        set_sound_volume(&data.audio.music1, data.settings.music_volume);
+
         data.current_room.check_completed(&ecs);
         if data.state == GameState::Playing {
             if is_key_pressed(KeyCode::F5) {
@@ -449,6 +467,16 @@ async fn main() {
             data.debug_collisions = !data.debug_collisions;
         }
 
+        if data.input.is_just_pressed(Action::Pause) {
+            if data.paused {
+                data.paused = false;
+                data.show_pause_menu = false;
+            } else {
+                data.paused = true;
+                data.show_pause_menu = true;
+            }
+        }
+
         if data.state == GameState::Playing {
             // Map transition
             if is_key_pressed(KeyCode::F6) {
@@ -474,16 +502,6 @@ async fn main() {
             }
             if data.pause_timer.just_completed() && !data.show_pause_menu {
                 data.paused = false;
-            }
-
-            if data.input.is_just_pressed(Action::Pause) {
-                if data.paused {
-                    data.paused = false;
-                    data.show_pause_menu = false;
-                } else {
-                    data.paused = true;
-                    data.show_pause_menu = true;
-                }
             }
 
             if data.current_room.completed && !data.current_room.upgrade_chosen {

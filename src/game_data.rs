@@ -39,6 +39,7 @@ pub struct Audio {
     pub confirm2: Sound,
     pub hit: Sound,
     pub hit2: Sound,
+    pub music1: Sound,
 }
 
 pub struct GameData {
