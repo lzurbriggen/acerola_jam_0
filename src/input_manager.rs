@@ -5,6 +5,7 @@ use macroquad::{
         is_key_down, is_key_pressed, is_key_released, mouse_delta_position, mouse_position, KeyCode,
     },
     math::{vec2, Vec2},
+    window::screen_height,
 };
 
 use crate::entity::entities::Ecs;
@@ -37,7 +38,7 @@ impl InputManager {
         let mut input_dir = None;
 
         let gamepad = self.gamepads.get_last_used();
-        let mouse_pos = vec2(mouse_position().0, mouse_position().1);
+        let mouse_pos = vec2(mouse_position().0, screen_height() - mouse_position().1);
         let mouse_delta = mouse_pos - self.last_mouse_pos;
         if mouse_delta.length_squared() > 0.001 {
             self.last_mouse_pos = mouse_pos;
@@ -47,8 +48,7 @@ impl InputManager {
 
             for player_e in &players {
                 let player_pos = ecs.components.positions.get(player_e).unwrap();
-                let mouse_pos =
-                    camera.screen_to_world(vec2(mouse_position().0, mouse_position().1));
+                let mouse_pos = camera.screen_to_world(mouse_pos);
                 let delta = (mouse_pos - *player_pos).normalize();
                 input_dir = Some(delta);
             }

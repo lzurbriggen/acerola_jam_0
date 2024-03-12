@@ -27,6 +27,7 @@ pub fn create_aberration_material() -> Material {
                 ("color".to_owned(), UniformType::Float4),
                 ("intensity".to_owned(), UniformType::Float1),
                 ("time".to_owned(), UniformType::Float1),
+                ("hue_shift".to_owned(), UniformType::Float1),
             ],
             textures: vec!["noise1".to_owned(), "noise2".to_owned(), "mask".to_owned()],
             ..Default::default()
@@ -46,9 +47,17 @@ out vec4 fragColor;
 uniform sampler2D Texture;
 uniform float intensity;
 uniform float time;
+uniform float hue_shift;
 
 uniform sampler2D noise1;
 uniform sampler2D noise2;
+
+
+vec3 hueShift(vec3 color, float hue) {
+    const vec3 k = vec3(0.57735, 0.57735, 0.57735);
+    float cosAngle = cos(hue);
+    return vec3(color * cosAngle + cross(k, color) * sin(hue) + k * dot(k, color) * (1.0 - cosAngle));
+}
 
 void main() {
     vec2 texSize = vec2(textureSize(Texture, 0).xy);
@@ -68,6 +77,7 @@ void main() {
     fragColor.g = texture2D(Texture, uv + vec2(noise2Color * greenOffset) / texSize).g;
     fragColor.ba = texture2D(Texture, uv + vec2(noise2Color * blueOffset) / texSize).ba;
     // fragColor = texture2D(noise1, texCoord);
+    fragColor.rgb = hueShift(fragColor.rgb, hue_shift);
 }
 ";
 

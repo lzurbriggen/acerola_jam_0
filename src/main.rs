@@ -89,9 +89,6 @@ fn window_conf() -> Conf {
 async fn main() {
     set_pc_assets_folder("assets");
 
-    let render_target = render_target(360, 240);
-    render_target.texture.set_filter(FilterMode::Nearest);
-
     let mut font = load_ttf_font("fonts/Bitfantasy.ttf").await.unwrap();
     font.set_filter(FilterMode::Nearest);
 
@@ -403,7 +400,23 @@ async fn main() {
         },
     );
 
+    let post_processing_material = create_aberration_material();
+
+    let mut camera_target = render_target(screen_width() as u32, screen_height() as u32);
+    camera_target.texture.set_filter(FilterMode::Nearest);
+    data.camera.render_target = Some(camera_target);
     loop {
+        set_camera(&data.camera);
+
+        let screen_size = (screen_width(), screen_height());
+        if data.previous_window_size != screen_size {
+            data.previous_window_size = screen_size;
+            camera_target = render_target(screen_size.0 as u32, screen_size.1 as u32);
+            camera_target.texture.set_filter(FilterMode::Nearest);
+            data.camera.render_target = Some(camera_target);
+        }
+
+        data.update();
         set_sound_volume(&data.audio.music1, data.settings.music_volume);
 
         data.current_room.check_completed(&ecs);
@@ -442,11 +455,9 @@ async fn main() {
                 .aberration_meter_material
                 .set_uniform("time", get_time() as f32);
         }
-        data.update();
 
         set_mouse_cursor(miniquad::CursorIcon::Default);
 
-        set_camera(&data.camera);
         data.input.update(&ecs, &data.camera);
         clear_background(BLACK);
 
@@ -489,7 +500,7 @@ async fn main() {
             if data.map_change_requested && data.screen_dimmer.just_dimmed {
                 data.map_change_requested = false;
                 data.current_room.despawn(&mut ecs);
-                data.current_room = Room::new(data.maps.len(), rand::gen_range(1., 20.));
+                data.current_room = Room::new(data.maps.len(), rand::gen_range(19., 20.));
                 let new_player_pos = data.spawn_map_entities(&mut ecs);
                 data.current_room.started = true;
                 let players = ecs.check_components(|e, comps| {
@@ -624,6 +635,25 @@ async fn main() {
                 data.paused = false;
             }
         };
+
+        if let Some(render_target) = &mut data.camera.render_target {
+            post_processing_material.set_uniform("intensity", 3f32);
+            post_processing_material.set_uniform("time", get_time() as f32);
+            post_processing_material.set_uniform("hue_shift", 1.8f32);
+            set_default_camera();
+            gl_use_material(&post_processing_material);
+            draw_texture_ex(
+                &render_target.texture,
+                0.,
+                0.,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(screen_width(), screen_height())),
+                    ..Default::default()
+                },
+            );
+        }
+        gl_use_default_material();
 
         next_frame().await
     }

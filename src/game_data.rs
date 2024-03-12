@@ -63,6 +63,7 @@ pub struct GameData {
     pub show_pause_menu: bool,
     pub death_screen: DeathScreen,
     pub dead: bool,
+    pub previous_window_size: (f32, f32),
 }
 
 impl GameData {
@@ -75,6 +76,7 @@ impl GameData {
         audio: Audio,
         death_texture: Texture2D,
     ) -> Self {
+        let camera = Camera2D::default();
         Self {
             entity_index: initial_entity_index,
             settings,
@@ -83,7 +85,7 @@ impl GameData {
             graphics,
             audio,
             input: InputManager::new(),
-            camera: Camera2D::default(),
+            camera,
             debug_collisions: false,
             #[cfg(debug_assertions)]
             show_fps: true,
@@ -99,6 +101,7 @@ impl GameData {
             show_pause_menu: false,
             death_screen: DeathScreen::new(death_texture),
             dead: true,
+            previous_window_size: (screen_width(), screen_height()),
         }
     }
 
