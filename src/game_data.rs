@@ -8,6 +8,7 @@ use crate::{
     input_manager::InputManager,
     items::weapon::{Launcher, Weapon},
     map::map::Map,
+    rand_utils::rand_dir,
     room::Room,
     settings::GameSettings,
     timer::Timer,
@@ -45,6 +46,31 @@ pub struct Audio {
     pub music1: Sound,
 }
 
+pub struct ScreenShake {
+    pub distance: f32,
+    pub camera_offset: Vec2,
+    pub timer: Timer,
+    pub event_timer: Timer,
+}
+
+impl ScreenShake {
+    pub fn new() -> Self {
+        Self {
+            distance: 5.,
+            camera_offset: Vec2::ZERO,
+            timer: Timer::new(0.02, false),
+            event_timer: Timer::new(0., false),
+        }
+    }
+
+    pub fn shake(&mut self, duration: f32, distance: f32) {
+        self.distance = distance;
+        self.event_timer.time = duration;
+        self.event_timer.reset();
+        self.timer.reset();
+    }
+}
+
 pub struct GameData {
     pub entity_index: u64,
     pub state: GameState,
@@ -70,6 +96,7 @@ pub struct GameData {
     pub previous_window_size: (f32, f32),
     pub game_completed: bool,
     pub item_drop_chance_increase: i32,
+    pub screen_shake: ScreenShake,
 }
 
 impl GameData {
@@ -112,6 +139,7 @@ impl GameData {
             previous_window_size: (screen_width(), screen_height()),
             game_completed: false,
             item_drop_chance_increase: 0,
+            screen_shake: ScreenShake::new(),
         }
     }
 
@@ -132,10 +160,23 @@ impl GameData {
         self.input.gamepads.poll();
         self.update_camera();
 
+        let shake = &mut self.screen_shake;
+        self.camera.target = vec2(360. / 2., 240. / 2.) + shake.camera_offset;
+        if !self.paused {
+            shake.timer.update();
+            shake.event_timer.update();
+            if shake.event_timer.progress() > 0. && shake.timer.completed() {
+                shake.timer.reset();
+                shake.camera_offset = rand_dir() * shake.event_timer.progress() * shake.distance;
+            }
+        }
+        if shake.event_timer.just_completed() {
+            shake.camera_offset = Vec2::ZERO;
+        }
+
         for mat in &self.graphics.materials {
             match mat.1 {
                 GameMaterial::Aberration(mat) => {
-                    // mat.set_uniform("intensity", 2.58f32);
                     mat.set_uniform("time", get_time() as f32);
                 }
                 GameMaterial::Color(_mat) => {}

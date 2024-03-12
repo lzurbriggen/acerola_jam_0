@@ -110,6 +110,9 @@ pub fn apply_damage(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Vec<
 
                     if apply_damage {
                         health.hp -= event.damage;
+                        if is_player {
+                            data.screen_shake.shake(0.25, 8.);
+                        }
                     }
 
                     audio::play_sound(
