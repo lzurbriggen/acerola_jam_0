@@ -442,12 +442,18 @@ async fn main() {
                 death_events.clear();
             }
 
-            // data.graphics
-            //     .aberration_meter_material
-            //     .set_uniform("intensity", 1.2f32);
-            // data.graphics
-            //     .aberration_meter_material
-            //     .set_uniform("time", get_time() as f32);
+            data.graphics
+                .aberration_meter_material
+                .set_texture("noise1", data.graphics.noise1_texture.clone());
+            data.graphics
+                .aberration_meter_material
+                .set_texture("noise2", data.graphics.noise2_texture.clone());
+            data.graphics
+                .aberration_meter_material
+                .set_uniform("intensity", 1.2f32);
+            data.graphics
+                .aberration_meter_material
+                .set_uniform("time", get_time() as f32);
         }
 
         post_processing_material.set_texture("noise1", data.graphics.noise1_texture.clone());
@@ -634,8 +640,9 @@ async fn main() {
         };
 
         if let Some(render_target) = &mut data.camera.render_target {
+            post_processing_material.set_uniform("intensity", 0.21f32);
             // post_processing_material.set_uniform("intensity", 3f32);
-            // post_processing_material.set_uniform("time", get_time() as f32);
+            post_processing_material.set_uniform("time", get_time() as f32);
             // post_processing_material.set_uniform("hue_shift", 1.8f32);
             set_default_camera();
             gl_use_material(&post_processing_material);

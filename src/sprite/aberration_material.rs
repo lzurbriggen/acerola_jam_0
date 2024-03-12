@@ -63,15 +63,15 @@ void main() {
     vec2 texSize = vec2(textureSize(Texture, 0).xy);
     vec2 texCoord = gl_FragCoord.xy / texSize;
 
-    float redOffset = 1.115 * intensity;
-    float greenOffset = 1.112 * intensity;
-    float blueOffset = -1.11 * intensity;
+    float redOffset = 2.115 * intensity;
+    float greenOffset = 2.112 * intensity;
+    float blueOffset = -2.11 * intensity;
 
     // TODO: texture wrapping not available in macroquad?
-    vec2 noise1Offset = fract(uv + vec2(time * 0.6));
+    vec2 noise1Offset = fract(uv + vec2(time * 0.01 * intensity));
     vec2 noise1Color = vec2(texture2D(noise1, noise1Offset));
-    vec2 noise2Offset = fract(uv + vec2(time * 0.1));
-    vec2 noise2Color = mix(noise1Color + vec2(texture2D(noise1, noise2Offset)), noise1Color, intensity);
+    vec2 noise2Offset = fract(uv + vec2(time * 0.001 * intensity));
+    vec2 noise2Color = mix(noise1Color + vec2(texture2D(noise1, noise2Offset)), noise1Color, 0.5);
     
     fragColor.r = texture2D(Texture, uv + vec2(noise2Color * redOffset) / texSize).r;
     fragColor.g = texture2D(Texture, uv + vec2(noise2Color * greenOffset) / texSize).g;
