@@ -541,12 +541,12 @@ async fn main() {
                 update_damageables(&mut ecs);
                 damage_on_collision(&ecs, &mut damage_events, &collisions);
                 despawn_on_collision(&mut data, &mut ecs, &collisions);
-                apply_damage(&mut data, &mut ecs, &mut damage_events);
                 kill_entities(&mut ecs, &mut death_events);
                 handle_death(&mut data, &mut ecs, &death_events);
                 update_player(&mut data, &mut ecs);
                 update_weapon(&mut ecs, &mut data);
-                update_enemies(&mut data, &mut ecs);
+                update_enemies(&mut data, &mut ecs, &mut damage_events);
+                apply_damage(&mut data, &mut ecs, &mut damage_events);
                 update_animated_sprites(&mut ecs);
                 collisions = move_entities(&mut data, &mut ecs);
 

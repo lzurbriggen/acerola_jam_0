@@ -27,7 +27,7 @@ pub struct Stomper {
 pub fn spawn_stomper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entity {
     let id = data.new_entity();
 
-    let indexed_sprite = IndexedSprite::new(data, "stomper", 32, vec2(16., 16.));
+    let indexed_sprite = IndexedSprite::new(data, "stomper", 64, vec2(32., 32.));
     let mut sprite = AnimatedSprite::new(
         indexed_sprite,
         HashMap::from([
@@ -54,10 +54,10 @@ pub fn spawn_stomper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
     ecs.components.velocities.insert(id, Vec2::ZERO);
 
     let stomper = Stomper {
-        damage_timer: Timer::new(0.6, false),
+        damage_timer: Timer::new(0.13 * 8., false),
         jump_timer: Timer::new(2.5, false),
-        move_speed: 40.,
-        jump_move_speed: 10.,
+        move_speed: 34.,
+        jump_move_speed: 16.,
         jumping: false,
     };
     ecs.components.stompers.insert(id, stomper);

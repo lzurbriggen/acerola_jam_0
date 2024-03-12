@@ -4,11 +4,11 @@ use macroquad::{
 };
 
 use crate::{
-    entity::{entities::Ecs, projectile::spawn_bullet, tags::EntityType},
+    entity::{entities::Ecs, events::DamageEvent, projectile::spawn_bullet, tags::EntityType},
     game_data::GameData,
 };
 
-pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs) {
+pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Vec<DamageEvent>) {
     let hoppers = ecs.check_components(|e, comps| {
         comps.hoppers.contains_key(e)
             && comps.positions.contains_key(e)
@@ -122,15 +122,25 @@ pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs) {
         stomper.damage_timer.update();
         stomper.jump_timer.update();
 
+        let dist_to_player = (player_pos - *position).length();
         // TODO: check range to player to start
-        if !stomper.jumping && stomper.jump_timer.completed() {
+        if dist_to_player < 36. && !stomper.jumping && stomper.jump_timer.completed() {
             sprite.set_animation("jump");
             stomper.damage_timer.reset();
             stomper.jumping = true
         }
         if stomper.jumping {
             *velocity = (player_pos - *position).normalize() * stomper.jump_move_speed;
-            // TODO: deal damage
+            if stomper.damage_timer.just_completed() && dist_to_player < 26. {
+                for player_e in &players {
+                    damage_events.push(DamageEvent {
+                        source: *stomper_e,
+                        target: *player_e,
+                        damage: 1.,
+                    });
+                }
+            }
+
             if sprite.current_animation().1.completed {
                 stomper.jumping = false;
                 sprite.set_animation("walk");
