@@ -36,6 +36,9 @@ impl Timer {
         if self.completed && self.repeating == true {
             self.reset();
         }
+        if !self.repeating {
+            self.completed = false;
+        }
         self.remaining_time -= get_frame_time();
         if self.remaining_time <= 0. {
             self.completed = true;

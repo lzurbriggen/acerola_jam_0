@@ -376,7 +376,17 @@ async fn main() {
     entity_index += 1;
     let map3 = Map::new(Entity(entity_index), &settings, tiled_map3);
 
-    let maps = vec![map1, map2, map3];
+    let tiled_map4_json = load_string("map/map4.tmj").await.unwrap();
+    let tiled_map4 = load_map(
+        tiled_map4_json.as_str(),
+        &[("tileset_01.png", tileset.clone())],
+        &[],
+    )
+    .unwrap();
+    entity_index += 1;
+    let map4 = Map::new(Entity(entity_index), &settings, tiled_map4);
+
+    let maps = vec![map1, map2, map3, map4];
 
     let mut data = GameData::new(
         entity_index,

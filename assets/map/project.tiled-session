@@ -13,6 +13,9 @@
             "scaleInDock": 5.5,
             "scaleInEditor": 11
         },
+        "#tileset_01": {
+            "scaleInDock": 8
+        },
         ":/automap-tiles.tsx": {
             "scaleInDock": 1
         },
@@ -30,8 +33,8 @@
             "scale": 2,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 181,
-                "y": 201
+                "x": 180,
+                "y": 120
             }
         },
         "example_01.tmj#tileset_01": {
@@ -45,8 +48,8 @@
             "scale": 3,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 183.33333333333331,
-                "y": 157.66666666666666
+                "x": 183,
+                "y": 157.33333333333331
             }
         },
         "map2.tmj#base_01": {
@@ -59,11 +62,22 @@
             "scale": 3,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 182.66666666666663,
-                "y": 113.99999999999997
+                "x": 194.33333333333331,
+                "y": 79.66666666666666
             }
         },
         "map3.tmj#tileset_01": {
+            "scaleInDock": 8
+        },
+        "map4.tmj": {
+            "scale": 3,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 177.66666666666663,
+                "y": 126.99999999999997
+            }
+        },
+        "map4.tmj#tileset_01": {
             "scaleInDock": 8
         },
         "map_01.tmx": {
