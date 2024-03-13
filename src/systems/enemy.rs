@@ -278,12 +278,27 @@ pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Ve
                     mirituhg.state = MiritughState::Idle;
                     sprite.set_animation("idle");
                 }
+                MiritughState::Dead => {}
             }
             mirituhg.next_attack_timer.reset();
         }
 
         if dist.length_squared() > 0. {
             *velocity = (mirituhg.target_pos - *position).normalize() * mirituhg.move_speed;
+        }
+    }
+
+    let mirituhgs_deaths = ecs.check_components(|e, comps| {
+        comps.mirituhg_death.contains_key(e) && comps.animated_sprites.contains_key(e)
+    });
+
+    for mirituhg_e in &mirituhgs_deaths {
+        let sprite = ecs.components.animated_sprites.get(mirituhg_e).unwrap();
+        if sprite.current_animation == "death".to_string() && sprite.current_animation().1.completed
+        {
+            data.end_game_screen.show();
+            data.paused = true;
+            data.game_completed = true;
         }
     }
 

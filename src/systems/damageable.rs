@@ -6,6 +6,7 @@ use crate::{
         entity_id::Entity,
         events::{DamageEvent, DeathEvent},
         impact::{spawn_dust, splatter_blood},
+        mirituhg::{self, spawn_mirituhg_death, MiritughState},
         pickup::{spawn_pickup, Pickup},
         skull::spawn_skull,
         tags::EntityType,
@@ -276,10 +277,11 @@ pub fn handle_death(data: &mut GameData, ecs: &mut Ecs, death_events: &Vec<Death
     let mut skull_positions = vec![];
     let mut pickups = vec![];
 
+    let mut spawn_death = None;
     for ev in death_events {
         let pos = ecs.components.positions.get(&ev.0).unwrap();
         let player = ecs.components.player_entity.get(&ev.0);
-        let mirituhg = ecs.components.mirituhg.get(&ev.0);
+        let mirituhg = ecs.components.mirituhg.get_mut(&ev.0);
 
         if player.is_some() {
             data.dead = true;
@@ -295,10 +297,9 @@ pub fn handle_death(data: &mut GameData, ecs: &mut Ecs, death_events: &Vec<Death
             for _ in 0..40 {
                 skull_positions.push(vec2(rand::gen_range(0., 360.), rand::gen_range(0., 240.)))
             }
-        } else if mirituhg.is_some() {
-            data.game_completed = true;
-            data.end_game_screen.show();
-            data.paused = true;
+        } else if let Some(mirituhg) = mirituhg {
+            mirituhg.state = MiritughState::Dead;
+            spawn_death = Some(*pos);
         } else {
             let rand = rand::gen_range(0, (12 - data.item_drop_chance_increase).max(4));
             match rand {
@@ -317,6 +318,10 @@ pub fn handle_death(data: &mut GameData, ecs: &mut Ecs, death_events: &Vec<Death
         );
 
         skull_positions.push(*pos);
+    }
+
+    if let Some(pos) = spawn_death {
+        spawn_mirituhg_death(data, pos, ecs);
     }
 
     for (pickup, pos) in pickups {

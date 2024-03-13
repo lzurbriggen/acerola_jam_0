@@ -43,6 +43,7 @@ pub struct Components {
     pub balls: ComponentColl<usize>,
     pub aberration_increase: ComponentColl<f32>,
     pub mirituhg: ComponentColl<Mirituhg>,
+    pub mirituhg_death: ComponentColl<()>,
 }
 
 #[derive(Default)]
@@ -95,5 +96,6 @@ impl Ecs {
         self.components.balls.remove(entity);
         self.components.aberration_increase.remove(entity);
         self.components.mirituhg.remove(entity);
+        self.components.mirituhg_death.remove(entity);
     }
 }

@@ -22,6 +22,7 @@ pub enum MiritughState {
     Spawn,
     ShootTransition,
     Shoot,
+    Dead,
 }
 
 pub struct Mirituhg {
@@ -84,6 +85,16 @@ pub fn spawn_mirituhg(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Ent
                     false,
                 ),
             ),
+            (
+                "death".to_string(),
+                Animation::new(
+                    vec![
+                        35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,
+                    ],
+                    0.15,
+                    false,
+                ),
+            ),
         ]),
     );
     sprite.set_animation("idle");
@@ -138,6 +149,44 @@ pub fn spawn_mirituhg(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Ent
 
     ecs.components.room_entity.insert(id, ());
     ecs.components.enemies.insert(id, ());
+
+    ecs.entities.push(id);
+    id
+}
+
+pub fn spawn_mirituhg_death(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entity {
+    let id = data.new_entity();
+
+    let indexed_sprite = IndexedSprite::new(data, "mirituhg", 64, vec2(32., 32.));
+    let mut sprite = AnimatedSprite::new(
+        indexed_sprite,
+        HashMap::from([(
+            "death".to_string(),
+            Animation::new(
+                vec![
+                    35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,
+                ],
+                0.15,
+                false,
+            ),
+        )]),
+    );
+    sprite.set_animation("death");
+    ecs.components.animated_sprites.insert(id, sprite);
+
+    let collider = CircleCollider {
+        radius: 12.,
+        coll_type: ColliderType::Enemy,
+    };
+    ecs.components.colliders.insert(id, collider);
+    ecs.components.positions.insert(id, position);
+
+    // ecs.components
+    //     .materials
+    //     .insert(id, create_sprite_color_material());
+    ecs.components.room_entity.insert(id, ());
+    ecs.components.enemies.insert(id, ());
+    ecs.components.mirituhg_death.insert(id, ());
 
     ecs.entities.push(id);
     id
