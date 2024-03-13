@@ -217,11 +217,11 @@ pub fn despawn_on_collision(
                                     low_hp
                                 }
                                 Pickup::AnomalyBig => {
-                                    player.aberration = (player.aberration - 0.5).max(0.);
+                                    player.aberration = (player.aberration - 0.1).max(0.);
                                     true
                                 }
                                 Pickup::AnomalySmall => {
-                                    player.aberration = (player.aberration - 0.1).max(0.);
+                                    player.aberration = (player.aberration - 0.02).max(0.);
                                     true
                                 }
                             } {
@@ -250,7 +250,7 @@ pub fn despawn_on_collision(
     }
 }
 
-pub fn kill_entities(ecs: &mut Ecs, death_events: &mut Vec<DeathEvent>) {
+pub fn kill_entities(data: &GameData, ecs: &mut Ecs, death_events: &mut Vec<DeathEvent>) {
     let healthies = ecs.check_components(|e, comps| comps.health.contains_key(e));
 
     for health_e in &healthies {
@@ -262,6 +262,8 @@ pub fn kill_entities(ecs: &mut Ecs, death_events: &mut Vec<DeathEvent>) {
 
             let aberration_increase = ecs.components.aberration_increase.get(health_e);
             if let Some(inc) = aberration_increase {
+                // let inc = inc * (1. + data.completed_rooms as f32 * 1.07);
+                let inc = inc * (1. + data.completed_rooms as f32 * 0.07);
                 let players = ecs.check_components(|e, comps| comps.player_data.contains_key(e));
 
                 for player_e in &players {

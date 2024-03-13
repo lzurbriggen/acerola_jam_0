@@ -32,7 +32,7 @@ impl Launcher {
         Self {
             shoot_timer: Timer::new(0.25, false),
             base_timer_duration: 0.25,
-            base_damage: 5.,
+            base_damage: 50.,
             upgrades: vec![],
         }
     }

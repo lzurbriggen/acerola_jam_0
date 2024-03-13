@@ -6,10 +6,10 @@ use entity::{
     events::{DamageEvent, DeathEvent},
     mirituhg::spawn_mirituhg,
     player::spawn_player,
-    upgrades::{CommonUpgrade, ItemUpgrade, Upgrade, Upgrades, WeaponUpgrade},
+    upgrades::{CommonUpgrade, ItemUpgrade, Upgrade, WeaponUpgrade},
 };
 use fps_counter::FPSCounter;
-use game_data::{reset_game, Audio, GameMaterial};
+use game_data::{Audio, GameMaterial};
 use game_state::GameState;
 use items::weapon::{Balls, Dash, Launcher, Weapon, WeaponType};
 use macroquad::{
@@ -18,7 +18,6 @@ use macroquad::{
     prelude::*,
 };
 use macroquad_tiled::load_map;
-use room::Room;
 use settings::{GameSettings, WindowSize};
 use sprite::{
     aberration_material::create_aberration_material, flash_material::create_sprite_color_material,
@@ -386,7 +385,7 @@ async fn main() {
     entity_index += 1;
     let map4 = Map::new(Entity(entity_index), &settings, tiled_map4);
 
-    let maps = vec![map1, map2, map3, map4];
+    let maps = vec![map4, map1, map2, map3];
 
     let mut data = GameData::new(
         entity_index,
@@ -561,7 +560,7 @@ async fn main() {
                 update_damageables(&mut ecs);
                 damage_on_collision(&ecs, &mut damage_events, &collisions);
                 despawn_on_collision(&mut data, &mut ecs, &collisions);
-                kill_entities(&mut ecs, &mut death_events);
+                kill_entities(&data, &mut ecs, &mut death_events);
                 handle_death(&mut data, &mut ecs, &death_events);
                 update_player(&mut data, &mut ecs);
                 update_weapon(&mut ecs, &mut data);

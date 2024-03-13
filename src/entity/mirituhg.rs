@@ -108,7 +108,7 @@ pub fn spawn_mirituhg(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Ent
     ecs.components.positions.insert(id, position);
     ecs.components.velocities.insert(id, Vec2::ZERO);
 
-    let hp = 730.;
+    let hp = 1200.;
     let mirituhg = Mirituhg {
         move_speed: 40.,
         shoot_move_speed: 25.,

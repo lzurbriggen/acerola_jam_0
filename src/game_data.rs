@@ -4,8 +4,8 @@ use macroquad::{audio::Sound, prelude::*};
 
 use crate::{
     entity::{
-        entities::Ecs, entity_id::Entity, player::spawn_player, spawner::spawn_spawner,
-        upgrades::Upgrades,
+        entities::Ecs, entity_id::Entity, mirituhg::spawn_mirituhg, player::spawn_player,
+        spawner::spawn_spawner, upgrades::Upgrades,
     },
     game_state::GameState,
     input_manager::InputManager,
@@ -211,6 +211,7 @@ impl GameData {
     pub fn spawn_map_entities(&mut self, ecs: &mut Ecs) -> Vec2 {
         let mut player_pos = Vec2::ZERO;
         let mut spawner_positions = vec![];
+        let mut spawn_boss = false;
         for (_, layer) in &self.current_map().tiled_map.layers {
             for object in &layer.objects {
                 let object_pos = vec2(object.world_x + 4., object.world_y - 4.);
@@ -223,7 +224,14 @@ impl GameData {
                 if let Some(_) = object.properties.get("spawn") {
                     spawner_positions.push(object_pos);
                 }
+                if let Some(_) = object.properties.get("boss") {
+                    spawn_boss = true;
+                }
             }
+        }
+
+        if spawn_boss {
+            spawn_mirituhg(self, vec2(180., 120.), ecs);
         }
 
         for pos in spawner_positions {
@@ -237,8 +245,8 @@ impl GameData {
         self.current_room.despawn(ecs);
 
         let map_index = match self.completed_rooms {
-            0 => 0,
-            _ => rand::gen_range(0, self.maps.len()),
+            0 => 1,
+            _ => rand::gen_range(1, self.maps.len()),
         };
 
         let mut new_room = Room::new(map_index, 2. + 3. * self.completed_rooms as f32);
@@ -250,6 +258,11 @@ impl GameData {
             let player_data = ecs.components.player_data.get(&players[0]).unwrap();
             let up_data = player_data.get_upgraded_data();
             let health = ecs.components.health.get(&players[0]).unwrap();
+
+            if player_data.aberration >= 1. {
+                // TODO: boss room
+                new_room.map_index = 0;
+            }
 
             self.upgrades.generate_upgrades(
                 &self.weapon,
@@ -267,23 +280,23 @@ impl GameData {
     }
 }
 
-pub fn reset_game(data: &mut GameData, ecs: &mut Ecs) {
-    data.reset();
-    let entities = ecs.check_components(|_, _| true);
-    for entity in entities {
-        let entity_i = ecs.entities.iter().position(|e| e == &entity).unwrap();
-        ecs.entities.remove(entity_i);
-        ecs.remove_all_components(&entity);
-    }
-    data.current_room = Room::new(0, rand::gen_range(1., 20.));
-    spawn_player(data, ecs);
-    let new_player_pos = data.spawn_map_entities(ecs);
-    data.current_room.started = true;
-    let players = ecs.check_components(|e, comps| {
-        comps.player_data.contains_key(e) && comps.positions.contains_key(e)
-    });
-    for player_e in &players {
-        let pos = ecs.components.positions.get_mut(player_e).unwrap();
-        *pos = new_player_pos;
-    }
-}
+// pub fn reset_game(data: &mut GameData, ecs: &mut Ecs) {
+//     data.reset();
+//     let entities = ecs.check_components(|_, _| true);
+//     for entity in entities {
+//         let entity_i = ecs.entities.iter().position(|e| e == &entity).unwrap();
+//         ecs.entities.remove(entity_i);
+//         ecs.remove_all_components(&entity);
+//     }
+//     data.current_room = Room::new(0, rand::gen_range(1., 20.));
+//     spawn_player(data, ecs);
+//     let new_player_pos = data.spawn_map_entities(ecs);
+//     data.current_room.started = true;
+//     let players = ecs.check_components(|e, comps| {
+//         comps.player_data.contains_key(e) && comps.positions.contains_key(e)
+//     });
+//     for player_e in &players {
+//         let pos = ecs.components.positions.get_mut(player_e).unwrap();
+//         *pos = new_player_pos;
+//     }
+// }

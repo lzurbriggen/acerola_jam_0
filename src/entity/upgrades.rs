@@ -63,10 +63,10 @@ impl ItemUpgrade {
                 UpgradeDescription::new("upgrade_item_hp", format!("+ {} HP", hp).as_str())
             }
             ItemUpgrade::AnomalyBig => {
-                UpgradeDescription::new_with_line2("upgrade_item_anomaly_big", "- 50%", "Anomaly")
+                UpgradeDescription::new_with_line2("upgrade_item_anomaly_big", "- 10%", "Anomaly")
             }
             ItemUpgrade::AnomalySmall => {
-                UpgradeDescription::new_with_line2("upgrade_item_anomaly_small", "- 10%", "Anomaly")
+                UpgradeDescription::new_with_line2("upgrade_item_anomaly_small", "- 2%", "Anomaly")
             }
         }
     }

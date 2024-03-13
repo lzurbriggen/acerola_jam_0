@@ -188,6 +188,24 @@
                  "width":8,
                  "x":176,
                  "y":48
+                }, 
+                {
+                 "gid":3,
+                 "height":8,
+                 "id":2,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"boss",
+                         "type":"string",
+                         "value":""
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":8,
+                 "x":176,
+                 "y":128
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -196,7 +214,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":2,
+ "nextobjectid":3,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.2",
