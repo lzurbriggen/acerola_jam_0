@@ -458,20 +458,10 @@ async fn main() {
                 ecs.marked_for_despawn.clear();
                 death_events.clear();
             }
-
-            data.graphics
-                .aberration_meter_material
-                .set_texture("noise1", data.graphics.noise1_texture.clone());
-            data.graphics
-                .aberration_meter_material
-                .set_texture("noise2", data.graphics.noise2_texture.clone());
-            data.graphics
-                .aberration_meter_material
-                .set_uniform("intensity", 1.2f32);
-            data.graphics
-                .aberration_meter_material
-                .set_uniform("time", get_time() as f32);
         }
+        data.graphics
+            .aberration_meter_material
+            .set_uniform("time", get_time() as f32);
 
         post_processing_material.set_texture("noise1", data.graphics.noise1_texture.clone());
         post_processing_material.set_texture("noise2", data.graphics.noise2_texture.clone());
