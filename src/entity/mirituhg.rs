@@ -23,24 +23,24 @@ pub struct Mirituhg {
     pub jump_move_speed: f32,
 }
 
-pub fn spawn_hopper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entity {
+pub fn spawn_mirituhg(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entity {
     let id = data.new_entity();
 
-    let indexed_sprite = IndexedSprite::new(data, "hopper", 16, vec2(8., 10.));
+    let indexed_sprite = IndexedSprite::new(data, "mirituhg", 64, vec2(32., 32.));
     let sprite = AnimatedSprite::new(
         indexed_sprite,
         HashMap::from([
-            ("move".to_string(), Animation::new(vec![0, 1], 0.3, true)),
-            (
-                "jump".to_string(),
-                Animation::new(vec![2, 3, 4, 5, 6, 7, 8, 9], 0.12, true),
-            ),
+            ("move".to_string(), Animation::new(vec![0], 0.0, false)),
+            // (
+            //     "jump".to_string(),
+            //     Animation::new(vec![2, 3, 4, 5, 6, 7, 8, 9], 0.12, true),
+            // ),
         ]),
     );
     ecs.components.animated_sprites.insert(id, sprite);
 
     let collider = CircleCollider {
-        radius: 8.,
+        radius: 12.,
         coll_type: ColliderType::Enemy,
     };
     ecs.components.colliders.insert(id, collider);
@@ -62,7 +62,7 @@ pub fn spawn_hopper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entit
             hit_fx_timer: Some(Timer::new(0.22, false)),
         },
     );
-    ecs.components.health.insert(id, Health { hp: 30. });
+    ecs.components.health.insert(id, Health { hp: 130. });
     ecs.components.damage_on_collision.insert(
         id,
         DamageOnCollision {

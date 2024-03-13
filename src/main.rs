@@ -4,6 +4,7 @@ use entity::{
     entities::Ecs,
     entity_id::Entity,
     events::{DamageEvent, DeathEvent},
+    mirituhg::spawn_mirituhg,
     player::spawn_player,
     upgrades::{CommonUpgrade, ItemUpgrade, Upgrade, Upgrades, WeaponUpgrade},
 };
@@ -40,6 +41,7 @@ use ui::{
     hud::{create_aberration_meter_material, AberrationMeter, HudHearts},
     icon,
     intro_screen::IntroScreen,
+    mirituhg::HudMirituhg,
     pause_menu::pause_menu,
     ui_data::UIData,
     upgrade_screen::UpgradeScreen,
@@ -109,11 +111,6 @@ async fn main() {
     frame_texture_pretty.set_filter(FilterMode::Nearest);
     let focus_bg_texture: Texture2D = load_texture("ui/focus_bg.png").await.unwrap();
     focus_bg_texture.set_filter(FilterMode::Nearest);
-    let overlay_mirituhg_texture: Texture2D =
-        load_texture("ui/overlay_mirituhg.png").await.unwrap();
-    overlay_mirituhg_texture.set_filter(FilterMode::Nearest);
-    let boss_health_bar_texture: Texture2D = load_texture("ui/health_bar.png").await.unwrap();
-    boss_health_bar_texture.set_filter(FilterMode::Nearest);
 
     let ui_data = UIData {
         button_texture: button_texture,
@@ -228,6 +225,12 @@ async fn main() {
             .await
             .unwrap();
     upgrade_item_anomaly_small_texture.set_filter(FilterMode::Nearest);
+
+    let overlay_mirituhg_texture: Texture2D =
+        load_texture("ui/overlay_mirituhg.png").await.unwrap();
+    overlay_mirituhg_texture.set_filter(FilterMode::Nearest);
+    let boss_health_bar_texture: Texture2D = load_texture("ui/health_bar.png").await.unwrap();
+    boss_health_bar_texture.set_filter(FilterMode::Nearest);
 
     let mut materials = HashMap::new();
     let aberration_material = create_aberration_material();
@@ -395,6 +398,7 @@ async fn main() {
     let mut death_events = Vec::<DeathEvent>::new();
 
     let hud_hearts = HudHearts::new(&data);
+    let hud_mirituhg = HudMirituhg::new(overlay_mirituhg_texture, boss_health_bar_texture);
     let aberration_meter = AberrationMeter::new(&data);
 
     data.graphics
@@ -442,11 +446,12 @@ async fn main() {
             if is_key_pressed(KeyCode::F5) {
                 // Reset?
                 // reset_game(&mut data, &mut ecs);
+                spawn_mirituhg(&mut data, vec2(180., 120.), &mut ecs);
             }
 
             if is_key_pressed(KeyCode::F3) {
                 upgrade_screen.visible = true;
-                // data.paused = true;
+                data.paused = true;
             }
 
             let despawned_entities = &ecs.marked_for_despawn.clone();
@@ -584,6 +589,7 @@ async fn main() {
 
             hud_hearts.draw(&data, &ecs);
             aberration_meter.draw(&data, &ecs);
+            hud_mirituhg.draw(&data, &ecs);
         }
         if data.state == GameState::Intro {
             if intro_screen.update_and_draw(&mut data) {
@@ -618,7 +624,7 @@ async fn main() {
             fps_counter.update_and_draw(&mut data);
         }
 
-        if data.current_room.completed && !data.map_change_requested {
+        if data.current_room.completed && !data.map_change_requested && !data.game_completed {
             data.next_room(&mut ecs);
         }
 
@@ -701,6 +707,7 @@ async fn main() {
             post_processing_material.set_uniform("intensity", 0.21f32);
             // post_processing_material.set_uniform("intensity", 3f32);
             post_processing_material.set_uniform("time", get_time() as f32);
+            // post_processing_material.set_uniform("hue_shift", 0.1f32);
             // post_processing_material.set_uniform("hue_shift", 1.8f32);
             set_default_camera();
             gl_use_material(&post_processing_material);

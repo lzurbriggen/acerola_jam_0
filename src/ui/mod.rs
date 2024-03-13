@@ -5,6 +5,7 @@ pub mod hud;
 pub mod icon;
 pub mod in_rect;
 pub mod intro_screen;
+pub mod mirituhg;
 pub mod nine_slice;
 pub mod pause_menu;
 pub mod screen_dimmer;

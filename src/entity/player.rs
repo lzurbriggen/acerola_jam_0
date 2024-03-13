@@ -69,9 +69,9 @@ pub fn spawn_player(data: &mut GameData, ecs: &mut Ecs) -> Entity {
         .positions
         .insert(shadow1_id, vec2(180., 120.));
     ecs.components.player_entity.insert(shadow1_id, ());
-    ecs.components
-        .materials
-        .insert(shadow1_id, create_sprite_color_material());
+    // ecs.components
+    //     .materials
+    //     .insert(shadow1_id, create_sprite_color_material());
     ecs.entities.push(shadow1_id);
 
     let shadow2_id = data.new_entity();
@@ -85,9 +85,9 @@ pub fn spawn_player(data: &mut GameData, ecs: &mut Ecs) -> Entity {
         .positions
         .insert(shadow2_id, vec2(180., 120.));
     ecs.components.player_entity.insert(shadow2_id, ());
-    ecs.components
-        .materials
-        .insert(shadow2_id, create_sprite_color_material());
+    // ecs.components
+    //     .materials
+    //     .insert(shadow2_id, create_sprite_color_material());
     ecs.entities.push(shadow2_id);
 
     // Player

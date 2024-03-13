@@ -162,7 +162,7 @@ pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Ve
     }
 
     let mirituhgs = ecs.check_components(|e, comps| {
-        comps.stompers.contains_key(e)
+        comps.mirituhg.contains_key(e)
             && comps.positions.contains_key(e)
             && comps.velocities.contains_key(e)
             && comps.colliders.contains_key(e)
