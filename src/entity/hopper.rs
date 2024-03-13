@@ -5,7 +5,7 @@ use macroquad::prelude::*;
 use crate::{
     game_data::GameData,
     sprite::{flash_material::create_sprite_color_material, indexed_sprite::IndexedSprite},
-    systems::collision::CircleCollider,
+    systems::collision::{CircleCollider, ColliderType},
     timer::Timer,
 };
 
@@ -41,7 +41,7 @@ pub fn spawn_hopper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entit
 
     let collider = CircleCollider {
         radius: 3.,
-        trigger: false,
+        coll_type: ColliderType::Enemy,
     };
     ecs.components.colliders.insert(id, collider);
 

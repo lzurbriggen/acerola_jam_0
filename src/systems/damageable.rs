@@ -192,13 +192,13 @@ pub fn despawn_on_collision(
                     let despawn_on_hit = ecs.components.despawn_on_hit.get(despawn_e).unwrap();
                     // TODO: not safe
                     let position = ecs.components.positions.get(despawn_e).unwrap();
-                    if ecs.components.player_entity.contains_key(e2)
-                        && despawn_on_hit.0 == EntityType::Player
-                    {
-                        spawn_dust(data, ecs, *position);
-                        ecs.despawn(*despawn_e);
-                        break;
-                    };
+                    // if ecs.components.player_entity.contains_key(e2)
+                    //     && despawn_on_hit.0 == EntityType::Player
+                    // {
+                    //     spawn_dust(data, ecs, *position);
+                    //     ecs.despawn(*despawn_e);
+                    //     break;
+                    // };
 
                     if let Some(player) = ecs.components.player_data.get_mut(e2) {
                         let up_data = player.get_upgraded_data();
@@ -233,19 +233,16 @@ pub fn despawn_on_collision(
                                         ..Default::default()
                                     },
                                 );
+                                break;
                             }
 
-                            break;
+                            continue;
                         }
                     }
 
-                    if !ecs.components.player_entity.contains_key(e2)
-                        && despawn_on_hit.0 == EntityType::Enemy
-                    {
-                        spawn_dust(data, ecs, *position);
-                        ecs.despawn(*despawn_e);
-                        break;
-                    };
+                    spawn_dust(data, ecs, *position);
+                    ecs.despawn(*despawn_e);
+                    break;
                 }
             }
         }

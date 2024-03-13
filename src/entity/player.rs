@@ -1,7 +1,7 @@
 use crate::{
     game_data::GameData,
     sprite::{flash_material::create_sprite_color_material, indexed_sprite::IndexedSprite},
-    systems::collision::CircleCollider,
+    systems::collision::{CircleCollider, ColliderType},
     timer::Timer,
 };
 use macroquad::prelude::*;
@@ -96,7 +96,7 @@ pub fn spawn_player(data: &mut GameData, ecs: &mut Ecs) -> Entity {
 
     let collider = CircleCollider {
         radius: 3.,
-        trigger: false,
+        coll_type: ColliderType::Player,
     };
     ecs.components.colliders.insert(id, collider);
 

@@ -17,6 +17,8 @@ use crate::{
     items::weapon::Weapon,
 };
 
+use super::collision::ColliderType;
+
 pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
     let players = ecs.check_components(|e, comps| {
         comps.player_data.contains_key(e) && comps.positions.contains_key(e)
@@ -202,7 +204,20 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
     }
 
     for (damage, position, vel, bullet_index) in &bullet_data {
-        let bullet_id = spawn_bullet(data, ecs, *position, EntityType::Enemy, *damage, *vel);
+        let coll_type = if bullet_index.is_some() {
+            ColliderType::ProjectileWithoutMapCollision
+        } else {
+            ColliderType::PlayerProjectile
+        };
+        let bullet_id = spawn_bullet(
+            data,
+            ecs,
+            *position,
+            EntityType::Enemy,
+            *damage,
+            *vel,
+            coll_type,
+        );
         if let Some(bullet_index) = bullet_index {
             ecs.components.balls.insert(bullet_id, *bullet_index);
         }

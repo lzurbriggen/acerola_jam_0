@@ -5,7 +5,7 @@ use macroquad::prelude::*;
 use crate::{
     game_data::GameData,
     sprite::{flash_material::create_sprite_color_material, indexed_sprite::IndexedSprite},
-    systems::collision::CircleCollider,
+    systems::collision::{CircleCollider, ColliderType},
 };
 
 use super::{
@@ -39,7 +39,7 @@ pub fn spawn_pickup(data: &mut GameData, position: Vec2, ecs: &mut Ecs, pickup: 
 
     let collider = CircleCollider {
         radius: 3.,
-        trigger: true,
+        coll_type: ColliderType::Pickup,
     };
     ecs.components.colliders.insert(id, collider);
 

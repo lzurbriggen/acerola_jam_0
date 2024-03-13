@@ -3,8 +3,10 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 
 use crate::{
-    entity::entity_id::Entity, game_data::GameData, map::map::Map,
-    systems::collision::CircleCollider,
+    entity::entity_id::Entity,
+    game_data::GameData,
+    map::map::Map,
+    systems::collision::{CircleCollider, ColliderType},
 };
 
 #[derive(Debug, PartialEq)]
@@ -55,6 +57,9 @@ pub fn resolve_circle_collision(
             if *coll_e == source_entity {
                 break;
             }
+            if !collider.2.coll_type.should_collide(&other_coll.coll_type) {
+                continue;
+            }
             if let Some(collision) = check_collision_circles(
                 desired_pos,
                 collider.2.radius,
@@ -62,9 +67,7 @@ pub fn resolve_circle_collision(
                 other_coll.radius,
             ) {
                 is_colliding = true;
-                if !other_coll.trigger && !collider.2.trigger {
-                    desired_pos = desired_pos - collision.normal * (collision.overlap + 0.01);
-                }
+                desired_pos = desired_pos - collision.normal * (collision.overlap + 0.01);
                 collisions.insert((source_entity, *coll_e), collision);
             }
         }
@@ -117,6 +120,9 @@ pub fn resolve_map_collision(
     pos: Vec2,
     collider: &CircleCollider,
 ) -> (Vec2, HashMap<(Entity, Entity), Collision>) {
+    if !collider.coll_type.should_collide(&ColliderType::Map) {
+        return (pos, HashMap::new());
+    }
     let mut desired_pos = pos;
     let tile_position = desired_pos / 8.;
     let tile_position = (tile_position.x as i32, tile_position.y as i32);

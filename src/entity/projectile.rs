@@ -1,5 +1,7 @@
 use crate::{
-    game_data::GameData, sprite::indexed_sprite::IndexedSprite, systems::collision::CircleCollider,
+    game_data::GameData,
+    sprite::indexed_sprite::IndexedSprite,
+    systems::collision::{CircleCollider, ColliderType},
 };
 use macroquad::prelude::*;
 use std::collections::HashMap;
@@ -18,6 +20,7 @@ pub fn spawn_bullet(
     target: EntityType,
     damage: f32,
     velocity: Vec2,
+    collider_type: ColliderType,
 ) -> Entity {
     let id = data.new_entity();
 
@@ -41,7 +44,7 @@ pub fn spawn_bullet(
         id,
         CircleCollider {
             radius: 2.5,
-            trigger: true,
+            coll_type: collider_type,
         },
     );
     ecs.components.damage_on_collision.insert(
@@ -55,9 +58,6 @@ pub fn spawn_bullet(
             },
         },
     );
-    ecs.components
-        .despawn_on_hit
-        .insert(id, DespawnOnHit(target));
     ecs.components.velocities.insert(id, velocity);
     ecs.components.player_entity.insert(id, ());
     ecs.components.room_entity.insert(id, ());

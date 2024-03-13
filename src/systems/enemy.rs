@@ -8,6 +8,8 @@ use crate::{
     game_data::GameData,
 };
 
+use super::collision::ColliderType;
+
 pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Vec<DamageEvent>) {
     let hoppers = ecs.check_components(|e, comps| {
         comps.hoppers.contains_key(e)
@@ -102,7 +104,15 @@ pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Ve
     }
 
     for (pos, vel) in bullets {
-        spawn_bullet(data, ecs, pos, EntityType::Player, 1., vel);
+        spawn_bullet(
+            data,
+            ecs,
+            pos,
+            EntityType::Player,
+            1.,
+            vel,
+            ColliderType::Projectile,
+        );
     }
 
     let stompers = ecs.check_components(|e, comps| {
