@@ -390,6 +390,7 @@ pub fn handle_death(data: &mut GameData, ecs: &mut Ecs, death_events: &Vec<Death
     }
 
     if let Some(pos) = spawn_death {
+        data.screen_shake.shake(2.25, 4.);
         spawn_mirituhg_death(data, pos, ecs);
     }
 

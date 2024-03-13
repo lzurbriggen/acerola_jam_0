@@ -108,7 +108,7 @@ pub fn spawn_mirituhg(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Ent
     ecs.components.positions.insert(id, position);
     ecs.components.velocities.insert(id, Vec2::ZERO);
 
-    let hp = 700.;
+    let hp = 900.;
     let mirituhg = Mirituhg {
         move_speed: 35.,
         shoot_move_speed: 15.,
@@ -116,7 +116,7 @@ pub fn spawn_mirituhg(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Ent
         state: MiritughState::Idle,
         previously_spawned: false,
         spawning: false,
-        next_attack_timer: Timer::new(5.5, false),
+        next_attack_timer: Timer::new(4.5, false),
         shoot_timer: Timer::new(0.25, false),
         spawn_1_timer: Timer::new(0.15 * 5., false),
         spawn_2_timer: Timer::new(0.15 * 7., false),

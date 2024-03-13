@@ -603,6 +603,7 @@ async fn main() {
         if data.state == GameState::Intro {
             if intro_screen.update_and_draw(&mut data) {
                 // reset_game(&mut data, &mut ecs);
+                data.reset();
                 spawn_player(&mut data, &mut ecs);
                 data.next_room(&mut ecs);
                 data.state = GameState::Playing;
@@ -717,6 +718,15 @@ async fn main() {
             // post_processing_material.set_uniform("intensity", 3f32);
             post_processing_material.set_uniform("time", get_time() as f32);
             // post_processing_material.set_uniform("hue_shift", 0.1f32);
+            let players = ecs.check_components(|e, comps| comps.player_data.contains_key(e));
+            if players.len() > 0 {
+                if let Some(player_data) = ecs.components.player_data.get_mut(&players[0]) {
+                    post_processing_material
+                        .set_uniform("hue_shift", player_data.aberration * 0.01);
+                    post_processing_material.set_uniform("intensity", player_data.aberration + 0.2);
+                }
+            }
+
             // post_processing_material.set_uniform("hue_shift", 1.8f32);
             set_default_camera();
             gl_use_material(&post_processing_material);

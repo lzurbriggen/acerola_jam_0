@@ -74,27 +74,27 @@ impl EndGameScreen {
 
         let mut should_restart = false;
 
-        if self.show_button_timer.completed() {
-            let center = vec2(360. / 2., 240. / 2.);
-            let button_width = 90.;
-            if button(
-                &data,
-                &Rect::new(center.x - button_width / 2., 200., button_width, 20.),
-                true,
-                "Play Again",
-                None,
-                Vec2::ZERO,
-            ) {
-                should_restart = true;
-                audio::play_sound(
-                    &data.audio.confirm,
-                    PlaySoundParams {
-                        volume: data.settings.sfx_volume,
-                        ..Default::default()
-                    },
-                );
-            }
-        }
+        // if self.show_button_timer.completed() {
+        //     let center = vec2(360. / 2., 240. / 2.);
+        //     let button_width = 90.;
+        //     if button(
+        //         &data,
+        //         &Rect::new(center.x - button_width / 2., 200., button_width, 20.),
+        //         true,
+        //         "Play Again",
+        //         None,
+        //         Vec2::ZERO,
+        //     ) {
+        //         should_restart = true;
+        //         audio::play_sound(
+        //             &data.audio.confirm,
+        //             PlaySoundParams {
+        //                 volume: data.settings.sfx_volume,
+        //                 ..Default::default()
+        //             },
+        //         );
+        //     }
+        // }
 
         should_restart
     }
