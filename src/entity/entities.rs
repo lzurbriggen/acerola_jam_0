@@ -2,6 +2,7 @@ use super::{
     animated_sprite::AnimatedSprite,
     entity_id::Entity,
     hopper::Hopper,
+    mirituhg::Mirituhg,
     pickup::Pickup,
     player::PlayerData,
     spawner::Spawner,
@@ -41,6 +42,7 @@ pub struct Components {
     pub pickups: ComponentColl<Pickup>,
     pub balls: ComponentColl<usize>,
     pub aberration_increase: ComponentColl<f32>,
+    pub mirituhg: ComponentColl<Mirituhg>,
 }
 
 #[derive(Default)]
@@ -92,5 +94,6 @@ impl Ecs {
         self.components.pickups.remove(entity);
         self.components.balls.remove(entity);
         self.components.aberration_increase.remove(entity);
+        self.components.mirituhg.remove(entity);
     }
 }

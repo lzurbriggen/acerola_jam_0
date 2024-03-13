@@ -160,4 +160,50 @@ pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Ve
             *velocity = (player_pos - *position).normalize() * stomper.move_speed;
         }
     }
+
+    let mirituhgs = ecs.check_components(|e, comps| {
+        comps.stompers.contains_key(e)
+            && comps.positions.contains_key(e)
+            && comps.velocities.contains_key(e)
+            && comps.colliders.contains_key(e)
+            && comps.animated_sprites.contains_key(e)
+    });
+
+    for mirituhg_e in &mirituhgs {
+        let mirituhg = ecs.components.mirituhg.get_mut(mirituhg_e).unwrap();
+        let position = ecs.components.positions.get(mirituhg_e).unwrap();
+        let sprite = ecs.components.animated_sprites.get_mut(mirituhg_e).unwrap();
+        let velocity = ecs.components.velocities.get_mut(mirituhg_e).unwrap();
+
+        // mirituhg.damage_timer.update();
+        // mirituhg.jump_timer.update();
+
+        // let dist_to_player = (player_pos - *position).length();
+        // // TODO: check range to player to start
+        // if dist_to_player < 36. && !mirituhg.jumping && mirituhg.jump_timer.completed() {
+        //     sprite.set_animation("jump");
+        //     mirituhg.damage_timer.reset();
+        //     mirituhg.jumping = true
+        // }
+        // if mirituhg.jumping {
+        //     *velocity = (player_pos - *position).normalize() * mirituhg.jump_move_speed;
+        //     if mirituhg.damage_timer.just_completed() && dist_to_player < 26. {
+        //         for player_e in &players {
+        //             damage_events.push(DamageEvent {
+        //                 source: *mirituhg_e,
+        //                 target: *player_e,
+        //                 damage: 1.,
+        //             });
+        //         }
+        //     }
+
+        //     if sprite.current_animation().1.completed {
+        //         mirituhg.jumping = false;
+        //         sprite.set_animation("walk");
+        //         mirituhg.jump_timer.reset();
+        //     }
+        // } else {
+        //     *velocity = (player_pos - *position).normalize() * mirituhg.move_speed;
+        // }
+    }
 }

@@ -136,6 +136,8 @@ async fn main() {
     spitter_texture.set_filter(FilterMode::Nearest);
     let stomper_texture: Texture2D = load_texture("entities/stomper.png").await.unwrap();
     stomper_texture.set_filter(FilterMode::Nearest);
+    let mirituhg_texture: Texture2D = load_texture("entities/mirituhg.png").await.unwrap();
+    mirituhg_texture.set_filter(FilterMode::Nearest);
     let skull_texture: Texture2D = load_texture("entities/skull_01.png").await.unwrap();
     skull_texture.set_filter(FilterMode::Nearest);
     let bullet_texture: Texture2D = load_texture("entities/bullet_01.png").await.unwrap();
@@ -238,6 +240,7 @@ async fn main() {
         ("hopper", hopper_texture),
         ("spitter", spitter_texture),
         ("stomper", stomper_texture),
+        ("mirituhg", mirituhg_texture),
         ("skull", skull_texture),
         ("bullet", bullet_texture),
         ("bullet_enemy", bullet_enemy_texture),
