@@ -109,6 +109,11 @@ async fn main() {
     frame_texture_pretty.set_filter(FilterMode::Nearest);
     let focus_bg_texture: Texture2D = load_texture("ui/focus_bg.png").await.unwrap();
     focus_bg_texture.set_filter(FilterMode::Nearest);
+    let overlay_mirituhg_texture: Texture2D =
+        load_texture("ui/overlay_mirituhg.png").await.unwrap();
+    overlay_mirituhg_texture.set_filter(FilterMode::Nearest);
+    let boss_health_bar_texture: Texture2D = load_texture("ui/health_bar.png").await.unwrap();
+    boss_health_bar_texture.set_filter(FilterMode::Nearest);
 
     let ui_data = UIData {
         button_texture: button_texture,
