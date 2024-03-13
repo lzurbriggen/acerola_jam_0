@@ -78,6 +78,7 @@ pub fn spawn_spitter(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
 
     ecs.components.room_entity.insert(id, ());
     ecs.components.enemies.insert(id, ());
+    ecs.components.aberration_increase.insert(id, 0.003);
 
     ecs.entities.push(id);
     id

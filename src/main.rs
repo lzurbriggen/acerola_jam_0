@@ -503,7 +503,7 @@ async fn main() {
                 data.paused = false;
                 data.show_pause_menu = false;
             } else {
-                // data.paused = true;
+                data.paused = true;
                 data.show_pause_menu = true;
             }
         }

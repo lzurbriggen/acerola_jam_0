@@ -18,13 +18,13 @@ pub fn update_player(data: &mut GameData, ecs: &mut Ecs) {
         let up_data = player_data.get_upgraded_data();
 
         player_data.aberration_increase_timer.update();
-        if !data.current_room.completed
-            && !data.current_room.aberration_completed
-            && player_data.aberration_increase_timer.just_completed()
-        {
-            player_data.aberration += 0.01;
-            player_data.aberration = player_data.aberration.clamp(0., 1.);
-        }
+        // if !data.current_room.completed
+        //     && !data.current_room.aberration_completed
+        //     && player_data.aberration_increase_timer.just_completed()
+        // {
+        //     player_data.aberration += 0.01;
+        //     player_data.aberration = player_data.aberration.clamp(0., 1.);
+        // }
         data.graphics
             .aberration_meter_material
             .set_uniform("intensity", player_data.aberration * 2.2);

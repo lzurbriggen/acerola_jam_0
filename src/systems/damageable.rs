@@ -258,6 +258,16 @@ pub fn kill_entities(ecs: &mut Ecs, death_events: &mut Vec<DeathEvent>) {
         if health.hp <= 0. {
             ecs.despawn(*health_e);
             death_events.push(DeathEvent(*health_e));
+
+            let aberration_increase = ecs.components.aberration_increase.get(health_e);
+            if let Some(inc) = aberration_increase {
+                let players = ecs.check_components(|e, comps| comps.player_data.contains_key(e));
+
+                for player_e in &players {
+                    let player_data = ecs.components.player_data.get_mut(player_e).unwrap();
+                    player_data.aberration = (player_data.aberration + inc).clamp(0., 1.);
+                }
+            }
         }
     }
 }

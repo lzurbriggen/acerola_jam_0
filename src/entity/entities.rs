@@ -40,6 +40,7 @@ pub struct Components {
     pub layer_offset: ComponentColl<i8>,
     pub pickups: ComponentColl<Pickup>,
     pub balls: ComponentColl<usize>,
+    pub aberration_increase: ComponentColl<f32>,
 }
 
 #[derive(Default)]
@@ -90,5 +91,6 @@ impl Ecs {
         self.components.layer_offset.remove(entity);
         self.components.pickups.remove(entity);
         self.components.balls.remove(entity);
+        self.components.aberration_increase.remove(entity);
     }
 }
