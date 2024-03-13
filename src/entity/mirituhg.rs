@@ -54,7 +54,7 @@ impl Mirituhg {
         self.spawn_2_timer.update();
         self.spawn_3_timer.update();
         self.next_move_timer.update();
-        self.shoot_rotation += 1.25 * get_frame_time();
+        self.shoot_rotation += 1. * get_frame_time();
     }
 }
 
@@ -108,16 +108,16 @@ pub fn spawn_mirituhg(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Ent
     ecs.components.positions.insert(id, position);
     ecs.components.velocities.insert(id, Vec2::ZERO);
 
-    let hp = 1200.;
+    let hp = 700.;
     let mirituhg = Mirituhg {
-        move_speed: 40.,
-        shoot_move_speed: 25.,
+        move_speed: 35.,
+        shoot_move_speed: 15.,
         max_hp: hp,
         state: MiritughState::Idle,
         previously_spawned: false,
         spawning: false,
-        next_attack_timer: Timer::new(4., false),
-        shoot_timer: Timer::new(0.15, false),
+        next_attack_timer: Timer::new(5.5, false),
+        shoot_timer: Timer::new(0.25, false),
         spawn_1_timer: Timer::new(0.15 * 5., false),
         spawn_2_timer: Timer::new(0.15 * 7., false),
         spawn_3_timer: Timer::new(0.15 * 9., false),

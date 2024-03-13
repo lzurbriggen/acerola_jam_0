@@ -8,6 +8,7 @@ use crate::{
         impact::{spawn_dust, splatter_blood},
         mirituhg::{self, spawn_mirituhg_death, MiritughState},
         pickup::{spawn_pickup, Pickup},
+        projectile::spawn_bullet,
         skull::spawn_skull,
         tags::EntityType,
     },
@@ -19,6 +20,8 @@ use macroquad::{
     audio::{self, PlaySoundParams},
     prelude::*,
 };
+
+use super::collision::ColliderType;
 
 pub fn update_damageables(ecs: &mut Ecs) {
     let damageables = ecs.check_components(|e, comps| comps.damageables.contains_key(e));
@@ -87,10 +90,13 @@ pub fn apply_damage(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Vec<
         // TODO: use indices instead
         let event = damage_events.iter().find(|e| e.target == *damageable_e);
 
+        let mut bullets = vec![];
+
         if let Some(event) = event {
             if let Some(invulnerable_timer) = &mut damageable.invulnerable_timer {
                 if invulnerable_timer.completed() {
                     let is_player = ecs.components.player_data.contains_key(damageable_e);
+                    let is_enemy = ecs.components.enemies.contains_key(damageable_e);
 
                     let mut apply_damage = true;
                     if is_player {
@@ -105,6 +111,26 @@ pub fn apply_damage(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Vec<
                                         ..Default::default()
                                     },
                                 );
+                            }
+                        }
+                    }
+                    if is_enemy {
+                        let coll = ecs.components.colliders.get(&event.source).unwrap();
+
+                        if coll.coll_type == ColliderType::ProjectileWithoutMapCollision {
+                            if let Weapon::Balls(ref balls) = data.weapon {
+                                let up_data = balls.get_upgraded_data();
+                                if up_data.bullets {
+                                    let pos = ecs.components.positions.get(&event.target).unwrap();
+                                    bullets.push(*pos);
+                                }
+                            }
+                        }
+                        if let Weapon::Dash(ref balls) = data.weapon {
+                            let up_data = balls.get_upgraded_data();
+                            if up_data.bullets {
+                                let pos = ecs.components.positions.get(&event.target).unwrap();
+                                bullets.push(*pos);
                             }
                         }
                     }
@@ -137,6 +163,47 @@ pub fn apply_damage(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Vec<
             for index in event_indices {
                 damage_events.remove(index);
             }
+        }
+
+        let bullet_vel = 50.;
+        let bullet_damage = 7.;
+        for pos in bullets {
+            spawn_bullet(
+                data,
+                ecs,
+                pos + vec2(1., 0.) * 12.,
+                EntityType::Enemy,
+                bullet_damage,
+                vec2(1., 0.) * bullet_vel,
+                ColliderType::PlayerProjectile,
+            );
+            spawn_bullet(
+                data,
+                ecs,
+                pos + vec2(0., 1.) * 12.,
+                EntityType::Enemy,
+                bullet_damage,
+                vec2(0., 1.) * bullet_vel,
+                ColliderType::PlayerProjectile,
+            );
+            spawn_bullet(
+                data,
+                ecs,
+                pos + vec2(-1., 0.) * 12.,
+                EntityType::Enemy,
+                bullet_damage,
+                vec2(-1., 0.) * bullet_vel,
+                ColliderType::PlayerProjectile,
+            );
+            spawn_bullet(
+                data,
+                ecs,
+                pos + vec2(0., -1.) * 12.,
+                EntityType::Enemy,
+                bullet_damage,
+                vec2(0., -1.) * bullet_vel,
+                ColliderType::PlayerProjectile,
+            );
         }
     }
 
@@ -262,8 +329,8 @@ pub fn kill_entities(data: &GameData, ecs: &mut Ecs, death_events: &mut Vec<Deat
 
             let aberration_increase = ecs.components.aberration_increase.get(health_e);
             if let Some(inc) = aberration_increase {
-                // let inc = inc * (1. + data.completed_rooms as f32 * 1.07);
-                let inc = inc * (1. + data.completed_rooms as f32 * 0.07);
+                let inc = inc * (1. + data.completed_rooms as f32 * 0.37);
+                // let inc = inc * (1. + data.completed_rooms as f32 * 0.07);
                 let players = ecs.check_components(|e, comps| comps.player_data.contains_key(e));
 
                 for player_e in &players {

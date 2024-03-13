@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 
 use crate::{entity::entities::Ecs, game_data::GameData};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ColliderType {
     Projectile,
     PlayerProjectile,

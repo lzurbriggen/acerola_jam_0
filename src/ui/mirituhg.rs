@@ -1,6 +1,6 @@
 use macroquad::{
     color::WHITE,
-    math::{vec2, Rect, RectOffset},
+    math::{Rect, RectOffset},
     texture::{draw_texture, Texture2D},
 };
 

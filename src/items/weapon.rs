@@ -32,14 +32,14 @@ impl Launcher {
         Self {
             shoot_timer: Timer::new(0.25, false),
             base_timer_duration: 0.25,
-            base_damage: 50.,
+            base_damage: 8.,
             upgrades: vec![],
         }
     }
 
     pub fn get_upgraded_data(&self) -> LauncherData {
         let mut damage = self.base_damage;
-
+        let mut double_bullets = false;
         let mut duration_percentage_decrease = 0.;
         for upgrade in &self.upgrades {
             match upgrade {
@@ -47,12 +47,14 @@ impl Launcher {
                     duration_percentage_decrease += rate;
                 }
                 LauncherUpgrade::Damage(dmg) => damage += dmg,
+                LauncherUpgrade::DoubleBullet => double_bullets = true,
             }
         }
 
         LauncherData {
             damage,
             timer_duration: self.base_timer_duration * (1. - duration_percentage_decrease),
+            double_bullets,
         }
     }
 }
@@ -60,6 +62,7 @@ impl Launcher {
 pub struct LauncherData {
     pub damage: f32,
     pub timer_duration: f32,
+    pub double_bullets: bool,
 }
 
 pub struct Balls {
@@ -76,17 +79,18 @@ pub struct BallsData {
     pub amount: usize,
     pub damage: f32,
     pub rotation_speed: f32,
+    pub bullets: bool,
 }
 
 impl Balls {
     pub fn new() -> Self {
         Self {
-            ball_spawn_timer: Timer::new(0.4, true),
+            ball_spawn_timer: Timer::new(0.25, true),
             base_amount: 3,
-            base_damage: 7.,
+            base_damage: 13.,
             rotation_progress: 0.,
             upgrades: vec![],
-            base_rotation_speed: 0.15,
+            base_rotation_speed: 0.25,
             buffered_spawns: 3,
         }
     }
@@ -104,12 +108,13 @@ impl Balls {
         let mut amount = self.base_amount;
         let mut damage = self.base_damage;
         let mut rotation_speed_percentage = 0.;
-
+        let mut bullets = false;
         for upgrade in &self.upgrades {
             match upgrade {
                 BallsUpgrade::Amount(added_amount) => amount += added_amount,
                 BallsUpgrade::Damage(dmg) => damage += dmg,
                 BallsUpgrade::RotateSpeed(speed) => rotation_speed_percentage += speed,
+                BallsUpgrade::Split => bullets = true,
             }
         }
 
@@ -117,6 +122,7 @@ impl Balls {
             amount,
             damage,
             rotation_speed: self.base_rotation_speed * (1. + rotation_speed_percentage),
+            bullets,
         }
     }
 }
@@ -137,6 +143,7 @@ pub struct Dash {
 pub struct DashData {
     pub damage: f32,
     pub dash_timer_duration: f32,
+    pub bullets: bool,
 }
 
 impl Dash {
@@ -147,12 +154,12 @@ impl Dash {
             base_dash_timer_duration: dash_timer_duration,
             dashing_timer: Timer::new(0.24, false),
             shadow_timer: Timer::new(0.08, false),
-            speed: 150.,
+            speed: 160.,
             dashing: false,
             direction: Vec2::X,
             shadow_index: 0,
             upgrades: vec![],
-            base_damage: 12.,
+            base_damage: 24.,
         }
     }
 
@@ -164,12 +171,13 @@ impl Dash {
 
     pub fn get_upgraded_data(&self) -> DashData {
         let mut damage = self.base_damage;
-
+        let mut bullets = false;
         let mut duration_percentage_decrease = 0.;
         for upgrade in &self.upgrades {
             match upgrade {
                 DashUpgrade::Damage(increase) => damage += increase,
                 DashUpgrade::TimerDecrease(decrease) => duration_percentage_decrease += decrease,
+                DashUpgrade::Bullets => bullets = true,
             }
         }
 
@@ -177,6 +185,7 @@ impl Dash {
             damage,
             dash_timer_duration: self.base_dash_timer_duration
                 * (1. - duration_percentage_decrease),
+            bullets,
         }
     }
 }

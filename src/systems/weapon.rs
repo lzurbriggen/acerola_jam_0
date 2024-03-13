@@ -48,30 +48,28 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
 
                     let dir = data.input.get_aim_dir(&data.camera, player_pos);
 
-                    bullet_data.push((
-                        launcher_data.damage,
-                        *player_position + dir * 3.,
-                        dir * 160.,
-                        None,
-                    ));
-                    // bullet_data.push((
-                    //     shooter.damage,
-                    //     *player_position + vec2(-3., 0.),
-                    //     vec2(-160., 0.),
-                    //     None,
-                    // ));
-                    // bullet_data.push((
-                    //     shooter.damage,
-                    //     *player_position + vec2(0., 3.),
-                    //     vec2(0., 160.),
-                    //     None,
-                    // ));
-                    // bullet_data.push((
-                    //     shooter.damage,
-                    //     *player_position + vec2(0., -3.),
-                    //     vec2(0., -160.),
-                    //     None,
-                    // ));
+                    if launcher_data.double_bullets {
+                        let asdf = (dir.y / dir.x).atan();
+                        bullet_data.push((
+                            launcher_data.damage,
+                            *player_position + Vec2::from_angle(asdf + TAU / 6.) * 3.,
+                            dir * 160.,
+                            None,
+                        ));
+                        bullet_data.push((
+                            launcher_data.damage,
+                            *player_position + Vec2::from_angle(asdf - TAU / 6.) * 3.,
+                            dir * 160.,
+                            None,
+                        ));
+                    } else {
+                        bullet_data.push((
+                            launcher_data.damage,
+                            *player_position + dir * 3.,
+                            dir * 160.,
+                            None,
+                        ));
+                    }
                 }
 
                 launcher.shoot_timer.time = launcher_data.timer_duration;
@@ -184,7 +182,7 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
             )
             .rotate(Vec2::X);
 
-            let ball_distance = 18.;
+            let ball_distance = 24.;
             let desired_pos = player_pos + angle * ball_distance;
 
             *position = desired_pos;

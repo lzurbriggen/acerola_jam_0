@@ -317,6 +317,5 @@ pub fn update_enemies(data: &mut GameData, ecs: &mut Ecs, damage_events: &mut Ve
     for _ in hopper_spawns {
         spawn_hopper(data, vec2(180., 120.), ecs);
         spawn_hopper(data, vec2(180., 120.), ecs);
-        spawn_hopper(data, vec2(180., 120.), ecs);
     }
 }

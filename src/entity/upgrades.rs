@@ -120,6 +120,7 @@ impl WeaponUpgrade {
 pub enum LauncherUpgrade {
     FireRate(f32),
     Damage(f32),
+    DoubleBullet,
 }
 
 #[derive(Clone)]
@@ -127,12 +128,14 @@ pub enum BallsUpgrade {
     Amount(usize),
     Damage(f32),
     RotateSpeed(f32),
+    Split,
 }
 
 #[derive(Clone)]
 pub enum DashUpgrade {
     Damage(f32),
     TimerDecrease(f32),
+    Bullets,
 }
 
 impl LauncherUpgrade {
@@ -148,6 +151,9 @@ impl LauncherUpgrade {
                 format!("+ {:.0}", dmg).as_str(),
                 "Damage",
             ),
+            LauncherUpgrade::DoubleBullet => {
+                UpgradeDescription::new_with_line2("upgrade_launcher", "Double", "Bullets")
+            }
         }
     }
 }
@@ -170,6 +176,9 @@ impl BallsUpgrade {
                 format!("+ {:.0}%", speed * 100.).as_str(),
                 "Rot. Speed",
             ),
+            BallsUpgrade::Split => {
+                UpgradeDescription::new_with_line2("upgrade_balls", "Bullets", "on Hit")
+            }
         }
     }
 }
@@ -189,29 +198,11 @@ impl DashUpgrade {
                 format!("+ {:.0}%", decrease * 100.).as_str(),
                 "Timer dec.",
             ),
+            DashUpgrade::Bullets => {
+                UpgradeDescription::new_with_line2("upgrade_dash", "Bullets", "on Hit")
+            }
         }
     }
-}
-
-pub fn generate_upgrade(data: &GameData) -> Vec<Upgrade> {
-    let mut upgrades: Vec<Upgrade> = vec![];
-
-    // for i in 0..3 {
-    //     loop {
-    //         let upgrade_index = rand::gen_range(0, Upgrade::len());
-    //         let upgrade = Upgrade::generate_by_index(upgrade_index);
-    //         if i < 2
-    //             && upgrades.iter().all(|u| u.is_general_upgrade())
-    //             && upgrade.is_general_upgrade()
-    //         {
-    //             continue;
-    //         }
-    //         // TODO: match weapon
-    //         upgrades.push(upgrade);
-    //     }
-    // }
-
-    upgrades
 }
 
 pub struct Upgrades {
@@ -220,6 +211,7 @@ pub struct Upgrades {
     launcher_upgrades: Vec<LauncherUpgrade>,
     balls_upgrades: Vec<BallsUpgrade>,
     dash_upgrades: Vec<DashUpgrade>,
+    special_weapon_used: bool,
 }
 
 impl Upgrades {
@@ -231,26 +223,31 @@ impl Upgrades {
                 ItemUpgrade::AnomalySmall,
             ],
             common_upgrades: vec![
-                CommonUpgrade::MaxHp(1),
+                CommonUpgrade::MaxHp(2),
                 CommonUpgrade::MoveSpeed(0.1),
-                CommonUpgrade::ItemDropChance(1),
+                CommonUpgrade::ItemDropChance(3),
             ],
-            launcher_upgrades: vec![LauncherUpgrade::FireRate(0.1), LauncherUpgrade::Damage(5.)],
+            launcher_upgrades: vec![
+                LauncherUpgrade::FireRate(0.05),
+                LauncherUpgrade::Damage(3.),
+                LauncherUpgrade::DoubleBullet,
+            ],
             balls_upgrades: vec![
-                BallsUpgrade::Amount(1),
-                BallsUpgrade::Damage(5.),
-                BallsUpgrade::RotateSpeed(0.15),
+                BallsUpgrade::Amount(2),
+                BallsUpgrade::Damage(18.),
+                BallsUpgrade::RotateSpeed(0.2),
+                BallsUpgrade::Split,
             ],
-            dash_upgrades: vec![DashUpgrade::Damage(5.), DashUpgrade::TimerDecrease(0.15)],
+            dash_upgrades: vec![
+                DashUpgrade::Damage(30.),
+                DashUpgrade::TimerDecrease(0.15),
+                DashUpgrade::Bullets,
+            ],
+            special_weapon_used: false,
         }
     }
 
-    pub fn generate_upgrades(
-        &self,
-        weapon: &Weapon,
-        missing_hp: f32,
-        aberration: f32,
-    ) -> Vec<Upgrade> {
+    pub fn get_weapon_upgrade(&self, weapon: &Weapon) -> (Upgrade, bool) {
         let weapon_upgrade = match weapon {
             Weapon::Launcher(_) => Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(
                 self.launcher_upgrades[rand::gen_range(0, self.launcher_upgrades.len())].clone(),
@@ -262,6 +259,38 @@ impl Upgrades {
                 self.dash_upgrades[rand::gen_range(0, self.dash_upgrades.len())].clone(),
             )),
         };
+
+        let is_special_upgrade = match &weapon_upgrade {
+            Upgrade::WeaponUpgrade(up) => match up {
+                WeaponUpgrade::Launcher(up) => match up {
+                    LauncherUpgrade::DoubleBullet => true,
+                    _ => false,
+                },
+                WeaponUpgrade::Balls(up) => match up {
+                    BallsUpgrade::Split => true,
+                    _ => false,
+                },
+                WeaponUpgrade::Dash(up) => match up {
+                    DashUpgrade::Bullets => true,
+                    _ => false,
+                },
+            },
+            _ => false,
+        };
+        if is_special_upgrade && self.special_weapon_used {
+            return self.get_weapon_upgrade(weapon);
+        }
+        (weapon_upgrade, is_special_upgrade)
+    }
+
+    pub fn generate_upgrades(
+        &mut self,
+        weapon: &Weapon,
+        missing_hp: f32,
+        aberration: f32,
+    ) -> Vec<Upgrade> {
+        let (weapon_upgrade, is_special_upgrade) = self.get_weapon_upgrade(weapon);
+        self.special_weapon_used = is_special_upgrade;
 
         let mut upgrades = vec![weapon_upgrade];
         while upgrades.len() < 3 {
@@ -275,6 +304,29 @@ impl Upgrades {
                             continue;
                         }
                     }
+                    if match upgrade {
+                        ItemUpgrade::AnomalyBig | ItemUpgrade::AnomalySmall => aberration >= 1.,
+                        _ => false,
+                    } {
+                        let weapon_upgrade = match weapon {
+                            Weapon::Launcher(_) => Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(
+                                self.launcher_upgrades
+                                    [rand::gen_range(0, self.launcher_upgrades.len())]
+                                .clone(),
+                            )),
+                            Weapon::Balls(_) => Upgrade::WeaponUpgrade(WeaponUpgrade::Balls(
+                                self.balls_upgrades[rand::gen_range(0, self.balls_upgrades.len())]
+                                    .clone(),
+                            )),
+                            Weapon::Dash(_) => Upgrade::WeaponUpgrade(WeaponUpgrade::Dash(
+                                self.dash_upgrades[rand::gen_range(0, self.dash_upgrades.len())]
+                                    .clone(),
+                            )),
+                        };
+                        upgrades.push(weapon_upgrade);
+                        continue;
+                    }
+
                     upgrades.push(Upgrade::Item(upgrade));
                 }
                 1 => {

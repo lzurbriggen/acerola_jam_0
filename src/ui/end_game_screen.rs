@@ -25,7 +25,7 @@ impl EndGameScreen {
             start_timer: Timer::new(0.7, false),
             timer: Timer::new(1.5, false),
             text_timer: Timer::new(0.3, false),
-            show_button_timer: Timer::new(2.5, false),
+            show_button_timer: Timer::new(5., false),
         }
     }
 

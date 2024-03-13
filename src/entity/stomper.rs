@@ -69,7 +69,7 @@ pub fn spawn_stomper(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Enti
             hit_fx_timer: Some(Timer::new(0.22, false)),
         },
     );
-    ecs.components.health.insert(id, Health { hp: 100. });
+    ecs.components.health.insert(id, Health { hp: 70. });
     ecs.components.damage_on_collision.insert(
         id,
         DamageOnCollision {
