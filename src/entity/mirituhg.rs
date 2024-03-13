@@ -21,6 +21,7 @@ pub struct Mirituhg {
     pub jumping: bool,
     pub move_speed: f32,
     pub jump_move_speed: f32,
+    pub max_hp: f32,
 }
 
 pub fn spawn_mirituhg(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Entity {
@@ -47,11 +48,13 @@ pub fn spawn_mirituhg(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Ent
     ecs.components.positions.insert(id, position);
     ecs.components.velocities.insert(id, Vec2::ZERO);
 
+    let hp = 130.;
     let mirituhg = Mirituhg {
         jump_timer: Timer::new(2., false),
         jumping: false,
         move_speed: 25.,
         jump_move_speed: 25.,
+        max_hp: hp,
     };
     ecs.components.mirituhg.insert(id, mirituhg);
 
@@ -62,7 +65,7 @@ pub fn spawn_mirituhg(data: &mut GameData, position: Vec2, ecs: &mut Ecs) -> Ent
             hit_fx_timer: Some(Timer::new(0.22, false)),
         },
     );
-    ecs.components.health.insert(id, Health { hp: 130. });
+    ecs.components.health.insert(id, Health { hp });
     ecs.components.damage_on_collision.insert(
         id,
         DamageOnCollision {
