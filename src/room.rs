@@ -1,6 +1,9 @@
 use macroquad::rand;
 
-use crate::entity::entities::Ecs;
+use crate::entity::{
+    entities::Ecs,
+    upgrades::{Upgrade, Upgrades},
+};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Enemy {
@@ -25,6 +28,7 @@ pub struct Room {
     pub started: bool,
     pub aberration_completed: bool,
     pub completed: bool,
+    pub available_upgrades: Vec<Upgrade>,
     pub upgrade_chosen: bool,
     pub entities_spawned: bool,
 }
@@ -57,6 +61,7 @@ impl Room {
             started: false,
             aberration_completed: false,
             completed: false,
+            available_upgrades: Upgrades::weapon_selection(),
             upgrade_chosen: false,
             entities_spawned: false,
         }

@@ -3,7 +3,10 @@ use std::collections::HashMap;
 use macroquad::{audio::Sound, prelude::*};
 
 use crate::{
-    entity::{entities::Ecs, entity_id::Entity, player::spawn_player, spawner::spawn_spawner},
+    entity::{
+        entities::Ecs, entity_id::Entity, player::spawn_player, spawner::spawn_spawner,
+        upgrades::Upgrades,
+    },
     game_state::GameState,
     input_manager::InputManager,
     items::weapon::{Launcher, Weapon},
@@ -98,6 +101,8 @@ pub struct GameData {
     pub game_completed: bool,
     pub item_drop_chance_increase: i32,
     pub screen_shake: ScreenShake,
+    pub completed_rooms: usize,
+    pub upgrades: Upgrades,
 }
 
 impl GameData {
@@ -142,6 +147,8 @@ impl GameData {
             game_completed: false,
             item_drop_chance_increase: 0,
             screen_shake: ScreenShake::new(),
+            completed_rooms: 0,
+            upgrades: Upgrades::new(),
         }
     }
 
@@ -151,6 +158,7 @@ impl GameData {
         self.current_room = Room::new(0, 3.);
         self.next_room = None;
         self.dead = false;
+        self.completed_rooms = 0;
     }
 
     pub fn new_entity(&mut self) -> Entity {
@@ -228,14 +236,34 @@ impl GameData {
     pub fn next_room(&mut self, ecs: &mut Ecs) {
         self.current_room.despawn(ecs);
 
-        let map_index = rand::gen_range(0, self.maps.len());
+        let map_index = match self.completed_rooms {
+            0 => 0,
+            _ => rand::gen_range(0, self.maps.len()),
+        };
 
-        let new_room = Room::new(map_index, 30.);
+        let mut new_room = Room::new(map_index, 2. + 3. * self.completed_rooms as f32);
+
+        new_room.available_upgrades = if self.completed_rooms == 0 {
+            Upgrades::weapon_selection()
+        } else {
+            let players = ecs.check_components(|e, comps| comps.player_data.contains_key(e));
+            let player_data = ecs.components.player_data.get(&players[0]).unwrap();
+            let up_data = player_data.get_upgraded_data();
+            let health = ecs.components.health.get(&players[0]).unwrap();
+
+            self.upgrades.generate_upgrades(
+                &self.weapon,
+                up_data.max_hp as f32 - health.hp,
+                player_data.aberration,
+            )
+        };
+
         self.next_room = Some(new_room);
         self.map_change_requested = true;
         self.screen_dimmer.dim();
         self.paused = true;
         self.pause_timer.reset();
+        self.completed_rooms += 1;
     }
 }
 

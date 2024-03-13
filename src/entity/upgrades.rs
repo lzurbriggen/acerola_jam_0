@@ -1,4 +1,9 @@
-use crate::{game_data::GameData, items::weapon::WeaponType};
+use macroquad::prelude::rand;
+
+use crate::{
+    game_data::GameData,
+    items::weapon::{Weapon, WeaponType},
+};
 
 pub struct UpgradeDescription {
     pub texture_name: String,
@@ -57,16 +62,12 @@ impl ItemUpgrade {
             ItemUpgrade::Hp(hp) => {
                 UpgradeDescription::new("upgrade_item_hp", format!("+ {} HP", hp).as_str())
             }
-            ItemUpgrade::AnomalyBig => UpgradeDescription::new_with_line2(
-                "upgrade_item_anomaly_big",
-                "- 50%",
-                "Aberration",
-            ),
-            ItemUpgrade::AnomalySmall => UpgradeDescription::new_with_line2(
-                "upgrade_item_anomaly_small",
-                "- 10%",
-                "Aberration",
-            ),
+            ItemUpgrade::AnomalyBig => {
+                UpgradeDescription::new_with_line2("upgrade_item_anomaly_big", "- 50%", "Anomaly")
+            }
+            ItemUpgrade::AnomalySmall => {
+                UpgradeDescription::new_with_line2("upgrade_item_anomaly_small", "- 10%", "Anomaly")
+            }
         }
     }
 }
@@ -216,7 +217,7 @@ pub fn generate_upgrade(data: &GameData) -> Vec<Upgrade> {
 pub struct Upgrades {
     item_upgrades: Vec<ItemUpgrade>,
     common_upgrades: Vec<CommonUpgrade>,
-    shooter_upgrades: Vec<LauncherUpgrade>,
+    launcher_upgrades: Vec<LauncherUpgrade>,
     balls_upgrades: Vec<BallsUpgrade>,
     dash_upgrades: Vec<DashUpgrade>,
 }
@@ -229,28 +230,84 @@ impl Upgrades {
                 ItemUpgrade::AnomalyBig,
                 ItemUpgrade::AnomalySmall,
             ],
-            common_upgrades: vec![CommonUpgrade::MaxHp(1), CommonUpgrade::MoveSpeed(10.)],
-            shooter_upgrades: vec![],
-            balls_upgrades: vec![],
-            dash_upgrades: vec![],
+            common_upgrades: vec![
+                CommonUpgrade::MaxHp(1),
+                CommonUpgrade::MoveSpeed(0.1),
+                CommonUpgrade::ItemDropChance(1),
+            ],
+            launcher_upgrades: vec![LauncherUpgrade::FireRate(0.1), LauncherUpgrade::Damage(5.)],
+            balls_upgrades: vec![
+                BallsUpgrade::Amount(1),
+                BallsUpgrade::Damage(5.),
+                BallsUpgrade::RotateSpeed(0.15),
+            ],
+            dash_upgrades: vec![DashUpgrade::Damage(5.), DashUpgrade::TimerDecrease(0.15)],
         }
+    }
+
+    pub fn generate_upgrades(
+        &self,
+        weapon: &Weapon,
+        missing_hp: f32,
+        aberration: f32,
+    ) -> Vec<Upgrade> {
+        let weapon_upgrade = match weapon {
+            Weapon::Launcher(_) => Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(
+                self.launcher_upgrades[rand::gen_range(0, self.launcher_upgrades.len())].clone(),
+            )),
+            Weapon::Balls(_) => Upgrade::WeaponUpgrade(WeaponUpgrade::Balls(
+                self.balls_upgrades[rand::gen_range(0, self.balls_upgrades.len())].clone(),
+            )),
+            Weapon::Dash(_) => Upgrade::WeaponUpgrade(WeaponUpgrade::Dash(
+                self.dash_upgrades[rand::gen_range(0, self.dash_upgrades.len())].clone(),
+            )),
+        };
+
+        let mut upgrades = vec![weapon_upgrade];
+        while upgrades.len() < 3 {
+            let collection_index = rand::gen_range(0, 2);
+            match collection_index {
+                0 => {
+                    let upgrade =
+                        self.item_upgrades[rand::gen_range(0, self.item_upgrades.len())].clone();
+                    if let ItemUpgrade::Hp(hp) = upgrade {
+                        if hp > missing_hp {
+                            continue;
+                        }
+                    }
+                    upgrades.push(Upgrade::Item(upgrade));
+                }
+                1 => {
+                    let upgrade = self.common_upgrades
+                        [rand::gen_range(0, self.common_upgrades.len())]
+                    .clone();
+                    upgrades.push(Upgrade::CommonUpgrade(upgrade));
+                }
+                _ => unreachable!(),
+            }
+        }
+
+        upgrades
+        // vec![
+        //     weapon_upgrade,
+        //     // Upgrade::Weapon(WeaponType::Dash),
+        //     // Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(LauncherUpgrade::(5.))),
+        //     Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(LauncherUpgrade::Damage(5.))),
+        //     Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(LauncherUpgrade::FireRate(0.1))),
+        //     // Upgrade::WeaponUpgrade(WeaponUpgrade::Dash(DashUpgrade::Damage(10.))),
+        //     Upgrade::CommonUpgrade(CommonUpgrade::MaxHp(1)),
+        //     // Upgrade::CommonUpgrade(CommonUpgrade::MoveSpeed(0.10)),
+        //     // Upgrade::CommonUpgrade(CommonUpgrade::ItemDropChance(1)),
+        //     // Upgrade::Item(ItemUpgrade::Hp(1.)),
+        //     // Upgrade::WeaponUpgrade(WeaponUpgrade::Shooter(ShooterUpgrade::FireRate(15.))),
+        // ]
     }
 
     pub fn weapon_selection() -> Vec<Upgrade> {
         vec![
-            // Upgrade::Weapon(WeaponType::Launcher),
-            // Upgrade::Weapon(WeaponType::Balls),
-            // Upgrade::Weapon(WeaponType::Dash),
-            // Upgrade::Weapon(WeaponType::Dash),
-            // Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(LauncherUpgrade::(5.))),
-            Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(LauncherUpgrade::Damage(5.))),
-            Upgrade::WeaponUpgrade(WeaponUpgrade::Launcher(LauncherUpgrade::FireRate(0.1))),
-            // Upgrade::WeaponUpgrade(WeaponUpgrade::Dash(DashUpgrade::Damage(10.))),
-            Upgrade::CommonUpgrade(CommonUpgrade::MaxHp(1)),
-            // Upgrade::CommonUpgrade(CommonUpgrade::MoveSpeed(0.10)),
-            // Upgrade::CommonUpgrade(CommonUpgrade::ItemDropChance(1)),
-            // Upgrade::Item(ItemUpgrade::Hp(1.)),
-            // Upgrade::WeaponUpgrade(WeaponUpgrade::Shooter(ShooterUpgrade::FireRate(15.))),
+            Upgrade::Weapon(WeaponType::Launcher),
+            Upgrade::Weapon(WeaponType::Balls),
+            Upgrade::Weapon(WeaponType::Dash),
         ]
     }
 }

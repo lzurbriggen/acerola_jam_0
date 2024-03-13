@@ -182,7 +182,7 @@ pub fn update_weapon(ecs: &mut Ecs, data: &mut GameData) {
             )
             .rotate(Vec2::X);
 
-            let ball_distance = 22.;
+            let ball_distance = 18.;
             let desired_pos = player_pos + angle * ball_distance;
 
             *position = desired_pos;

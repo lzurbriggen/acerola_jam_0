@@ -401,7 +401,7 @@ async fn main() {
 
     let mut intro_screen = IntroScreen::new(&data);
 
-    let mut upgrade_screen = UpgradeScreen::new(Upgrades::weapon_selection());
+    let mut upgrade_screen = UpgradeScreen::new(vec![]);
 
     play_sound(
         &data.audio.music1,
@@ -599,8 +599,7 @@ async fn main() {
         if data.dead {
             data.death_screen.update();
             if data.death_screen.draw(&data) {
-                data.state = GameState::Intro;
-                data.dead = false;
+                data.reset();
             }
         }
         if data.game_completed {
@@ -631,6 +630,7 @@ async fn main() {
                     break;
                 }
             } else if upgrade_screen.visible {
+                upgrade_screen.upgrades = data.current_room.available_upgrades.clone();
                 if let Some(upgrade) = upgrade_screen.draw(&mut data) {
                     let players =
                         ecs.check_components(|e, comps| comps.player_data.contains_key(e));

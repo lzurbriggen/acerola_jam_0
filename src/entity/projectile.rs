@@ -8,7 +8,7 @@ use super::{
     animated_sprite::{AnimatedSprite, Animation},
     entities::Ecs,
     entity_id::Entity,
-    tags::{DamageOnCollision, DespawnOnAnimEnd, DespawnOnHit, EntityType},
+    tags::{DamageOnCollision, DespawnOnHit, EntityType},
 };
 
 pub fn spawn_bullet(
@@ -55,6 +55,9 @@ pub fn spawn_bullet(
             },
         },
     );
+    ecs.components
+        .despawn_on_hit
+        .insert(id, DespawnOnHit(target));
     ecs.components.velocities.insert(id, velocity);
     ecs.components.player_entity.insert(id, ());
     ecs.components.room_entity.insert(id, ());

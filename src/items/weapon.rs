@@ -83,7 +83,7 @@ impl Balls {
         Self {
             ball_spawn_timer: Timer::new(0.4, true),
             base_amount: 3,
-            base_damage: 5.,
+            base_damage: 7.,
             rotation_progress: 0.,
             upgrades: vec![],
             base_rotation_speed: 0.15,
