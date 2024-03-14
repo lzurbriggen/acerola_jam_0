@@ -3,15 +3,6 @@
 version = 3
 
 [[package]]
-name = "acerola_jam_0"
-version = "0.1.0"
-dependencies = [
- "gamepads",
- "macroquad",
- "macroquad-tiled",
-]
-
-[[package]]
 name = "adler"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -638,6 +629,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "tombs_of_mirituhg"
+version = "0.1.1"
+dependencies = [
+ "gamepads",
+ "macroquad",
+ "macroquad-tiled",
 ]
 
 [[package]]

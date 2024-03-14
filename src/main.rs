@@ -334,7 +334,7 @@ async fn main() {
 
     // Music
     let music1 = audio::load_sound_from_bytes(include_bytes!(
-        "../assets/audio/music/game_240308_mirituhg_battle 2024-03-12 1521.wav"
+        "../assets/audio/music/game_240308_mirituhg_battle 2024-03-14 1740.ogg"
     ))
     .await
     .unwrap();

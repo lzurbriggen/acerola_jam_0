@@ -1,10 +1,10 @@
 [package]
-name = "acerola_jam_0"
-version = "0.1.0"
+name = "tombs_of_mirituhg"
+version = "0.1.1"
 edition = "2021"
 
 [[bin]]
-name = "acerola_jam_0"
+name = "tombs_of_mirituhg"
 
 [lib]
 path = "src/main.rs"
