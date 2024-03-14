@@ -87,28 +87,43 @@ fn window_conf() -> Conf {
     }
 }
 
+fn load_texture_bytes(bytes: &[u8]) -> Texture2D {
+    let image = Image::from_file_with_format(bytes, None).unwrap();
+    let texture = Texture2D::from_image(&image);
+
+    // let texture = load_texture_bytes(include_bytes!("../assets/ui/button_bg.png"));
+    texture.set_filter(FilterMode::Nearest);
+    texture
+}
+
 #[macroquad::main(window_conf)]
 async fn main() {
     set_pc_assets_folder("assets");
 
-    let mut font = load_ttf_font("fonts/Bitfantasy.ttf").await.unwrap();
+    let mut font =
+        load_ttf_font_from_bytes(include_bytes!("../assets/fonts/Bitfantasy.ttf")).unwrap();
+    // let mut font = load_ttf_font("fonts/Bitfantasy.ttf"));
     font.set_filter(FilterMode::Nearest);
 
-    let mut icon_font = load_ttf_font("fonts/Zicons.ttf").await.unwrap();
+    let mut icon_font =
+        load_ttf_font_from_bytes(include_bytes!("../assets/fonts/Zicons.ttf")).unwrap();
+    // let mut icon_font = load_ttf_font("fonts/Zicons.ttf"));
     icon_font.set_filter(FilterMode::Nearest);
 
     // UI assets
-    let button_texture: Texture2D = load_texture("ui/button_bg.png").await.unwrap();
-    button_texture.set_filter(FilterMode::Nearest);
-    let button_texture_hover: Texture2D = load_texture("ui/button_bg_hover.png").await.unwrap();
+    let button_texture = load_texture_bytes(include_bytes!("../assets/ui/button_bg.png"));
+    let button_texture_hover =
+        load_texture_bytes(include_bytes!("../assets/ui/button_bg_hover.png"));
     button_texture_hover.set_filter(FilterMode::Nearest);
-    let button_texture_pressed: Texture2D = load_texture("ui/button_bg_clicked.png").await.unwrap();
+    let button_texture_pressed =
+        load_texture_bytes(include_bytes!("../assets/ui/button_bg_clicked.png"));
     button_texture_pressed.set_filter(FilterMode::Nearest);
-    let frame_texture: Texture2D = load_texture("ui/window_bg.png").await.unwrap();
+    let frame_texture = load_texture_bytes(include_bytes!("../assets/ui/window_bg.png"));
     frame_texture.set_filter(FilterMode::Nearest);
-    let frame_texture_pretty: Texture2D = load_texture("ui/window_bg_pretty.png").await.unwrap();
+    let frame_texture_pretty =
+        load_texture_bytes(include_bytes!("../assets/ui/window_bg_pretty.png"));
     frame_texture_pretty.set_filter(FilterMode::Nearest);
-    let focus_bg_texture: Texture2D = load_texture("ui/focus_bg.png").await.unwrap();
+    let focus_bg_texture = load_texture_bytes(include_bytes!("../assets/ui/focus_bg.png"));
     focus_bg_texture.set_filter(FilterMode::Nearest);
 
     let ui_data = UIData {
@@ -129,107 +144,86 @@ async fn main() {
 
     let mut fps_counter = FPSCounter::default();
 
-    let hud_heart_texture: Texture2D = load_texture("ui/heart_01.png").await.unwrap();
-    hud_heart_texture.set_filter(FilterMode::Nearest);
-    let hopper_texture: Texture2D = load_texture("entities/hopper_01.png").await.unwrap();
-    hopper_texture.set_filter(FilterMode::Nearest);
-    let spitter_texture: Texture2D = load_texture("entities/spitter.png").await.unwrap();
-    spitter_texture.set_filter(FilterMode::Nearest);
-    let stomper_texture: Texture2D = load_texture("entities/stomper.png").await.unwrap();
-    stomper_texture.set_filter(FilterMode::Nearest);
-    let mirituhg_texture: Texture2D = load_texture("entities/mirituhg.png").await.unwrap();
-    mirituhg_texture.set_filter(FilterMode::Nearest);
-    let skull_texture: Texture2D = load_texture("entities/skull_01.png").await.unwrap();
-    skull_texture.set_filter(FilterMode::Nearest);
-    let bullet_texture: Texture2D = load_texture("entities/bullet_01.png").await.unwrap();
-    bullet_texture.set_filter(FilterMode::Nearest);
-    let bullet_enemy_texture: Texture2D = load_texture("entities/bullet_enemy.png").await.unwrap();
-    bullet_enemy_texture.set_filter(FilterMode::Nearest);
-    let dust_texture: Texture2D = load_texture("entities/dust_01.png").await.unwrap();
-    dust_texture.set_filter(FilterMode::Nearest);
-    let blood_texture: Texture2D = load_texture("entities/blood_01.png").await.unwrap();
-    blood_texture.set_filter(FilterMode::Nearest);
-    let aberration_meter_texture: Texture2D =
-        load_texture("ui/aberration_meter.png").await.unwrap();
-    aberration_meter_texture.set_filter(FilterMode::Nearest);
-    let noise1_texture: Texture2D = load_texture("entities/Perlin_16-128x128.png")
-        .await
-        .unwrap();
-    noise1_texture.set_filter(FilterMode::Nearest);
-    let noise2_texture: Texture2D = load_texture("entities/Perlin_15-128x128.png")
-        .await
-        .unwrap();
-    noise2_texture.set_filter(FilterMode::Nearest);
-    let aberration_meter_mask_texture: Texture2D =
-        load_texture("ui/aberration_meter_mask.png").await.unwrap();
-    aberration_meter_mask_texture.set_filter(FilterMode::Nearest);
-    let death_texture: Texture2D = load_texture("ui/death.png").await.unwrap();
-    death_texture.set_filter(FilterMode::Nearest);
-    let end_game_screen_texture: Texture2D = load_texture("ui/end_game_screen.png").await.unwrap();
-    end_game_screen_texture.set_filter(FilterMode::Nearest);
-    let player_texture: Texture2D = load_texture("entities/player_01.png").await.unwrap();
-    player_texture.set_filter(FilterMode::Nearest);
-    let intro_screen_texture: Texture2D = load_texture("ui/intro_screen.png").await.unwrap();
-    intro_screen_texture.set_filter(FilterMode::Nearest);
-    let health_texture: Texture2D = load_texture("entities/health.png").await.unwrap();
-    health_texture.set_filter(FilterMode::Nearest);
-    let anomaly_big_texture: Texture2D = load_texture("entities/anomaly_big_01.png").await.unwrap();
-    anomaly_big_texture.set_filter(FilterMode::Nearest);
-    let anomaly_small_texture: Texture2D =
-        load_texture("entities/anomaly_small_01.png").await.unwrap();
-    anomaly_small_texture.set_filter(FilterMode::Nearest);
+    let hud_heart_texture = load_texture_bytes(include_bytes!("../assets/ui/heart_01.png"));
 
-    let upgrade_frame_inner_texture: Texture2D =
-        load_texture("ui/upgrade_frame_inner.png").await.unwrap();
-    upgrade_frame_inner_texture.set_filter(FilterMode::Nearest);
-    let upgrade_frame_inner_dark_texture: Texture2D =
-        load_texture("ui/upgrade_frame_inner_dark.png")
-            .await
-            .unwrap();
-    upgrade_frame_inner_dark_texture.set_filter(FilterMode::Nearest);
-    let upgrade_banner_item_texture: Texture2D =
-        load_texture("ui/upgrade_banner_item.png").await.unwrap();
-    upgrade_banner_item_texture.set_filter(FilterMode::Nearest);
-    let upgrade_banner_upgrade_texture: Texture2D =
-        load_texture("ui/upgrade_banner_upgrade.png").await.unwrap();
-    upgrade_banner_upgrade_texture.set_filter(FilterMode::Nearest);
-    let upgrade_banner_weapon_texture: Texture2D =
-        load_texture("ui/upgrade_banner_weapon.png").await.unwrap();
-    upgrade_banner_weapon_texture.set_filter(FilterMode::Nearest);
+    let hopper_texture = load_texture_bytes(include_bytes!("../assets/entities/hopper_01.png"));
 
-    let upgrade_launcher_texture: Texture2D =
-        load_texture("ui/upgrade_launcher.png").await.unwrap();
-    upgrade_launcher_texture.set_filter(FilterMode::Nearest);
-    let upgrade_balls_texture: Texture2D = load_texture("ui/upgrade_balls.png").await.unwrap();
-    upgrade_balls_texture.set_filter(FilterMode::Nearest);
-    let upgrade_dash_texture: Texture2D = load_texture("ui/upgrade_dash.png").await.unwrap();
-    upgrade_dash_texture.set_filter(FilterMode::Nearest);
-    let upgrade_common_max_hp_texture: Texture2D =
-        load_texture("ui/upgrade_common_max_hp.png").await.unwrap();
-    upgrade_common_max_hp_texture.set_filter(FilterMode::Nearest);
-    let upgrade_item_hp_texture: Texture2D = load_texture("ui/upgrade_item_hp.png").await.unwrap();
-    upgrade_item_hp_texture.set_filter(FilterMode::Nearest);
-    let upgrade_items_texture: Texture2D = load_texture("ui/upgrade_items.png").await.unwrap();
-    upgrade_items_texture.set_filter(FilterMode::Nearest);
-    let upgrade_move_speed_texture: Texture2D =
-        load_texture("ui/upgrade_move_speed.png").await.unwrap();
-    upgrade_move_speed_texture.set_filter(FilterMode::Nearest);
-    let upgrade_item_anomaly_big_texture: Texture2D =
-        load_texture("ui/upgrade_item_anomaly_big.png")
-            .await
-            .unwrap();
-    upgrade_item_anomaly_big_texture.set_filter(FilterMode::Nearest);
-    let upgrade_item_anomaly_small_texture: Texture2D =
-        load_texture("ui/upgrade_item_anomaly_small.png")
-            .await
-            .unwrap();
-    upgrade_item_anomaly_small_texture.set_filter(FilterMode::Nearest);
+    let spitter_texture = load_texture_bytes(include_bytes!("../assets/entities/spitter.png"));
 
-    let overlay_mirituhg_texture: Texture2D =
-        load_texture("ui/overlay_mirituhg.png").await.unwrap();
-    overlay_mirituhg_texture.set_filter(FilterMode::Nearest);
-    let boss_health_bar_texture: Texture2D = load_texture("ui/health_bar.png").await.unwrap();
-    boss_health_bar_texture.set_filter(FilterMode::Nearest);
+    let stomper_texture = load_texture_bytes(include_bytes!("../assets/entities/stomper.png"));
+
+    let mirituhg_texture = load_texture_bytes(include_bytes!("../assets/entities/mirituhg.png"));
+
+    let skull_texture = load_texture_bytes(include_bytes!("../assets/entities/skull_01.png"));
+
+    let bullet_texture = load_texture_bytes(include_bytes!("../assets/entities/bullet_01.png"));
+
+    let bullet_enemy_texture =
+        load_texture_bytes(include_bytes!("../assets/entities/bullet_enemy.png"));
+
+    let dust_texture = load_texture_bytes(include_bytes!("../assets/entities/dust_01.png"));
+
+    let blood_texture = load_texture_bytes(include_bytes!("../assets/entities/blood_01.png"));
+
+    let aberration_meter_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/aberration_meter.png"));
+
+    let noise1_texture =
+        load_texture_bytes(include_bytes!("../assets/entities/Perlin_16-128x128.png"));
+
+    let noise2_texture =
+        load_texture_bytes(include_bytes!("../assets/entities/Perlin_15-128x128.png"));
+
+    let aberration_meter_mask_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/aberration_meter_mask.png"));
+    let death_texture = load_texture_bytes(include_bytes!("../assets/ui/death.png"));
+
+    let end_game_screen_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/end_game_screen.png"));
+
+    let player_texture = load_texture_bytes(include_bytes!("../assets/entities/player_01.png"));
+
+    let intro_screen_texture = load_texture_bytes(include_bytes!("../assets/ui/intro_screen.png"));
+
+    let health_texture = load_texture_bytes(include_bytes!("../assets/entities/health.png"));
+
+    let anomaly_big_texture =
+        load_texture_bytes(include_bytes!("../assets/entities/anomaly_big_01.png"));
+    let anomaly_small_texture =
+        load_texture_bytes(include_bytes!("../assets/entities/anomaly_small_01.png"));
+    let upgrade_frame_inner_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/upgrade_frame_inner.png"));
+    let upgrade_frame_inner_dark_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/upgrade_frame_inner_dark.png"));
+    let upgrade_banner_item_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/upgrade_banner_item.png"));
+    let upgrade_banner_upgrade_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/upgrade_banner_upgrade.png"));
+    let upgrade_banner_weapon_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/upgrade_banner_weapon.png"));
+    let upgrade_launcher_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/upgrade_launcher.png"));
+    let upgrade_balls_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/upgrade_balls.png"));
+    let upgrade_dash_texture = load_texture_bytes(include_bytes!("../assets/ui/upgrade_dash.png"));
+    let upgrade_common_max_hp_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/upgrade_common_max_hp.png"));
+    let upgrade_item_hp_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/upgrade_item_hp.png"));
+    let upgrade_items_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/upgrade_items.png"));
+    let upgrade_move_speed_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/upgrade_move_speed.png"));
+    let upgrade_item_anomaly_big_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/upgrade_item_anomaly_big.png"));
+    let upgrade_item_anomaly_small_texture = load_texture_bytes(include_bytes!(
+        "../assets/ui/upgrade_item_anomaly_small.png"
+    ));
+
+    let overlay_mirituhg_texture =
+        load_texture_bytes(include_bytes!("../assets/ui/overlay_mirituhg.png"));
+
+    let boss_health_bar_texture = load_texture_bytes(include_bytes!("../assets/ui/health_bar.png"));
 
     let mut materials = HashMap::new();
     let aberration_material = create_aberration_material();
@@ -289,39 +283,61 @@ async fn main() {
     };
 
     // Sfx
-    let ui_switch_sfx = audio::load_sound("audio/mini_sounds_pack_40/touch_4.wav")
-        .await
-        .unwrap();
-    let shoot_sfx = audio::load_sound("audio/mini_sounds_pack_40/hurt_1.wav")
-        .await
-        .unwrap();
-    let death_sfx = audio::load_sound("audio/mini_sounds_pack_40/expl_2.wav")
-        .await
-        .unwrap();
-    let death2_sfx = audio::load_sound("audio/mini_sounds_pack_40/down.wav")
-        .await
-        .unwrap();
-    let spawn_sfx = audio::load_sound("audio/mini_sounds_pack_40/touch_4.wav")
-        .await
-        .unwrap();
-    let kill_sfx = audio::load_sound("audio/mini_sounds_pack_40/touch_4.wav")
-        .await
-        .unwrap();
-    let confirm_sfx = audio::load_sound("audio/ui/bookClose.ogg").await.unwrap();
-    let confirm2_sfx = audio::load_sound("audio/mini_sounds_pack_40/jump_5.wav")
-        .await
-        .unwrap();
-    let hit_sfx = audio::load_sound("audio/mini_sounds_pack_40/hurt_5.wav")
-        .await
-        .unwrap();
-    let hit2_sfx = audio::load_sound("audio/mini_sounds_pack_40/2.wav")
-        .await
-        .unwrap();
+    let ui_switch_sfx = audio::load_sound_from_bytes(include_bytes!(
+        "../assets/audio/mini_sounds_pack_40/touch_4.wav"
+    ))
+    .await
+    .unwrap();
+    let shoot_sfx = audio::load_sound_from_bytes(include_bytes!(
+        "../assets/audio/mini_sounds_pack_40/hurt_1.wav"
+    ))
+    .await
+    .unwrap();
+    let death_sfx = audio::load_sound_from_bytes(include_bytes!(
+        "../assets/audio/mini_sounds_pack_40/expl_2.wav"
+    ))
+    .await
+    .unwrap();
+    let death2_sfx = audio::load_sound_from_bytes(include_bytes!(
+        "../assets/audio/mini_sounds_pack_40/down.wav"
+    ))
+    .await
+    .unwrap();
+    let spawn_sfx = audio::load_sound_from_bytes(include_bytes!(
+        "../assets/audio/mini_sounds_pack_40/touch_4.wav"
+    ))
+    .await
+    .unwrap();
+    let kill_sfx = audio::load_sound_from_bytes(include_bytes!(
+        "../assets/audio/mini_sounds_pack_40/touch_4.wav"
+    ))
+    .await
+    .unwrap();
+    let confirm_sfx =
+        audio::load_sound_from_bytes(include_bytes!("../assets/audio/ui/bookClose.ogg"))
+            .await
+            .unwrap();
+    let confirm2_sfx = audio::load_sound_from_bytes(include_bytes!(
+        "../assets/audio/mini_sounds_pack_40/jump_5.wav"
+    ))
+    .await
+    .unwrap();
+    let hit_sfx = audio::load_sound_from_bytes(include_bytes!(
+        "../assets/audio/mini_sounds_pack_40/hurt_5.wav"
+    ))
+    .await
+    .unwrap();
+    let hit2_sfx =
+        audio::load_sound_from_bytes(include_bytes!("../assets/audio/mini_sounds_pack_40/2.wav"))
+            .await
+            .unwrap();
 
     // Music
-    let music1 = audio::load_sound("audio/music/game_240308_mirituhg_battle 2024-03-12 1521.wav")
-        .await
-        .unwrap();
+    let music1 = audio::load_sound_from_bytes(include_bytes!(
+        "../assets/audio/music/game_240308_mirituhg_battle 2024-03-12 1521.wav"
+    ))
+    .await
+    .unwrap();
 
     let audio = Audio {
         ui_switch: ui_switch_sfx.clone(),
@@ -342,46 +358,30 @@ async fn main() {
     let mut entity_index = 0;
 
     // Map
-    let tileset = load_texture("map/tileset_01.png").await.unwrap();
-    tileset.set_filter(FilterMode::Nearest);
+    let tileset = load_texture_bytes(include_bytes!("../assets/map/tileset_01.png"));
 
-    let tiled_map1_json = load_string("map/example_01.tmj").await.unwrap();
-    let tiled_map1 = load_map(
-        tiled_map1_json.as_str(),
-        &[("tileset_01.png", tileset.clone())],
-        &[],
-    )
-    .unwrap();
+    let tiled_map1_json = include_str!("../assets/map/example_01.tmj");
+    // let tiled_map1_json = load_string("map/example_01.tmj").await.unwrap();
+    let tiled_map1 =
+        load_map(tiled_map1_json, &[("tileset_01.png", tileset.clone())], &[]).unwrap();
     entity_index += 1;
     let map1 = Map::new(Entity(entity_index), &settings, tiled_map1);
 
-    let tiled_map2_json = load_string("map/map2.tmj").await.unwrap();
-    let tiled_map2 = load_map(
-        tiled_map2_json.as_str(),
-        &[("tileset_01.png", tileset.clone())],
-        &[],
-    )
-    .unwrap();
+    let tiled_map2_json = include_str!("../assets/map/map2.tmj");
+    let tiled_map2 =
+        load_map(tiled_map2_json, &[("tileset_01.png", tileset.clone())], &[]).unwrap();
     entity_index += 1;
     let map2 = Map::new(Entity(entity_index), &settings, tiled_map2);
 
-    let tiled_map3_json = load_string("map/map3.tmj").await.unwrap();
-    let tiled_map3 = load_map(
-        tiled_map3_json.as_str(),
-        &[("tileset_01.png", tileset.clone())],
-        &[],
-    )
-    .unwrap();
+    let tiled_map3_json = include_str!("../assets/map/map3.tmj");
+    let tiled_map3 =
+        load_map(tiled_map3_json, &[("tileset_01.png", tileset.clone())], &[]).unwrap();
     entity_index += 1;
     let map3 = Map::new(Entity(entity_index), &settings, tiled_map3);
 
-    let tiled_map4_json = load_string("map/map4.tmj").await.unwrap();
-    let tiled_map4 = load_map(
-        tiled_map4_json.as_str(),
-        &[("tileset_01.png", tileset.clone())],
-        &[],
-    )
-    .unwrap();
+    let tiled_map4_json = include_str!("../assets/map/map4.tmj");
+    let tiled_map4 =
+        load_map(tiled_map4_json, &[("tileset_01.png", tileset.clone())], &[]).unwrap();
     entity_index += 1;
     let map4 = Map::new(Entity(entity_index), &settings, tiled_map4);
 
