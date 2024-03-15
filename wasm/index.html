@@ -22,7 +22,7 @@
 
       canvas {
         width: 100%;
-        aspect-ratio: 16 / 9;
+        aspect-ratio: 3 / 2;
       }
     </style>
   </head>
@@ -35,7 +35,7 @@
       function resizeCanvas() {
         const canvas = document.getElementById("glcanvas");
         const context = canvas.getContext("webgl");
-        if (window.innerWidth / window.innerHeight > 16 / 9) {
+        if (window.innerWidth / window.innerHeight > 3 / 2) {
           canvas.style.width = "auto";
           canvas.style.height = "100%";
         } else {
