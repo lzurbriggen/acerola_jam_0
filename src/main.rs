@@ -90,8 +90,6 @@ fn window_conf() -> Conf {
 fn load_texture_bytes(bytes: &[u8]) -> Texture2D {
     let image = Image::from_file_with_format(bytes, None).unwrap();
     let texture = Texture2D::from_image(&image);
-
-    // let texture = load_texture_bytes(include_bytes!("../assets/ui/button_bg.png"));
     texture.set_filter(FilterMode::Nearest);
     texture
 }
@@ -102,12 +100,10 @@ async fn main() {
 
     let mut font =
         load_ttf_font_from_bytes(include_bytes!("../assets/fonts/Bitfantasy.ttf")).unwrap();
-    // let mut font = load_ttf_font("fonts/Bitfantasy.ttf"));
     font.set_filter(FilterMode::Nearest);
 
     let mut icon_font =
         load_ttf_font_from_bytes(include_bytes!("../assets/fonts/Zicons.ttf")).unwrap();
-    // let mut icon_font = load_ttf_font("fonts/Zicons.ttf"));
     icon_font.set_filter(FilterMode::Nearest);
 
     // UI assets
@@ -145,48 +141,30 @@ async fn main() {
     let mut fps_counter = FPSCounter::default();
 
     let hud_heart_texture = load_texture_bytes(include_bytes!("../assets/ui/heart_01.png"));
-
     let hopper_texture = load_texture_bytes(include_bytes!("../assets/entities/hopper_01.png"));
-
     let spitter_texture = load_texture_bytes(include_bytes!("../assets/entities/spitter.png"));
-
     let stomper_texture = load_texture_bytes(include_bytes!("../assets/entities/stomper.png"));
-
     let mirituhg_texture = load_texture_bytes(include_bytes!("../assets/entities/mirituhg.png"));
-
     let skull_texture = load_texture_bytes(include_bytes!("../assets/entities/skull_01.png"));
-
     let bullet_texture = load_texture_bytes(include_bytes!("../assets/entities/bullet_01.png"));
-
     let bullet_enemy_texture =
         load_texture_bytes(include_bytes!("../assets/entities/bullet_enemy.png"));
-
     let dust_texture = load_texture_bytes(include_bytes!("../assets/entities/dust_01.png"));
-
     let blood_texture = load_texture_bytes(include_bytes!("../assets/entities/blood_01.png"));
-
     let aberration_meter_texture =
         load_texture_bytes(include_bytes!("../assets/ui/aberration_meter.png"));
-
     let noise1_texture =
         load_texture_bytes(include_bytes!("../assets/entities/Perlin_16-128x128.png"));
-
     let noise2_texture =
         load_texture_bytes(include_bytes!("../assets/entities/Perlin_15-128x128.png"));
-
     let aberration_meter_mask_texture =
         load_texture_bytes(include_bytes!("../assets/ui/aberration_meter_mask.png"));
     let death_texture = load_texture_bytes(include_bytes!("../assets/ui/death.png"));
-
     let end_game_screen_texture =
         load_texture_bytes(include_bytes!("../assets/ui/end_game_screen.png"));
-
     let player_texture = load_texture_bytes(include_bytes!("../assets/entities/player_01.png"));
-
     let intro_screen_texture = load_texture_bytes(include_bytes!("../assets/ui/intro_screen.png"));
-
     let health_texture = load_texture_bytes(include_bytes!("../assets/entities/health.png"));
-
     let anomaly_big_texture =
         load_texture_bytes(include_bytes!("../assets/entities/anomaly_big_01.png"));
     let anomaly_small_texture =
@@ -361,7 +339,6 @@ async fn main() {
     let tileset = load_texture_bytes(include_bytes!("../assets/map/tileset_01.png"));
 
     let tiled_map1_json = include_str!("../assets/map/example_01.tmj");
-    // let tiled_map1_json = load_string("map/example_01.tmj").await.unwrap();
     let tiled_map1 =
         load_map(tiled_map1_json, &[("tileset_01.png", tileset.clone())], &[]).unwrap();
     entity_index += 1;
@@ -521,15 +498,11 @@ async fn main() {
         }
 
         if data.state == GameState::Playing {
-            // Map transition
             if is_key_pressed(KeyCode::F6) {
                 data.next_room(&mut ecs);
-                // data.map_change_requested = true;
-                // data.screen_dimmer.dim();
-                // data.paused = true;
-                // data.pause_timer.reset();
             }
 
+            // Map transition
             if data.map_change_requested && data.screen_dimmer.just_dimmed {
                 if let Some(next_room) = data.next_room {
                     data.map_change_requested = false;
@@ -602,7 +575,6 @@ async fn main() {
         }
         if data.state == GameState::Intro {
             if intro_screen.update_and_draw(&mut data) {
-                // reset_game(&mut data, &mut ecs);
                 data.reset();
                 spawn_player(&mut data, &mut ecs);
                 data.next_room(&mut ecs);
@@ -715,9 +687,8 @@ async fn main() {
 
         if let Some(render_target) = &mut data.camera.render_target {
             post_processing_material.set_uniform("intensity", 0.21f32);
-            // post_processing_material.set_uniform("intensity", 3f32);
             post_processing_material.set_uniform("time", get_time() as f32);
-            // post_processing_material.set_uniform("hue_shift", 0.1f32);
+            post_processing_material.set_uniform("texture_size", render_target.texture.size());
             let players = ecs.check_components(|e, comps| comps.player_data.contains_key(e));
             if players.len() > 0 {
                 if let Some(player_data) = ecs.components.player_data.get_mut(&players[0]) {
@@ -727,7 +698,6 @@ async fn main() {
                 }
             }
 
-            // post_processing_material.set_uniform("hue_shift", 1.8f32);
             set_default_camera();
             gl_use_material(&post_processing_material);
             draw_texture_ex(

@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "map3.tmj",
+    "activeFile": "map4.tmj",
     "automapping.whileDrawing": false,
     "expandedProjectPaths": [
         "."
@@ -59,6 +59,9 @@
             "scaleInDock": 5.5
         },
         "map3.tmj": {
+            "expandedObjectLayers": [
+                5
+            ],
             "scale": 3,
             "selectedLayer": 4,
             "viewCenter": {
@@ -70,6 +73,9 @@
             "scaleInDock": 8
         },
         "map4.tmj": {
+            "expandedObjectLayers": [
+                5
+            ],
             "scale": 3,
             "selectedLayer": 4,
             "viewCenter": {
@@ -120,7 +126,8 @@
     "openFiles": [
         "example_01.tmj",
         "map2.tmj",
-        "map3.tmj"
+        "map3.tmj",
+        "map4.tmj"
     ],
     "project": "project.tiled-project",
     "property.type": "string",
@@ -128,6 +135,7 @@
         "example_01.tmj",
         "map2.tmj",
         "map3.tmj",
+        "map4.tmj",
         "tileset_01.tsj",
         "base_01.tsx",
         "rules_ground.tmx",

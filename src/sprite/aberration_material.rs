@@ -24,6 +24,7 @@ pub fn create_aberration_material() -> Material {
         MaterialParams {
             pipeline_params,
             uniforms: vec![
+                ("texture_size".to_owned(), UniformType::Float2),
                 ("color".to_owned(), UniformType::Float4),
                 ("intensity".to_owned(), UniformType::Float1),
                 ("time".to_owned(), UniformType::Float1),
@@ -38,13 +39,13 @@ pub fn create_aberration_material() -> Material {
     material
 }
 
-const FRAGMENT_SHADER: &'static str = "#version 130
+const FRAGMENT_SHADER: &'static str = "#version 100
 precision lowp float;
 
-in vec2 uv;
-out vec4 fragColor;
+varying vec2 uv;
 
 uniform sampler2D Texture;
+uniform vec2 texture_size;
 uniform float intensity;
 uniform float time;
 uniform float hue_shift;
@@ -60,9 +61,6 @@ vec3 hueShift(vec3 color, float hue) {
 }
 
 void main() {
-    vec2 texSize = vec2(textureSize(Texture, 0).xy);
-    vec2 texCoord = gl_FragCoord.xy / texSize;
-
     float redOffset = 2.115 * intensity;
     float greenOffset = 2.112 * intensity;
     float blueOffset = -2.11 * intensity;
@@ -73,21 +71,20 @@ void main() {
     vec2 noise2Offset = fract(uv + vec2(time * 0.001 * intensity));
     vec2 noise2Color = mix(noise1Color + vec2(texture2D(noise1, noise2Offset)), noise1Color, 0.5);
     
-    fragColor.r = texture2D(Texture, uv + vec2(noise2Color * redOffset) / texSize).r;
-    fragColor.g = texture2D(Texture, uv + vec2(noise2Color * greenOffset) / texSize).g;
-    fragColor.ba = texture2D(Texture, uv + vec2(noise2Color * blueOffset) / texSize).ba;
-    // fragColor = texture2D(noise1, texCoord);
-    fragColor.rgb = hueShift(fragColor.rgb, hue_shift);
+    gl_FragColor.r = texture2D(Texture, uv + vec2(noise2Color * redOffset) / texture_size).r;
+    gl_FragColor.g = texture2D(Texture, uv + vec2(noise2Color * greenOffset) / texture_size).g;
+    gl_FragColor.ba = texture2D(Texture, uv + vec2(noise2Color * blueOffset) / texture_size).ba;
+    gl_FragColor.rgb = hueShift(gl_FragColor.rgb, hue_shift);
 }
 ";
 
-const VERTEX_SHADER: &'static str = "#version 130
+const VERTEX_SHADER: &'static str = "#version 100
 precision lowp float;
 
-in vec3 position;
-in vec2 texcoord;
+attribute vec3 position;
+attribute vec2 texcoord;
 
-out vec2 uv;
+varying vec2 uv;
 
 uniform mat4 Model;
 uniform mat4 Projection;

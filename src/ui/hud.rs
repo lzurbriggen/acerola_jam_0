@@ -155,11 +155,10 @@ pub fn create_aberration_meter_material() -> Material {
     material
 }
 
-const FRAGMENT_SHADER: &'static str = "#version 130
+const FRAGMENT_SHADER: &'static str = "#version 100
 precision lowp float;
 
-in vec2 uv;
-out vec4 fragColor;
+varying vec2 uv;
 
 uniform sampler2D Texture;
 uniform float intensity;
@@ -177,41 +176,34 @@ void main() {
     float blueOffset  =  0.01 * intensity;
 
     vec4 texture_color = texture2D(Texture, uv);
-    vec2 texSize = vec2(textureSize(Texture, 0).xy);
-    // vec2 texCoord = gl_FragCoord.xy / texSize;
 
-    // TODO: texture wrapping not available in macroquad?
-    vec2 texSize2 = vec2(textureSize(noise2, 0).xy);
     vec2 noise1Offset = fract(uv + vec2(time * 0.6));
     vec2 noise1Color = vec2(texture2D(noise1, noise1Offset));
     vec2 noise2Offset = fract(uv + vec2(time * 0.1));
     vec2 noise2Color = mix(noise1Color + vec2(texture2D(noise1, noise2Offset)), noise1Color, intensity);
-    if (enable_mask && texture2D(mask, uv + noise2Color).r < 1) {
-        noise2Color.rg = vec2(0);
+    if (enable_mask && texture2D(mask, uv + noise2Color).r < 1.0) {
+        noise2Color.rg = vec2(0.0);
     }
-    fragColor.r  = texture2D(Texture, uv + (noise2Color * intensity * vec2(redOffset))).r;
-    fragColor.g  = texture2D(Texture, uv + (noise2Color * intensity * vec2(greenOffset))).g;
-    fragColor.ba = texture2D(Texture, uv + (noise2Color * intensity * vec2(blueOffset))).ba;
-    // fragColor = texture2D(Texture, uv);
-    // fragColor = vec4(noise2Color.r);
-    // fragColor = texture2D(mask, uv);
-    if (cutoff < 1 && uv.y < 1. - (cutoff * 64. + 16.) / 96.) {
-        fragColor.a = 0;
+    gl_FragColor.r  = texture2D(Texture, uv + (noise2Color * intensity * vec2(redOffset))).r;
+    gl_FragColor.g  = texture2D(Texture, uv + (noise2Color * intensity * vec2(greenOffset))).g;
+    gl_FragColor.ba = texture2D(Texture, uv + (noise2Color * intensity * vec2(blueOffset))).ba;
+    if (cutoff < 1.0 && uv.y < 1. - (cutoff * 64. + 16.) / 96.) {
+        gl_FragColor.a = 0.0;
 
     }
-    if (enable_mask && texture2D(mask, uv + noise2Color).r < 1) {
-        fragColor.a = 0;
+    if (enable_mask && texture2D(mask, uv + noise2Color).r < 1.0) {
+        gl_FragColor.a = 0.0;
     }
 }
 ";
 
-const VERTEX_SHADER: &'static str = "#version 130
+const VERTEX_SHADER: &'static str = "#version 100
 precision lowp float;
 
-in vec3 position;
-in vec2 texcoord;
+attribute vec3 position;
+attribute vec2 texcoord;
 
-out vec2 uv;
+varying vec2 uv;
 
 uniform mat4 Model;
 uniform mat4 Projection;
