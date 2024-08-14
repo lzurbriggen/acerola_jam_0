@@ -76,7 +76,7 @@ fn window_conf() -> Conf {
         window_width: 1440,
         window_height: 960,
         platform: miniquad::conf::Platform {
-            linux_backend: miniquad::conf::LinuxBackend::WaylandOnly,
+            linux_backend: miniquad::conf::LinuxBackend::WaylandWithX11Fallback,
             framebuffer_alpha: false,
             swap_interval: None,
             ..Default::default()
